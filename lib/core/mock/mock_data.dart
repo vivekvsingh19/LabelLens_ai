@@ -70,7 +70,7 @@ class MockData {
               "Highly processed oil; can be inflammatory for sensitive individuals.",
           function: "Emulsifier",
         ),
-        IngredientAnalysis(
+        IngredientDetail(
           name: "Dipotassium Phosphate",
           technicalName: "E340",
           rating: SafetyBadge.avoid,

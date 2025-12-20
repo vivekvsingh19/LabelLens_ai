@@ -1,0 +1,290 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labelsafe_ai/core/theme/app_theme.dart';
+import 'package:labelsafe_ai/core/providers/ui_providers.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+
+class ProfileScreen extends ConsumerWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final currentTheme = ref.watch(themeModeProvider);
+
+    return Scaffold(
+      backgroundColor:
+          isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
+      appBar: AppBar(
+        title: Text('SETTINGS',
+            style: AppTheme.h2(isDark).copyWith(
+                letterSpacing: -1, fontWeight: FontWeight.w900, fontSize: 24)),
+        centerTitle: false,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            _buildUserHero(isDark),
+            const SizedBox(height: 32),
+            _buildThemeSelector(context, ref, isDark, currentTheme),
+            const SizedBox(height: 32),
+            _buildSettingsGroup(
+              isDark,
+              "ACCOUNT",
+              [
+                _SettingAction(LucideIcons.user, "Personal Details", null),
+                _SettingAction(
+                    LucideIcons.shield, "Security & Privacy", "LOCKED"),
+              ],
+            ),
+            const SizedBox(height: 24),
+            _buildSettingsGroup(
+              isDark,
+              "PREFERENCES",
+              [
+                _SettingAction(LucideIcons.bell, "Notifications", "ON"),
+                _SettingAction(LucideIcons.globe, "Analysis Language", "EN"),
+                _SettingAction(LucideIcons.cpu, "AI Model Performance", "PRO"),
+              ],
+            ),
+            const SizedBox(height: 48),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              decoration: BoxDecoration(
+                border: Border.all(
+                    color: AppTheme.avoidColor.withValues(alpha: 0.2)),
+                borderRadius:
+                    BorderRadius.circular(AppTheme.borderRadiusMedium),
+              ),
+              child: Center(
+                child: Text(
+                  "SIGN OUT",
+                  style: AppTheme.caption(isDark).copyWith(
+                      color: AppTheme.avoidColor, fontWeight: FontWeight.w900),
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
+            Text(
+              "BUILD 2.4.0 (BETA)",
+              style: AppTheme.caption(isDark)
+                  .copyWith(fontSize: 8, letterSpacing: 3),
+            ),
+            const SizedBox(height: 100),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThemeSelector(
+      BuildContext context, WidgetRef ref, bool isDark, ThemeMode mode) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 12),
+          child: Text("APPEARANCE", style: AppTheme.caption(isDark)),
+        ),
+        Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: isDark ? AppTheme.darkCard : Colors.white,
+            borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+            boxShadow: AppTheme.softShadow(isDark),
+          ),
+          child: Row(
+            children: [
+              _buildThemeOption(ref, "Light", LucideIcons.sun, ThemeMode.light,
+                  mode == ThemeMode.light, isDark),
+              _buildThemeOption(ref, "Dark", LucideIcons.moon, ThemeMode.dark,
+                  mode == ThemeMode.dark, isDark),
+              _buildThemeOption(ref, "Auto", LucideIcons.monitor,
+                  ThemeMode.system, mode == ThemeMode.system, isDark),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildThemeOption(WidgetRef ref, String label, IconData icon,
+      ThemeMode mode, bool isSelected, bool isDark) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => ref.read(themeModeProvider.notifier).state = mode,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? (isDark
+                    ? Colors.white.withValues(alpha: 0.05)
+                    : Colors.black.withValues(alpha: 0.05))
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+          ),
+          child: Column(
+            children: [
+              Icon(icon,
+                  size: 18,
+                  color: isSelected
+                      ? AppTheme.accentPrimary
+                      : (isDark ? Colors.white70 : Colors.black54)),
+              const SizedBox(height: 6),
+              Text(
+                label.toUpperCase(),
+                style: AppTheme.caption(isDark).copyWith(
+                    fontSize: 7,
+                    color: isSelected
+                        ? (isDark ? Colors.white : Colors.black)
+                        : (isDark ? Colors.white38 : Colors.black38)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUserHero(bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: isDark ? AppTheme.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+        boxShadow: AppTheme.premiumShadow(isDark),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: const LinearGradient(
+                colors: [AppTheme.accentPrimary, AppTheme.accentSecondary],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: const Center(
+                child: Icon(LucideIcons.user, size: 32, color: Colors.black)),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("VIVEK",
+                    style: AppTheme.h2(isDark).copyWith(fontSize: 22)),
+                Text("PREMIUM ANALYST",
+                    style: AppTheme.caption(isDark)
+                        .copyWith(color: AppTheme.accentPrimary)),
+                const SizedBox(height: 8),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: (isDark ? Colors.white : Colors.black)
+                        .withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text("LEVEL 12",
+                      style: AppTheme.caption(isDark).copyWith(
+                          fontSize: 8,
+                          color: isDark ? Colors.white : Colors.black)),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn().slideX(begin: -0.05, end: 0);
+  }
+
+  Widget _buildSettingsGroup(
+      bool isDark, String title, List<_SettingAction> actions) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 12),
+          child: Text(title, style: AppTheme.caption(isDark)),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: isDark ? AppTheme.darkCard : Colors.white,
+            borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+            boxShadow: AppTheme.softShadow(isDark),
+          ),
+          child: Column(
+            children: actions.asMap().entries.map((entry) {
+              final idx = entry.key;
+              final action = entry.value;
+              return Column(
+                children: [
+                  _buildSettingItem(action, isDark),
+                  if (idx != actions.length - 1)
+                    const Divider(
+                        height: 1, indent: 60, color: Colors.transparent),
+                ],
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSettingItem(_SettingAction action, bool isDark) {
+    return InkWell(
+      onTap: () {},
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: (isDark ? Colors.white : Colors.black)
+                    .withValues(alpha: 0.03),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(action.icon,
+                  size: 20,
+                  color: (isDark ? Colors.white : Colors.black)
+                      .withValues(alpha: 0.7)),
+            ),
+            const SizedBox(width: 16),
+            Text(action.label,
+                style: AppTheme.bodyLarge(isDark).copyWith(fontSize: 15)),
+            const Spacer(),
+            if (action.value != null)
+              Text(
+                action.value!,
+                style: AppTheme.caption(isDark)
+                    .copyWith(fontSize: 8, color: AppTheme.accentPrimary),
+              ),
+            const SizedBox(width: 8),
+            Icon(LucideIcons.chevronRight,
+                size: 16,
+                color: (isDark ? Colors.white : Colors.black)
+                    .withValues(alpha: 0.2)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SettingAction {
+  final IconData icon;
+  final String label;
+  final String? value;
+  _SettingAction(this.icon, this.label, this.value);
+}

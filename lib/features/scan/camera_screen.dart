@@ -82,7 +82,7 @@ class _CameraScreenState extends State<CameraScreen> {
 
   Widget _buildAnalyzingUI() {
     return Container(
-      color: Colors.black.withOpacity(0.8),
+      color: Colors.black.withValues(alpha: 0.8),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -190,7 +190,7 @@ class _ScannerOverlayShape extends ShapeBorder {
     final boxRect = Rect.fromLTWH(left, top, boxWidth, boxHeight);
 
     final paint = Paint()
-      ..color = Colors.black.withOpacity(0.5)
+      ..color = Colors.black.withValues(alpha: 0.5)
       ..style = PaintingStyle.fill;
     canvas.drawPath(
       Path.combine(PathOperation.difference, Path()..addRect(rect),

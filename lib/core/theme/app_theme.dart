@@ -2,185 +2,186 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Strict Black & White Color Palette
-  // Light Mode
-  static const Color lightBackground = Color(0xFFFFFFFF); // Pure white
-  static const Color lightTextPrimary = Color(0xFF000000); // Pure black
-  static const Color lightTextSecondary = Color(0xFF6B6B6B); // Medium grey
-  static const Color lightTextTertiary = Color(0xFF9B9B9B); // Light grey
-  static const Color lightDivider = Color(0xFFE5E5E5); // Very light grey
+  // Dark Mode Colors
+  static const Color darkBackground = Color(0xFF040608); // Deeper Obsidian
+  static const Color darkCard = Color(0xFF0D1117); // Navy-toned Charcoal
+  static const Color darkText = Color(0xFFF1F5F9);
+  static const Color darkTextMuted = Color(0xFF64748B);
+  static const Color darkDivider = Color(0xFF1E293B);
 
-  // Dark Mode
-  static const Color darkBackground = Color(0xFF000000); // Pure black
-  static const Color darkTextPrimary = Color(0xFFFFFFFF); // Pure white
-  static const Color darkTextSecondary = Color(0xFF9B9B9B); // Medium grey
-  static const Color darkTextTertiary = Color(0xFF6B6B6B); // Dark grey
-  static const Color darkDivider = Color(0xFF1A1A1A); // Very dark grey
+  // Light Mode Colors
+  static const Color lightBackground = Color(0xFFF8FAFC);
+  static const Color lightCard = Color(0xFFFFFFFF);
+  static const Color lightText = Color(0xFF0F172A);
+  static const Color lightTextMuted = Color(0xFF475569);
+  static const Color lightDivider = Color(0xFFE2E8F0);
 
-  // Muted Status Colors (20% opacity on text)
-  // Light Mode
-  static const Color lightSafe = Color(0xFF4A5D4A); // Muted grey-green
-  static const Color lightCaution = Color(0xFF6B5D4A); // Muted amber-grey
-  static const Color lightAvoid = Color(0xFF6B4A4A); // Muted grey-red
+  // AI-Centric Accent Colors
+  static const Color accentPrimary = Color(0xFF00E5FF); // Cyber Cyan
+  static const Color accentSecondary = Color(0xFF3D5AFE); // Deep Indigo-Blue
+  static const Color accentSpark = Color(0xFF7C4DFF); // Hyper Violet
 
-  // Dark Mode
-  static const Color darkSafe = Color(0xFF5A6B5A); // Muted grey-green
-  static const Color darkCaution = Color(0xFF7B6B5A); // Muted amber-grey
-  static const Color darkAvoid = Color(0xFF7B5A5A); // Muted grey-red
-
-  // Legacy support (mapped to new colors)
-  static Color get safe => lightSafe;
-  static Color get caution => lightCaution;
-  static Color get avoid => lightAvoid;
+  // Status Colors
+  static const Color safeColor = Color(0xFF00D1FF); // Blue-Safe
+  static const Color cautionColor = Color(0xFFC084FC); // Purple-Caution
+  static const Color avoidColor = Color(0xFFF43F5E); // Rose-Avoid
 
   // Design Tokens
-  static const double spacingUnit = 4.0; // 4px base
+  static const double borderRadiusLarge = 24.0;
+  static const double borderRadiusMedium = 16.0;
+  static const double borderRadiusSmall = 12.0;
+
+  // Shadow Tokens
+  static List<BoxShadow> softShadow(bool isDark) => [
+        BoxShadow(
+          color: isDark
+              ? const Color(0xFF00E5FF).withValues(alpha: 0.05)
+              : Colors.black.withValues(alpha: 0.04),
+          blurRadius: 24,
+          offset: const Offset(0, 8),
+        ),
+      ];
+
+  static List<BoxShadow> premiumShadow(bool isDark) => [
+        BoxShadow(
+          color: isDark
+              ? Colors.black.withValues(alpha: 0.7)
+              : Colors.black.withValues(alpha: 0.08),
+          blurRadius: 48,
+          offset: const Offset(0, 16),
+        ),
+      ];
+
+  // Glass Effect Decoration
+  static BoxDecoration glassDecoration(bool isDark) => BoxDecoration(
+        color: isDark
+            ? const Color(0xFF0D1117).withValues(alpha: 0.4)
+            : Colors.black.withValues(alpha: 0.01),
+        borderRadius: BorderRadius.circular(borderRadiusLarge),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.05)
+              : Colors.black.withValues(alpha: 0.03),
+        ),
+      );
 
   // Typography
-  static TextStyle h1(bool isDark) => TextStyle(
-        fontSize: 32,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -0.5,
-        color: isDark ? darkTextPrimary : lightTextPrimary,
+  static TextStyle h1(bool isDark) => GoogleFonts.outfit(
+        fontSize: 42,
+        fontWeight: FontWeight.w900,
+        letterSpacing: -1.5,
+        height: 1.05,
+        color: isDark ? darkText : lightText,
       );
 
-  static TextStyle h2(bool isDark) => TextStyle(
+  static TextStyle h2(bool isDark) => GoogleFonts.outfit(
+        fontSize: 28,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -0.8,
+        color: isDark ? darkText : lightText,
+      );
+
+  static TextStyle h3(bool isDark) => GoogleFonts.outfit(
         fontSize: 20,
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0,
-        color: isDark ? darkTextPrimary : lightTextPrimary,
-      );
-
-  static TextStyle h3(bool isDark) => TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0,
-        color: isDark ? darkTextPrimary : lightTextPrimary,
-      );
-
-  static TextStyle bodyLarge(bool isDark) => TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
-        height: 1.5,
-        color: isDark ? darkTextPrimary : lightTextPrimary,
-      );
-
-  static TextStyle body(bool isDark) => TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w400,
-        height: 1.43,
-        color: isDark ? darkTextPrimary : lightTextPrimary,
-      );
-
-  static TextStyle bodySmall(bool isDark) => TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w400,
-        height: 1.33,
-        color: isDark ? darkTextSecondary : lightTextSecondary,
-      );
-
-  static TextStyle caption(bool isDark) => TextStyle(
-        fontSize: 11,
-        fontWeight: FontWeight.w500,
-        letterSpacing: 0.5,
-        color: isDark ? darkTextSecondary : lightTextSecondary,
-      );
-
-  static TextStyle score(bool isDark) => TextStyle(
-        fontSize: 48,
         fontWeight: FontWeight.w700,
-        fontFeatures: const [FontFeature.tabularFigures()],
-        color: isDark ? darkTextPrimary : lightTextPrimary,
+        color: isDark ? darkText : lightText,
       );
 
-  static ThemeData get lightTheme => ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.light,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: lightTextPrimary,
-          primary: lightTextPrimary,
-          surface: lightBackground,
-          brightness: Brightness.light,
-        ),
-        scaffoldBackgroundColor: lightBackground,
-        textTheme: GoogleFonts.interTextTheme().copyWith(
-          displayLarge: h1(false),
-          displayMedium: h2(false),
-          displaySmall: h3(false),
-          bodyLarge: bodyLarge(false),
-          bodyMedium: body(false),
-          bodySmall: bodySmall(false),
-          labelSmall: caption(false),
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          centerTitle: false,
-          titleTextStyle: TextStyle(
-            color: Colors.transparent,
-            fontSize: 0,
-          ),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: lightTextPrimary,
-            foregroundColor: lightBackground,
-            minimumSize: const Size(double.infinity, 64),
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero,
-            ),
-            textStyle: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-            elevation: 0,
-          ),
-        ),
+  static TextStyle bodyLarge(bool isDark) => GoogleFonts.plusJakartaSans(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        height: 1.6,
+        color: isDark ? darkText : lightText,
       );
 
-  static ThemeData get darkTheme => ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.dark,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: darkTextPrimary,
-          primary: darkTextPrimary,
-          surface: darkBackground,
-          brightness: Brightness.dark,
-        ),
-        scaffoldBackgroundColor: darkBackground,
-        textTheme:
-            GoogleFonts.interTextTheme(ThemeData.dark().textTheme).copyWith(
-          displayLarge: h1(true),
-          displayMedium: h2(true),
-          displaySmall: h3(true),
-          bodyLarge: bodyLarge(true),
-          bodyMedium: body(true),
-          bodySmall: bodySmall(true),
-          labelSmall: caption(true),
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          centerTitle: false,
-          titleTextStyle: TextStyle(
-            color: Colors.transparent,
-            fontSize: 0,
-          ),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: darkTextPrimary,
-            foregroundColor: darkBackground,
-            minimumSize: const Size(double.infinity, 64),
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero,
-            ),
-            textStyle: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-            elevation: 0,
-          ),
-        ),
+  static TextStyle body(bool isDark) => GoogleFonts.plusJakartaSans(
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+        height: 1.6,
+        color: isDark
+            ? (isDark ? darkText : lightText).withValues(alpha: 0.8)
+            : lightText,
       );
+
+  static TextStyle bodySmall(bool isDark) => GoogleFonts.plusJakartaSans(
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+        color: isDark ? darkTextMuted : lightTextMuted,
+      );
+
+  static TextStyle caption(bool isDark) => GoogleFonts.plusJakartaSans(
+        fontSize: 10,
+        fontWeight: FontWeight.w800,
+        letterSpacing: 2.0,
+        color: (isDark ? darkText : lightText).withValues(alpha: 0.4),
+      );
+
+  static TextStyle score(bool isDark) => GoogleFonts.outfit(
+        fontSize: 88,
+        fontWeight: FontWeight.w900,
+        letterSpacing: -4,
+        color: isDark ? darkText : lightText,
+      );
+
+  // Legacy Mappings
+  static Color get lightTextPrimary => lightText;
+  static Color get darkTextPrimary => darkText;
+  static Color get lightTextSecondary => lightTextMuted;
+  static Color get darkTextSecondary => darkTextMuted;
+  static Color get safe => safeColor;
+  static Color get caution => cautionColor;
+  static Color get avoid => avoidColor;
+
+  static ThemeData get lightTheme => _createTheme(Brightness.light);
+  static ThemeData get darkTheme => _createTheme(Brightness.dark);
+
+  static ThemeData _createTheme(Brightness brightness) {
+    final isDark = brightness == Brightness.dark;
+    final backgroundColor = isDark ? darkBackground : lightBackground;
+    final cardColor = isDark ? darkCard : lightCard;
+
+    return ThemeData(
+      useMaterial3: true,
+      brightness: brightness,
+      scaffoldBackgroundColor: backgroundColor,
+      cardColor: cardColor,
+      primaryColor: accentPrimary,
+      dividerColor: isDark ? darkDivider : lightDivider,
+      textTheme:
+          (isDark ? ThemeData.dark() : ThemeData.light()).textTheme.copyWith(
+                displayLarge: h1(isDark),
+                displayMedium: h2(isDark),
+                displaySmall: h3(isDark),
+                bodyLarge: bodyLarge(isDark),
+                bodyMedium: body(isDark),
+                bodySmall: bodySmall(isDark),
+                labelSmall: caption(isDark),
+              ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: false,
+        titleTextStyle: h2(isDark),
+        iconTheme: IconThemeData(color: isDark ? darkText : lightText),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isDark ? accentPrimary : Colors.black,
+          foregroundColor: isDark ? Colors.black : Colors.white,
+          minimumSize: const Size(double.infinity, 64),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          elevation: 0,
+          textStyle: GoogleFonts.plusJakartaSans(
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.5,
+          ),
+        ),
+      ),
+    );
+  }
+
+  static ThemeData get mainTheme => darkTheme;
 }
