@@ -3,8 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Dark Mode Colors
-  static const Color darkBackground = Color(0xFF040608); // Deeper Obsidian
-  static const Color darkCard = Color(0xFF0D1117); // Navy-toned Charcoal
+  static const Color darkBackground = Color(0xFF000000); // True Black
+  static const Color darkCard = Color(0xFF0A0A0A); // Neutral Dark Gray/Black
   static const Color darkText = Color(0xFFF1F5F9);
   static const Color darkTextMuted = Color(0xFF64748B);
   static const Color darkDivider = Color(0xFF1E293B);
@@ -17,14 +17,14 @@ class AppTheme {
   static const Color lightDivider = Color(0xFFE2E8F0);
 
   // AI-Centric Accent Colors
-  static const Color accentPrimary = Color(0xFF00E5FF); // Cyber Cyan
+  static const Color accentPrimary = Colors.white; // Cyber Cyan
   static const Color accentSecondary = Color(0xFF3D5AFE); // Deep Indigo-Blue
   static const Color accentSpark = Color(0xFF7C4DFF); // Hyper Violet
 
   // Status Colors
-  static const Color safeColor = Color(0xFF00D1FF); // Blue-Safe
-  static const Color cautionColor = Color(0xFFC084FC); // Purple-Caution
-  static const Color avoidColor = Color(0xFFF43F5E); // Rose-Avoid
+  static const Color safeColor = Colors.green;
+  static const Color cautionColor = Colors.orange;
+  static const Color avoidColor = Colors.red;
 
   // Design Tokens
   static const double borderRadiusLarge = 24.0;
@@ -35,7 +35,7 @@ class AppTheme {
   static List<BoxShadow> softShadow(bool isDark) => [
         BoxShadow(
           color: isDark
-              ? const Color(0xFF00E5FF).withValues(alpha: 0.05)
+              ? const Color.fromARGB(255, 255, 255, 255).withValues(alpha: 0.05)
               : Colors.black.withValues(alpha: 0.04),
           blurRadius: 24,
           offset: const Offset(0, 8),
@@ -166,7 +166,7 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: isDark ? accentPrimary : Colors.black,
+          backgroundColor: isDark ? Colors.white : Colors.black,
           foregroundColor: isDark ? Colors.black : Colors.white,
           minimumSize: const Size(double.infinity, 64),
           shape: RoundedRectangleBorder(

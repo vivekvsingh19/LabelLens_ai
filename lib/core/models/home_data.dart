@@ -1,4 +1,4 @@
-import 'package:labelsafe_ai/core/mock/mock_data.dart';
+import 'package:labelsafe_ai/core/models/enums.dart';
 
 class RecentScan {
   final String productName;

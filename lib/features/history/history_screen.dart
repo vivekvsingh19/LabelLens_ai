@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:labelsafe_ai/core/theme/app_theme.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:labelsafe_ai/core/widgets/section_header.dart';
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
@@ -29,7 +30,7 @@ class HistoryScreen extends StatelessWidget {
             const SizedBox(height: 32),
             _buildAnalysisInsights(isDark),
             const SizedBox(height: 32),
-            _buildModernSectionHeader("CONSUMPTION TRENDS", isDark),
+            SectionHeader(title: "CONSUMPTION TRENDS", isDark: isDark),
             const SizedBox(height: 16),
             _buildChartMock(isDark),
             const SizedBox(height: 100),
@@ -126,22 +127,6 @@ class HistoryScreen extends StatelessWidget {
         ],
       ),
     ).animate().fadeIn(delay: 200.ms);
-  }
-
-  Widget _buildModernSectionHeader(String title, bool isDark) {
-    return Row(
-      children: [
-        Text(title,
-            style: AppTheme.caption(isDark)
-                .copyWith(letterSpacing: 2, fontWeight: FontWeight.w900)),
-        const SizedBox(width: 12),
-        Expanded(
-            child: Container(
-                height: 1,
-                color: (isDark ? Colors.white : Colors.black)
-                    .withValues(alpha: 0.05))),
-      ],
-    );
   }
 
   Widget _buildChartMock(bool isDark) {

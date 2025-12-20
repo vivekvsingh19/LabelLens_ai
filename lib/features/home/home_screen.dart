@@ -3,6 +3,7 @@ import 'package:labelsafe_ai/core/theme/app_theme.dart';
 import 'package:labelsafe_ai/core/models/home_data.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:labelsafe_ai/core/widgets/section_header.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -47,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SizedBox(height: 24),
                         _buildQuickActions(isDark),
                         const SizedBox(height: 48),
-                        _buildSectionHeader("RECENT ANALYSIS", isDark),
+                        SectionHeader(title: "RECENT ANALYSIS", isDark: isDark),
                         const SizedBox(height: 20),
                         _buildModernScansList(isDark),
                         const SizedBox(height: 120),
@@ -222,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         Expanded(
             child: _buildActionTile("SUGAR", "05g", LucideIcons.candy,
-                AppTheme.accentPrimary, isDark)),
+                const Color.fromARGB(255, 255, 145, 0), isDark)),
         const SizedBox(width: 12),
         Expanded(
             child: _buildActionTile("SODIUM", "2.1g", LucideIcons.droplets,
@@ -257,22 +258,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   .copyWith(fontSize: 8, letterSpacing: 1)),
         ],
       ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title, bool isDark) {
-    return Row(
-      children: [
-        Text(title,
-            style: AppTheme.caption(isDark)
-                .copyWith(fontWeight: FontWeight.w900, letterSpacing: 2)),
-        const SizedBox(width: 12),
-        Expanded(
-            child: Container(
-                height: 1,
-                color: (isDark ? Colors.white : Colors.black)
-                    .withValues(alpha: 0.05))),
-      ],
     );
   }
 

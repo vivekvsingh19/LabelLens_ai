@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:labelsafe_ai/core/mock/mock_data.dart';
+import 'package:labelsafe_ai/core/widgets/section_header.dart';
+import 'package:labelsafe_ai/core/models/enums.dart';
+import 'package:labelsafe_ai/core/models/analysis_result.dart';
 import 'package:labelsafe_ai/core/theme/app_theme.dart';
+import 'dart:math' as math;
 
 class ResultScreen extends StatelessWidget {
   final ProductAnalysis analysis;
@@ -55,20 +58,27 @@ class ResultScreen extends StatelessWidget {
                       _buildTopBar(context, isDark),
                       const SizedBox(height: 32),
                       _buildImmersiveHero(isDark, ratingColor),
+                      const SizedBox(height: 40),
+                      _buildQuickStats(isDark),
                       const SizedBox(height: 32),
                       _buildHighlightChips(isDark, ratingColor),
                       const SizedBox(height: 48),
-                      _buildSectionHeader("AI SUMMARY", isDark),
+                      SectionHeader(title: "AI INSIGHTS", isDark: isDark),
                       const SizedBox(height: 16),
-                      _buildSummaryCard(isDark),
+                      _buildSummaryCard(isDark, ratingColor),
                       const SizedBox(height: 48),
-                      _buildSectionHeader("INGREDIENT ANALYSIS", isDark),
+                      SectionHeader(
+                          title: "INGREDIENT BREAKDOWN", isDark: isDark),
                       const SizedBox(height: 24),
                       ...analysis.ingredients.map(
                           (ing) => _buildModernIngredientTile(ing, isDark)),
                       const SizedBox(height: 48),
                       ElevatedButton(
                         onPressed: () => context.pop(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ratingColor,
+                          foregroundColor: Colors.white,
+                        ),
                         child: const Text('NEW SCAN'),
                       ),
                       const SizedBox(height: 48),
@@ -91,100 +101,216 @@ class ResultScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(analysis.brand.toUpperCase(),
-                  style: AppTheme.caption(isDark).copyWith(fontSize: 9)),
+                  style: AppTheme.caption(isDark).copyWith(
+                    fontSize: 9,
+                    color: (isDark ? Colors.white : Colors.black)
+                        .withValues(alpha: 0.5),
+                  )),
               const SizedBox(height: 4),
-              Text(
-                analysis.productName,
-                style: AppTheme.h2(isDark).copyWith(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: -1),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      analysis.productName,
+                      style: AppTheme.h2(isDark).copyWith(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -1),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  _buildCategoryBadge(analysis.category, isDark),
+                ],
               ),
             ],
           ),
         ),
         IconButton(
+          onPressed: () {},
+          icon: const Icon(LucideIcons.share2, size: 20),
+          style: IconButton.styleFrom(
+            backgroundColor:
+                (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
+          ),
+        ),
+        const SizedBox(width: 8),
+        IconButton(
           onPressed: () => context.pop(),
           icon: const Icon(LucideIcons.x, size: 20),
           style: IconButton.styleFrom(
             backgroundColor:
-                (isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary)
-                    .withValues(alpha: 0.05),
+                (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
           ),
         ),
       ],
     );
   }
 
+  Widget _buildCategoryBadge(String category, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1),
+        ),
+      ),
+      child: Text(
+        category.toUpperCase(),
+        style: AppTheme.caption(isDark).copyWith(
+          fontSize: 8,
+          letterSpacing: 0,
+          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.6),
+        ),
+      ),
+    );
+  }
+
   Widget _buildImmersiveHero(bool isDark, Color ratingColor) {
-    return SizedBox(
-      height: 220,
-      width: double.infinity,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Background accent bloom
-          Positioned(
-            top: 0,
-            child: Container(
-              width: 180,
-              height: 180,
+    return Center(
+      child: SizedBox(
+        height: 240,
+        width: 240,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Outer glow ring
+            Container(
+              width: 200,
+              height: 200,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
                     ratingColor.withValues(alpha: 0.15),
-                    ratingColor.withValues(alpha: 0.05),
                     Colors.transparent,
                   ],
                 ),
               ),
             ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
                   begin: const Offset(1, 1),
-                  end: const Offset(1.2, 1.2),
-                  duration: 2.seconds,
-                  curve: Curves.easeInOut,
+                  end: const Offset(1.3, 1.3),
+                  duration: 3.seconds,
                 ),
-          ),
-          // Progress Ring
-          SizedBox(
-            width: 160,
-            height: 160,
-            child: CircularProgressIndicator(
-              value: analysis.score / 100,
-              strokeWidth: 4,
-              backgroundColor: (isDark ? Colors.white : Colors.black)
-                  .withValues(alpha: 0.05),
-              color: ratingColor,
-              strokeCap: StrokeCap.round,
-            ),
-          ).animate().rotate(duration: 1.seconds, curve: Curves.easeOutBack),
-          // Score Text
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                analysis.score.toInt().toString(),
-                style: AppTheme.score(isDark).copyWith(fontSize: 80, height: 1),
+
+            // Custom Gauge
+            CustomPaint(
+              size: const Size(220, 220),
+              painter: _SafetyGaugePainter(
+                score: analysis.score,
+                color: ratingColor,
+                isDark: isDark,
               ),
-              Text(
-                "SAFETY SCORE",
-                style: AppTheme.caption(isDark).copyWith(
-                  fontSize: 10,
-                  letterSpacing: 2,
-                  color: (isDark ? Colors.white : Colors.black)
-                      .withValues(alpha: 0.4),
+            )
+                .animate()
+                .rotate(duration: 1.5.seconds, curve: Curves.easeOutQuart),
+
+            // Score Content
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  analysis.score.toInt().toString(),
+                  style: AppTheme.score(isDark).copyWith(
+                    fontSize: 88,
+                    height: 1,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
                 ),
-              ),
-            ],
+                Text(
+                  "INDEX",
+                  style: AppTheme.caption(isDark).copyWith(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 4,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _buildSafetyStatusBadge(analysis.rating, ratingColor, isDark),
+              ],
+            )
+                .animate()
+                .fadeIn(delay: 500.ms)
+                .scale(begin: const Offset(0.8, 0.8)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSafetyStatusBadge(SafetyBadge rating, Color color, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           )
-              .animate()
-              .fadeIn(delay: 400.ms)
-              .scale(begin: const Offset(0.9, 0.9)),
         ],
       ),
+      child: Text(
+        rating.name.toUpperCase(),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 1,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickStats(bool isDark) {
+    final safeCount =
+        analysis.ingredients.where((i) => i.rating == SafetyBadge.safe).length;
+    final cautionCount = analysis.ingredients
+        .where((i) => i.rating == SafetyBadge.caution)
+        .length;
+    final avoidCount =
+        analysis.ingredients.where((i) => i.rating == SafetyBadge.avoid).length;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildStatItem("SAFE", safeCount.toString(), AppTheme.safe, isDark),
+        _buildStatDivider(isDark),
+        _buildStatItem(
+            "CAUTION", cautionCount.toString(), AppTheme.caution, isDark),
+        _buildStatDivider(isDark),
+        _buildStatItem("AVOID", avoidCount.toString(), AppTheme.avoid, isDark),
+      ],
+    ).animate().fadeIn(delay: 700.ms).slideY(begin: 0.2, end: 0);
+  }
+
+  Widget _buildStatItem(String label, String value, Color color, bool isDark) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: AppTheme.h2(isDark)
+              .copyWith(color: color, fontWeight: FontWeight.w900),
+        ),
+        Text(
+          label,
+          style:
+              AppTheme.caption(isDark).copyWith(fontSize: 8, letterSpacing: 1),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatDivider(bool isDark) {
+    return Container(
+      height: 24,
+      width: 1,
+      color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1),
     );
   }
 
@@ -195,77 +321,84 @@ class ResultScreen extends StatelessWidget {
       alignment: WrapAlignment.center,
       children: analysis.highlights.map((tag) {
         final isNegative = tag.toLowerCase().contains("contains") ||
-            tag.toLowerCase().contains("processed");
+            tag.toLowerCase().contains("processed") ||
+            tag.toLowerCase().contains("regulator");
+        final chipColor = isNegative ? AppTheme.avoid : AppTheme.safe;
+
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
-            color: (isNegative ? AppTheme.avoid : AppTheme.safe)
-                .withValues(alpha: 0.05),
+            color: chipColor.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(100),
             border: Border.all(
-              color: (isNegative ? AppTheme.avoid : AppTheme.safe)
-                  .withValues(alpha: 0.1),
+              color: chipColor.withValues(alpha: 0.2),
             ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                isNegative
-                    ? LucideIcons.alertTriangle
-                    : LucideIcons.checkCircle2,
-                size: 14,
-                color: isNegative ? AppTheme.avoid : AppTheme.safe,
+                isNegative ? LucideIcons.alertCircle : LucideIcons.sparkles,
+                size: 12,
+                color: chipColor,
               ),
               const SizedBox(width: 8),
               Text(
-                tag.toUpperCase(),
-                style: AppTheme.caption(isDark).copyWith(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w900,
-                  color: isNegative ? AppTheme.avoid : AppTheme.safe,
+                tag,
+                style: AppTheme.bodySmall(isDark).copyWith(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.9)
+                      : Colors.black.withValues(alpha: 0.8),
                 ),
               ),
             ],
           ),
         );
       }).toList(),
-    ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.1, end: 0);
-  }
-
-  Widget _buildSummaryCard(bool isDark) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03),
-        borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
-      ),
-      child: Text(
-        analysis.overview,
-        style: AppTheme.bodyLarge(isDark).copyWith(
-          height: 1.8,
-          fontSize: 15,
-          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.8),
-        ),
-      ),
     ).animate().fadeIn(delay: 800.ms);
   }
 
-  Widget _buildSectionHeader(String title, bool isDark) {
-    return Row(
-      children: [
-        Text(title,
-            style: AppTheme.caption(isDark).copyWith(letterSpacing: 1.5)),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Container(
-            height: 1,
-            color:
-                (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
-          ),
+  Widget _buildSummaryCard(bool isDark, Color ratingColor) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: ratingColor.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+        border: Border.all(
+          color: ratingColor.withValues(alpha: 0.1),
         ),
-      ],
-    );
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(LucideIcons.brainCircuit, color: ratingColor, size: 20),
+              const SizedBox(width: 12),
+              Text(
+                "AI ANALYSIS",
+                style: AppTheme.caption(isDark).copyWith(
+                  color: ratingColor,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            analysis.overview,
+            style: AppTheme.body(isDark).copyWith(
+              height: 1.7,
+              fontSize: 15,
+              color:
+                  (isDark ? Colors.white : Colors.black).withValues(alpha: 0.7),
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 900.ms);
   }
 
   Widget _buildModernIngredientTile(IngredientDetail ing, bool isDark) {
@@ -279,13 +412,12 @@ class ResultScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark
-            ? const Color(0xFF1E293B).withValues(alpha: 0.3)
-            : Colors.white,
+        color: isDark ? Colors.white.withValues(alpha: 0.02) : Colors.white,
         borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
         boxShadow: AppTheme.softShadow(isDark),
         border: Border.all(
-          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03),
+          color: color.withValues(alpha: 0.1),
+          width: 1,
         ),
       ),
       child: Column(
@@ -294,49 +426,66 @@ class ResultScreen extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                width: 4,
+                height: 20,
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  ing.rating.name.toUpperCase(),
-                  style: AppTheme.caption(isDark).copyWith(
-                    color: color,
-                    fontSize: 8,
-                    letterSpacing: 0,
-                  ),
+                  color: color,
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(ing.name,
+                    style: AppTheme.h3(isDark).copyWith(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w900,
+                    )),
+              ),
               _buildFunctionalTag(ing.function, isDark),
             ],
           ),
-          const SizedBox(height: 16),
-          Text(ing.name,
-              style: AppTheme.h3(isDark)
-                  .copyWith(fontSize: 18, fontWeight: FontWeight.w900)),
-          const SizedBox(height: 4),
-          Text(
-            ing.technicalName.toUpperCase(),
-            style: AppTheme.caption(isDark).copyWith(
-              color:
-                  (isDark ? Colors.white : Colors.black).withValues(alpha: 0.3),
-              fontSize: 9,
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.only(left: 16),
+            child: Text(
+              ing.technicalName.toUpperCase(),
+              style: AppTheme.caption(isDark).copyWith(
+                color: (isDark ? Colors.white : Colors.black)
+                    .withValues(alpha: 0.3),
+                fontSize: 9,
+                letterSpacing: 1,
+              ),
             ),
           ),
           const SizedBox(height: 16),
-          Text(
-            ing.explanation,
-            style: AppTheme.body(isDark).copyWith(
-              color:
-                  (isDark ? Colors.white : Colors.black).withValues(alpha: 0.6),
-              height: 1.6,
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(LucideIcons.info,
+                    size: 14, color: color.withValues(alpha: 0.5)),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    ing.explanation,
+                    style: AppTheme.bodySmall(isDark).copyWith(
+                      color: (isDark ? Colors.white : Colors.black)
+                          .withValues(alpha: 0.7),
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
-    ).animate().fadeIn(duration: 600.ms).slideX(begin: 0.02, end: 0);
+    ).animate().fadeIn(duration: 500.ms);
   }
 
   Widget _buildFunctionalTag(String function, bool isDark) {
@@ -344,7 +493,7 @@ class ResultScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         function.toUpperCase(),
@@ -355,4 +504,77 @@ class ResultScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class _SafetyGaugePainter extends CustomPainter {
+  final double score;
+  final Color color;
+  final bool isDark;
+
+  _SafetyGaugePainter({
+    required this.score,
+    required this.color,
+    required this.isDark,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+    const strokeWidth = 12.0;
+
+    // Background track
+    final bgPaint = Paint()
+      ..color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius - strokeWidth),
+      math.pi * 0.75,
+      math.pi * 1.5,
+      false,
+      bgPaint,
+    );
+
+    // Active progress
+    final progressPaint = Paint()
+      ..shader = SweepGradient(
+        colors: [
+          color.withValues(alpha: 0.5),
+          color,
+        ],
+        stops: const [0.0, 1.0],
+        startAngle: math.pi * 0.75,
+        endAngle: math.pi * 2.25,
+      ).createShader(Rect.fromCircle(center: center, radius: radius))
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    final sweepAngle = (score / 100) * math.pi * 1.5;
+
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius - strokeWidth),
+      math.pi * 0.75,
+      sweepAngle,
+      false,
+      progressPaint,
+    );
+
+    // Decorative dots/markers
+    final markerPaint = Paint()
+      ..color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.2);
+
+    for (int i = 0; i <= 10; i++) {
+      final angle = math.pi * 0.75 + (i / 10) * math.pi * 1.5;
+      final x = center.dx + (radius - strokeWidth * 2.5) * math.cos(angle);
+      final y = center.dy + (radius - strokeWidth * 2.5) * math.sin(angle);
+      canvas.drawCircle(Offset(x, y), 2, markerPaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
