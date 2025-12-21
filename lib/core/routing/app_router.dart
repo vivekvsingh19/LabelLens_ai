@@ -7,7 +7,7 @@ import 'package:labelsafe_ai/features/scan/camera_screen.dart';
 import 'package:labelsafe_ai/features/result/result_screen.dart';
 import 'package:labelsafe_ai/features/history/history_screen.dart';
 import 'package:labelsafe_ai/features/profile/profile_screen.dart';
-import 'package:labelsafe_ai/core/mock/mock_data.dart';
+import 'package:labelsafe_ai/core/models/analysis_result.dart';
 import 'package:labelsafe_ai/core/widgets/scaffold_with_navbar.dart';
 
 class AppRouter {
@@ -52,10 +52,19 @@ class AppRouter {
       GoRoute(
         path: '/result/:type',
         pageBuilder: (context, state) {
-          final type = state.pathParameters['type'] ?? 'food';
-          final analysis = (type == 'food')
-              ? MockData.getFoodAnalysis()
-              : MockData.getCosmeticAnalysis();
+          final analysis = state.extra as ProductAnalysis?;
+          final type = state.pathParameters['type'] ?? 'unknown';
+
+          if (analysis == null) {
+            debugPrint(
+                'ROUTER ERROR: ResultScreen opened without ProductAnalysis extra. Path type: $type');
+            // In production, if we lost the state, go back home
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) context.go('/home');
+            });
+            return const NoTransitionPage(child: SizedBox());
+          }
+
           return CustomTransitionPage(
             key: state.pageKey,
             child: ResultScreen(analysis: analysis),

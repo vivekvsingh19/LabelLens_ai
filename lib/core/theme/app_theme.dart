@@ -17,7 +17,7 @@ class AppTheme {
   static const Color lightDivider = Color(0xFFE2E8F0);
 
   // AI-Centric Accent Colors
-  static const Color accentPrimary = Colors.white; // Cyber Cyan
+  static const Color accentPrimary = Color(0xFF00D1FF); // Cyber Cyan
   static const Color accentSecondary = Color(0xFF3D5AFE); // Deep Indigo-Blue
   static const Color accentSpark = Color(0xFF7C4DFF); // Hyper Violet
 

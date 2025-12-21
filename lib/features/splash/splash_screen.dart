@@ -71,7 +71,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Widget _buildLoadingIndicator(bool isDark) {
-    return Container(
+    return SizedBox(
       width: 40,
       height: 2,
       child: ClipRRect(

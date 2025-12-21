@@ -1,65 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labelsafe_ai/core/theme/app_theme.dart';
-import 'package:labelsafe_ai/core/models/home_data.dart';
+import 'package:labelsafe_ai/core/models/analysis_result.dart';
+import 'package:labelsafe_ai/core/models/enums.dart';
+import 'package:labelsafe_ai/core/providers/ui_providers.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:labelsafe_ai/core/widgets/section_header.dart';
+import 'package:go_router/go_router.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  late HomeData _homeData;
-
-  @override
-  void initState() {
-    super.initState();
-    _homeData = HomeData.mock();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final historyAsync = ref.watch(scanHistoryProvider);
 
     return Scaffold(
       backgroundColor:
           isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
-      body: Stack(
-        children: [
-          _buildBackgroundBloom(isDark),
-          SafeArea(
-            bottom: false,
-            child: CustomScrollView(
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                _buildHeader(isDark),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 12),
-                        _buildMainHeroCard(isDark),
-                        const SizedBox(height: 24),
-                        _buildQuickActions(isDark),
-                        const SizedBox(height: 48),
-                        SectionHeader(title: "RECENT ANALYSIS", isDark: isDark),
-                        const SizedBox(height: 20),
-                        _buildModernScansList(isDark),
-                        const SizedBox(height: 120),
-                      ],
+      body: historyAsync.when(
+        data: (history) => Stack(
+          children: [
+            _buildBackgroundBloom(isDark),
+            SafeArea(
+              bottom: false,
+              child: CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  _buildHeader(isDark),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 12),
+                          _buildMainHeroCard(isDark, history),
+                          const SizedBox(height: 24),
+                          _buildQuickActions(isDark, history),
+                          const SizedBox(height: 48),
+                          SectionHeader(
+                              title: "RECENT ANALYSIS", isDark: isDark),
+                          const SizedBox(height: 20),
+                          _buildModernScansList(context, isDark, history),
+                          const SizedBox(height: 120),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, s) => Center(child: Text('Error: $e')),
       ),
     );
   }
@@ -118,18 +115,21 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("HELLO, VIVEK", style: AppTheme.caption(isDark)),
-                const SizedBox(height: 4),
-                Text("DASHBOARD",
-                    style: AppTheme.h2(isDark).copyWith(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w900,
-                        color: isDark ? AppTheme.accentPrimary : null)),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("HELLO, VIVEK", style: AppTheme.caption(isDark)),
+                  const SizedBox(height: 4),
+                  Text("DASHBOARD",
+                      style: AppTheme.h2(isDark).copyWith(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? AppTheme.accentPrimary : null)),
+                ],
+              ),
             ),
+            const SizedBox(width: 16),
             Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
@@ -151,7 +151,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildMainHeroCard(bool isDark) {
+  Widget _buildMainHeroCard(bool isDark, List<ProductAnalysis> history) {
+    final lastScore = history.isEmpty ? 0 : history.first.score.toInt();
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(32),
@@ -169,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("MY SAFETY SCORE",
+              Text("LATEST SAFETY SCORE",
                   style: AppTheme.caption(isDark)
                       .copyWith(color: isDark ? AppTheme.accentPrimary : null)),
               Icon(LucideIcons.info,
@@ -183,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                "${_homeData.safetyScore.score}",
+                "$lastScore",
                 style: AppTheme.score(isDark).copyWith(height: 1),
               ).animate().shimmer(duration: 2.seconds),
               Padding(
@@ -199,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ClipRRect(
             borderRadius: BorderRadius.circular(100),
             child: LinearProgressIndicator(
-              value: _homeData.safetyScore.score / 100,
+              value: lastScore / 100,
               minHeight: 8,
               backgroundColor: (isDark ? Colors.white : Colors.black)
                   .withValues(alpha: 0.05),
@@ -209,7 +211,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ).animate().scaleX(duration: 1.seconds, curve: Curves.easeOutBack),
           const SizedBox(height: 20),
           Text(
-            "Your safety index improved by 12% this week.",
+            history.isEmpty
+                ? "Start scanning products to see your safety index."
+                : "Your safety profile is based on your latest analysis.",
             style: AppTheme.bodySmall(isDark)
                 .copyWith(fontStyle: FontStyle.italic),
           ),
@@ -218,20 +222,33 @@ class _HomeScreenState extends State<HomeScreen> {
     ).animate().fadeIn(duration: 800.ms).slideY(begin: 0.1, end: 0);
   }
 
-  Widget _buildQuickActions(bool isDark) {
+  Widget _buildQuickActions(bool isDark, List<ProductAnalysis> history) {
+    // Calculate real stats from last 5 products
+    int avoidCount = 0;
+    int cautionCount = 0;
+    int safeCount = 0;
+
+    for (var scan in history.take(5)) {
+      for (var ing in scan.ingredients) {
+        if (ing.rating == SafetyBadge.avoid) avoidCount++;
+        if (ing.rating == SafetyBadge.caution) cautionCount++;
+        if (ing.rating == SafetyBadge.safe) safeCount++;
+      }
+    }
+
     return Row(
       children: [
         Expanded(
-            child: _buildActionTile("SUGAR", "05g", LucideIcons.candy,
-                const Color.fromARGB(255, 255, 145, 0), isDark)),
+            child: _buildActionTile("AVOIDED", avoidCount.toString(),
+                LucideIcons.skull, AppTheme.avoid, isDark)),
         const SizedBox(width: 12),
         Expanded(
-            child: _buildActionTile("SODIUM", "2.1g", LucideIcons.droplets,
-                AppTheme.accentSecondary, isDark)),
+            child: _buildActionTile("CAUTIONS", cautionCount.toString(),
+                LucideIcons.alertTriangle, AppTheme.caution, isDark)),
         const SizedBox(width: 12),
         Expanded(
-            child: _buildActionTile("FATS", "08g", LucideIcons.flame,
-                AppTheme.accentSpark, isDark)),
+            child: _buildActionTile("SAFE", safeCount.toString(),
+                LucideIcons.checkCircle, AppTheme.safe, isDark)),
       ],
     );
   }
@@ -261,72 +278,110 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildModernScansList(bool isDark) {
+  Widget _buildModernScansList(
+      BuildContext context, bool isDark, List<ProductAnalysis> history) {
+    if (history.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: isDark ? AppTheme.darkCard : Colors.white,
+          borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+        ),
+        child: Center(
+          child: Text("No scans yet", style: AppTheme.caption(isDark)),
+        ),
+      );
+    }
+
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: _homeData.recentScans.take(3).length,
+      itemCount: history.take(3).length,
       itemBuilder: (context, index) {
-        final scan = _homeData.recentScans[index];
-        return Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: isDark ? AppTheme.darkCard : Colors.white,
-            borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
-            boxShadow: AppTheme.softShadow(isDark),
-            border: Border.all(
-                color: (isDark ? Colors.white : Colors.black)
-                    .withValues(alpha: 0.02)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
+        final scan = history[index];
+        final timeAgo = _getTimeAgo(scan.date);
+
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => context.push(
+              '/result/${Uri.encodeComponent(scan.category)}',
+              extra: scan),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isDark ? AppTheme.darkCard : Colors.white,
+              borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+              boxShadow: AppTheme.softShadow(isDark),
+              border: Border.all(
                   color: (isDark ? Colors.white : Colors.black)
-                      .withValues(alpha: 0.03),
-                  borderRadius:
-                      BorderRadius.circular(AppTheme.borderRadiusSmall),
+                      .withValues(alpha: 0.02)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: (isDark ? AppTheme.accentPrimary : Colors.black)
+                        .withValues(alpha: 0.05),
+                    borderRadius:
+                        BorderRadius.circular(AppTheme.borderRadiusSmall),
+                  ),
+                  child: Icon(
+                      scan.category.toLowerCase() == 'food'
+                          ? LucideIcons.apple
+                          : LucideIcons.sparkles,
+                      size: 28,
+                      color: (isDark ? AppTheme.accentPrimary : Colors.black)
+                          .withValues(alpha: 0.4)),
                 ),
-                child: Icon(LucideIcons.package,
-                    size: 28,
-                    color: (isDark ? Colors.white : Colors.black)
-                        .withValues(alpha: 0.4)),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(scan.productName,
-                        style:
-                            AppTheme.bodyLarge(isDark).copyWith(fontSize: 14)),
-                    const SizedBox(height: 4),
-                    Text(
-                      "ANALYZED 2H AGO",
-                      style: AppTheme.caption(isDark).copyWith(
-                          fontSize: 8,
-                          color: isDark
-                              ? AppTheme.accentPrimary.withValues(alpha: 0.6)
-                              : null),
-                    ),
-                  ],
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(scan.productName,
+                          style: AppTheme.bodyLarge(isDark)
+                              .copyWith(fontSize: 14)),
+                      const SizedBox(height: 4),
+                      Text(
+                        "ANALYZED $timeAgo",
+                        style: AppTheme.caption(isDark).copyWith(
+                            fontSize: 8,
+                            color: isDark
+                                ? AppTheme.accentPrimary.withValues(alpha: 0.6)
+                                : null),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(LucideIcons.arrowRight, size: 18),
-                style: IconButton.styleFrom(
-                  backgroundColor: (isDark ? Colors.white : Colors.black)
-                      .withValues(alpha: 0.05),
+                IconButton(
+                  onPressed: () => context.push(
+                      '/result/${Uri.encodeComponent(scan.category)}',
+                      extra: scan),
+                  icon: const Icon(LucideIcons.arrowRight, size: 18),
+                  style: IconButton.styleFrom(
+                    backgroundColor: (isDark ? Colors.white : Colors.black)
+                        .withValues(alpha: 0.05),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ).animate().fadeIn(delay: (200 * index).ms).slideX(begin: 0.05, end: 0);
+              ],
+            ),
+          )
+              .animate()
+              .fadeIn(delay: (200 * index).ms)
+              .slideX(begin: 0.05, end: 0),
+        );
       },
     );
+  }
+
+  String _getTimeAgo(DateTime date) {
+    final diff = DateTime.now().difference(date);
+    if (diff.inDays > 0) return "${diff.inDays}D AGO";
+    if (diff.inHours > 0) return "${diff.inHours}H AGO";
+    if (diff.inMinutes > 0) return "${diff.inMinutes}M AGO";
+    return "JUST NOW";
   }
 }

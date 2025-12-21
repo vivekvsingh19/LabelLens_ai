@@ -1,22 +1,29 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labelsafe_ai/core/theme/app_theme.dart';
+import 'package:labelsafe_ai/core/services/gemini_service.dart';
+import 'package:labelsafe_ai/core/providers/ui_providers.dart';
 
-class CameraScreen extends StatefulWidget {
+class CameraScreen extends ConsumerStatefulWidget {
   final String scanType;
   const CameraScreen({super.key, required this.scanType});
 
   @override
-  State<CameraScreen> createState() => _CameraScreenState();
+  ConsumerState<CameraScreen> createState() => _CameraScreenState();
 }
 
-class _CameraScreenState extends State<CameraScreen> {
+class _CameraScreenState extends ConsumerState<CameraScreen> {
   CameraController? _controller;
   bool _isReady = false;
+  bool _isImageCaptured = false;
+  File? _imageFile;
   bool _isAnalyzing = false;
+  final GeminiService _geminiService = GeminiService();
 
   @override
   void initState() {
@@ -28,10 +35,53 @@ class _CameraScreenState extends State<CameraScreen> {
     final cameras = await availableCameras();
     if (cameras.isEmpty) return;
 
-    _controller = CameraController(cameras[0], ResolutionPreset.high);
-    await _controller!.initialize();
-    if (mounted) {
-      setState(() => _isReady = true);
+    // Explicitly use the back camera
+    final backCamera = cameras.firstWhere(
+      (camera) => camera.lensDirection == CameraLensDirection.back,
+      orElse: () => cameras.first,
+    );
+
+    _controller = CameraController(
+      backCamera,
+      ResolutionPreset.max, // Ultra-high resolution for better OCR
+      enableAudio: false,
+    );
+
+    try {
+      await _controller!.initialize();
+      // Enable autofocus for scanning
+      if (_controller!.value.isInitialized) {
+        await _controller!.setFocusMode(FocusMode.auto);
+      }
+      if (mounted) {
+        setState(() => _isReady = true);
+      }
+    } catch (e) {
+      debugPrint("Camera Error: $e");
+    }
+  }
+
+  Future<void> _onTapFocus(TapDownDetails details) async {
+    if (_controller == null ||
+        !_controller!.value.isInitialized ||
+        _isImageCaptured) return;
+
+    try {
+      // Manual focus on tap
+      await _controller!.setFocusMode(FocusMode.auto);
+      await _controller!.setFocusPoint(Offset(
+        details.localPosition.dx / MediaQuery.of(context).size.width,
+        details.localPosition.dy / MediaQuery.of(context).size.height,
+      ));
+
+      // Re-enable auto focus behavior after 3 seconds
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted && _controller!.value.isInitialized) {
+          _controller!.setFocusMode(FocusMode.auto);
+        }
+      });
+    } catch (e) {
+      debugPrint("Focus Error: $e");
     }
   }
 
@@ -42,10 +92,68 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   void _onCapture() async {
-    setState(() => _isAnalyzing = true);
-    await Future.delayed(const Duration(seconds: 4));
-    if (mounted) {
-      context.pushReplacement('/result/${widget.scanType}');
+    if (_controller == null ||
+        !_controller!.value.isInitialized ||
+        _isAnalyzing) return;
+
+    try {
+      final XFile photo = await _controller!.takePicture();
+      setState(() {
+        _imageFile = File(photo.path);
+        _isImageCaptured = true;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Capture Error: $e')),
+      );
+    }
+  }
+
+  void _onRetake() {
+    setState(() {
+      _isImageCaptured = false;
+      _imageFile = null;
+      _isAnalyzing = false;
+    });
+  }
+
+  void _analyzeCapturedImage() async {
+    if (_imageFile == null) return;
+
+    try {
+      setState(() => _isAnalyzing = true);
+
+      final analysis = await _geminiService.analyzeProductImage(
+          _imageFile!, widget.scanType);
+
+      if (mounted) {
+        if (analysis != null) {
+          // Save to local history
+          await ref.read(analysisRepositoryProvider).saveAnalysis(analysis);
+          // Refresh history provider
+          ref.invalidate(scanHistoryProvider);
+
+          if (mounted) {
+            context.pushReplacement(
+                '/result/${Uri.encodeComponent(widget.scanType)}',
+                extra: analysis);
+          }
+        } else {
+          setState(() => _isAnalyzing = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text(
+                    'Analysis failed. Ensure the image is clear and try again.')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isAnalyzing = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
     }
   }
 
@@ -62,18 +170,28 @@ class _CameraScreenState extends State<CameraScreen> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          FittedBox(
-            fit: BoxFit.cover,
-            child: SizedBox(
-              width: _controller!.value.previewSize!.height,
-              height: _controller!.value.previewSize!.width,
-              child: CameraPreview(_controller!),
+          if (!_isImageCaptured)
+            GestureDetector(
+              onTapDown: _onTapFocus,
+              child: FittedBox(
+                fit: BoxFit.cover,
+                child: SizedBox(
+                  width: _controller!.value.previewSize!.height,
+                  height: _controller!.value.previewSize!.width,
+                  child: CameraPreview(_controller!),
+                ),
+              ),
+            )
+          else
+            Image.file(
+              _imageFile!,
+              fit: BoxFit.cover,
             ),
-          ),
-          _buildScanningLine(),
+          if (!_isImageCaptured) _buildScanningLine(),
           if (_isAnalyzing) _buildAnalyzingUI(),
           _buildBackBtn(),
-          if (!_isAnalyzing) _buildCaptureBtn(),
+          if (!_isAnalyzing)
+            _isImageCaptured ? _buildSelectionControls() : _buildCaptureBtn(),
         ],
       ),
     );
@@ -179,6 +297,67 @@ class _CameraScreenState extends State<CameraScreen> {
               ),
             ),
           ).animate().scale(curve: Curves.easeOutBack),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSelectionControls() {
+    return Positioned(
+      bottom: 60,
+      left: 24,
+      right: 24,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.6),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white24),
+            ),
+            child: const Text('IS THE TEXT CLEAR AND READABLE?',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.2)),
+          ).animate().fadeIn().slideY(begin: 0.2, end: 0),
+          const SizedBox(height: 32),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _onRetake,
+                  icon: const Icon(LucideIcons.refreshCw, size: 20),
+                  label: const Text('RETAKE'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white12,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _analyzeCapturedImage,
+                  icon: const Icon(LucideIcons.zap, size: 20),
+                  label: const Text('ANALYZE'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.accentPrimary,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
+                  ),
+                ),
+              ),
+            ],
+          ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2, end: 0),
         ],
       ),
     );

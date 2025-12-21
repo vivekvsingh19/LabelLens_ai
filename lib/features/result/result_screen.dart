@@ -20,129 +20,155 @@ class ResultScreen extends StatelessWidget {
         : (analysis.rating == SafetyBadge.caution
             ? AppTheme.caution
             : AppTheme.avoid);
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
 
-    return DraggableScrollableSheet(
-      initialChildSize: 0.9,
-      minChildSize: 0.6,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (context, scrollController) {
-        return Material(
-          color: Colors.transparent,
-          child: Container(
-            decoration: BoxDecoration(
-              color: isDark ? AppTheme.darkCard : Colors.white,
-              borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(AppTheme.borderRadiusLarge)),
-              boxShadow: AppTheme.premiumShadow(isDark),
-            ),
-            child: Column(
-              children: [
-                const SizedBox(height: 12),
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: (isDark ? Colors.white : Colors.black)
-                        .withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(2),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Stack(
+        children: [
+          // Glassmorphic background tap-to-dismiss
+          GestureDetector(
+            onTap: () => context.pop(),
+            child: Container(
+              color: Colors.black.withValues(alpha: 0.4),
+            ).animate().fadeIn(),
+          ),
+
+          // Main Content Sheet
+          Positioned.fill(
+            top: 60, // Top margin to show it's a sheet
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark ? AppTheme.darkCard : Colors.white,
+                borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(AppTheme.borderRadiusLarge)),
+                boxShadow: AppTheme.premiumShadow(isDark),
+              ),
+              child: Column(
+                children: [
+                  const SizedBox(height: 12),
+                  // Pull Handle
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: (isDark ? Colors.white : Colors.black)
+                          .withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: ListView(
-                    controller: scrollController,
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    physics: const BouncingScrollPhysics(),
-                    children: [
-                      const SizedBox(height: 24),
-                      _buildTopBar(context, isDark),
-                      const SizedBox(height: 32),
-                      _buildImmersiveHero(isDark, ratingColor),
-                      const SizedBox(height: 40),
-                      _buildQuickStats(isDark),
-                      const SizedBox(height: 32),
-                      _buildHighlightChips(isDark, ratingColor),
-                      const SizedBox(height: 48),
-                      SectionHeader(title: "AI INSIGHTS", isDark: isDark),
-                      const SizedBox(height: 16),
-                      _buildSummaryCard(isDark, ratingColor),
-                      const SizedBox(height: 48),
-                      SectionHeader(
-                          title: "INGREDIENT BREAKDOWN", isDark: isDark),
-                      const SizedBox(height: 24),
-                      ...analysis.ingredients.map(
-                          (ing) => _buildModernIngredientTile(ing, isDark)),
-                      const SizedBox(height: 48),
-                      ElevatedButton(
-                        onPressed: () => context.pop(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: ratingColor,
-                          foregroundColor: Colors.white,
+                  Expanded(
+                    child: ListView(
+                      padding:
+                          EdgeInsets.fromLTRB(24, 24, 24, bottomPadding + 40),
+                      physics: const BouncingScrollPhysics(),
+                      children: [
+                        _buildTopBar(context, isDark),
+                        const SizedBox(height: 32),
+                        _buildImmersiveHero(isDark, ratingColor),
+                        const SizedBox(height: 40),
+                        _buildQuickStats(isDark),
+                        const SizedBox(height: 32),
+                        _buildHighlightChips(isDark, ratingColor),
+                        const SizedBox(height: 48),
+                        SectionHeader(title: "AI INSIGHTS", isDark: isDark),
+                        const SizedBox(height: 16),
+                        _buildSummaryCard(isDark, ratingColor),
+                        const SizedBox(height: 48),
+                        SectionHeader(
+                            title: "INGREDIENT BREAKDOWN", isDark: isDark),
+                        const SizedBox(height: 24),
+                        ...analysis.ingredients.map(
+                            (ing) => _buildModernIngredientTile(ing, isDark)),
+                        const SizedBox(height: 48),
+                        ElevatedButton(
+                          onPressed: () => context.pop(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: ratingColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 18),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16)),
+                            elevation: 0,
+                          ),
+                          child: const Text('NEW SCAN',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 1.2)),
                         ),
-                        child: const Text('NEW SCAN'),
-                      ),
-                      const SizedBox(height: 48),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ).animate().slideY(
+                  begin: 1.0,
+                  end: 0,
+                  duration: 400.ms,
+                  curve: Curves.easeOutCubic),
             ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 
   Widget _buildTopBar(BuildContext context, bool isDark) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(analysis.brand.toUpperCase(),
-                  style: AppTheme.caption(isDark).copyWith(
-                    fontSize: 9,
-                    color: (isDark ? Colors.white : Colors.black)
-                        .withValues(alpha: 0.5),
-                  )),
+              _buildCategoryBadge(analysis.category, isDark),
+              const SizedBox(height: 12),
+              Text(
+                analysis.brand.toUpperCase(),
+                style: AppTheme.caption(isDark).copyWith(
+                  fontSize: 9,
+                  color: (isDark ? Colors.white : Colors.black)
+                      .withValues(alpha: 0.5),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
               const SizedBox(height: 4),
-              Row(
-                children: [
-                  Flexible(
-                    child: Text(
-                      analysis.productName,
-                      style: AppTheme.h2(isDark).copyWith(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -1),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  _buildCategoryBadge(analysis.category, isDark),
-                ],
+              Text(
+                analysis.productName,
+                style: AppTheme.h2(isDark).copyWith(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    height: 1.1,
+                    letterSpacing: -1.2),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
         ),
-        IconButton(
-          onPressed: () {},
-          icon: const Icon(LucideIcons.share2, size: 20),
-          style: IconButton.styleFrom(
-            backgroundColor:
-                (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
-          ),
-        ),
-        const SizedBox(width: 8),
-        IconButton(
-          onPressed: () => context.pop(),
-          icon: const Icon(LucideIcons.x, size: 20),
-          style: IconButton.styleFrom(
-            backgroundColor:
-                (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
-          ),
+        const SizedBox(width: 16),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(LucideIcons.share2, size: 20),
+              style: IconButton.styleFrom(
+                backgroundColor: (isDark ? Colors.white : Colors.black)
+                    .withValues(alpha: 0.05),
+              ),
+            ),
+            const SizedBox(width: 8),
+            IconButton(
+              onPressed: () => context.pop(),
+              icon: const Icon(LucideIcons.x, size: 20),
+              style: IconButton.styleFrom(
+                backgroundColor: (isDark ? Colors.white : Colors.black)
+                    .withValues(alpha: 0.05),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -165,6 +191,8 @@ class ResultScreen extends StatelessWidget {
           letterSpacing: 0,
           color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.6),
         ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
@@ -279,12 +307,17 @@ class ResultScreen extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _buildStatItem("SAFE", safeCount.toString(), AppTheme.safe, isDark),
+        Expanded(
+            child: _buildStatItem(
+                "SAFE", safeCount.toString(), AppTheme.safe, isDark)),
         _buildStatDivider(isDark),
-        _buildStatItem(
-            "CAUTION", cautionCount.toString(), AppTheme.caution, isDark),
+        Expanded(
+            child: _buildStatItem(
+                "CAUTION", cautionCount.toString(), AppTheme.caution, isDark)),
         _buildStatDivider(isDark),
-        _buildStatItem("AVOID", avoidCount.toString(), AppTheme.avoid, isDark),
+        Expanded(
+            child: _buildStatItem(
+                "AVOID", avoidCount.toString(), AppTheme.avoid, isDark)),
       ],
     ).animate().fadeIn(delay: 700.ms).slideY(begin: 0.2, end: 0);
   }
@@ -343,14 +376,17 @@ class ResultScreen extends StatelessWidget {
                 color: chipColor,
               ),
               const SizedBox(width: 8),
-              Text(
-                tag,
-                style: AppTheme.bodySmall(isDark).copyWith(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.9)
-                      : Colors.black.withValues(alpha: 0.8),
+              Flexible(
+                child: Text(
+                  tag,
+                  style: AppTheme.bodySmall(isDark).copyWith(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.9)
+                        : Colors.black.withValues(alpha: 0.8),
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -445,6 +481,7 @@ class ResultScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -465,13 +502,21 @@ class ResultScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Text(ing.name,
-                            style: AppTheme.h3(isDark).copyWith(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w900,
-                            )),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              ing.name,
+                              style: AppTheme.h3(isDark).copyWith(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            _buildFunctionalTag(ing.function, isDark),
+                          ],
+                        ),
                       ),
-                      _buildFunctionalTag(ing.function, isDark),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -541,6 +586,8 @@ class ResultScreen extends StatelessWidget {
           fontSize: 8,
           color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.4),
         ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }

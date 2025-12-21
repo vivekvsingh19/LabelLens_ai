@@ -8,7 +8,8 @@ class ProductAnalysis {
   final String overview;
   final double score; // 0-100
   final List<IngredientDetail> ingredients;
-  final List<String> highlights; // positive or negative points
+  final List<String> highlights;
+  final DateTime date;
 
   ProductAnalysis({
     required this.productName,
@@ -19,7 +20,35 @@ class ProductAnalysis {
     required this.score,
     required this.ingredients,
     required this.highlights,
-  });
+    DateTime? date,
+  }) : date = date ?? DateTime.now();
+
+  Map<String, dynamic> toJson() => {
+        'productName': productName,
+        'brand': brand,
+        'rating': rating.name,
+        'category': category,
+        'overview': overview,
+        'score': score,
+        'highlights': highlights,
+        'date': date.toIso8601String(),
+        'ingredients': ingredients.map((i) => i.toJson()).toList(),
+      };
+
+  factory ProductAnalysis.fromJson(Map<String, dynamic> json) =>
+      ProductAnalysis(
+        productName: json['productName'],
+        brand: json['brand'],
+        rating: SafetyBadge.values.byName(json['rating']),
+        category: json['category'],
+        overview: json['overview'],
+        score: json['score'].toDouble(),
+        highlights: List<String>.from(json['highlights']),
+        date: DateTime.parse(json['date']),
+        ingredients: (json['ingredients'] as List)
+            .map((i) => IngredientDetail.fromJson(i))
+            .toList(),
+      );
 }
 
 class IngredientDetail {
@@ -36,4 +65,21 @@ class IngredientDetail {
     required this.explanation,
     required this.function,
   });
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'technicalName': technicalName,
+        'rating': rating.name,
+        'explanation': explanation,
+        'function': function,
+      };
+
+  factory IngredientDetail.fromJson(Map<String, dynamic> json) =>
+      IngredientDetail(
+        name: json['name'],
+        technicalName: json['technicalName'],
+        rating: SafetyBadge.values.byName(json['rating']),
+        explanation: json['explanation'],
+        function: json['function'],
+      );
 }
