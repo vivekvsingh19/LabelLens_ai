@@ -18,6 +18,7 @@ class ResultScreen extends StatefulWidget {
 
 class _ResultScreenState extends State<ResultScreen> {
   bool _showFullReport = false;
+  final Set<int> _expandedAlerts = {};
 
   ProductAnalysis get analysis => widget.analysis;
 
@@ -812,58 +813,109 @@ class _ResultScreenState extends State<ResultScreen> {
           ],
         ),
         const SizedBox(height: 12),
-        ...alerts.map((ing) {
+        ...alerts.asMap().entries.map((entry) {
+          final index = entry.key;
+          final ing = entry.value;
           final color = ing.rating == SafetyBadge.avoid
               ? AppTheme.avoid
               : AppTheme.caution;
-          return Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: color.withValues(alpha: 0.1)),
-            ),
-            child: Row(
-              children: [
-                Icon(LucideIcons.xCircle, size: 16, color: color),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          final isExpanded = _expandedAlerts.contains(index);
+
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                if (isExpanded) {
+                  _expandedAlerts.remove(index);
+                } else {
+                  _expandedAlerts.add(index);
+                }
+              });
+            },
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: color.withValues(alpha: 0.1)),
+              ),
+              child: Column(
+                children: [
+                  Row(
                     children: [
-                      Text(
-                        ing.name,
-                        style: AppTheme.bodySmall(isDark).copyWith(
-                            fontWeight: FontWeight.w900, fontSize: 13),
+                      Icon(LucideIcons.xCircle, size: 16, color: color),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              ing.name,
+                              style: AppTheme.bodySmall(isDark).copyWith(
+                                  fontWeight: FontWeight.w900, fontSize: 15),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              ing.explanation,
+                              style: AppTheme.caption(isDark).copyWith(
+                                fontSize: 12,
+                                letterSpacing: 0,
+                                height: 1.4,
+                                color: (isDark ? Colors.white : Colors.black)
+                                    .withValues(alpha: 0.7),
+                              ),
+                              maxLines: isExpanded ? null : 2,
+                              overflow:
+                                  isExpanded ? null : TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        ing.function,
-                        style: AppTheme.caption(isDark)
-                            .copyWith(fontSize: 10, letterSpacing: 0),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          ing.rating.name.toUpperCase(),
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 8,
+                              fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ],
                   ),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    ing.rating.name.toUpperCase(),
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 8,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
+                  if (ing.explanation.length > 80)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            isExpanded
+                                ? LucideIcons.chevronUp
+                                : LucideIcons.chevronDown,
+                            size: 14,
+                            color: color.withValues(alpha: 0.6),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            isExpanded ? "Show less" : "Show details",
+                            style: AppTheme.caption(isDark).copyWith(
+                              fontSize: 10,
+                              color: color.withValues(alpha: 0.8),
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
             ),
           );
         }),

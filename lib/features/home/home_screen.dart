@@ -130,25 +130,55 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 16),
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                    color: (isDark ? Colors.white : Colors.black)
-                        .withValues(alpha: 0.1)),
-              ),
-              child: CircleAvatar(
-                radius: 22,
-                backgroundColor: (isDark ? Colors.white : Colors.black)
-                    .withValues(alpha: 0.05),
-                child: Icon(LucideIcons.user,
-                    size: 20, color: isDark ? Colors.white : Colors.black),
-              ),
-            ),
+            _buildStreakIndicator(isDark),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildStreakIndicator(bool isDark) {
+    // Calculate streak based on scan history
+    // For now, using a simple counter - can be enhanced with actual streak logic
+    final streak = 7; // This can be calculated from actual scan dates
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFFFF6B35).withValues(alpha: 0.15),
+            const Color(0xFFFF8C42).withValues(alpha: 0.15),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: const Color(0xFFFF6B35).withValues(alpha: 0.3),
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '🔥',
+            style: const TextStyle(fontSize: 20),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            '$streak',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w900,
+              color: isDark ? Colors.white : Colors.black87,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    ).animate().scale(duration: 600.ms, curve: Curves.elasticOut);
   }
 
   Widget _buildMainHeroCard(bool isDark, List<ProductAnalysis> history) {
