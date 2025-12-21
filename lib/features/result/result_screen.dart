@@ -8,12 +8,28 @@ import 'package:labelsafe_ai/core/models/analysis_result.dart';
 import 'package:labelsafe_ai/core/theme/app_theme.dart';
 import 'dart:math' as math;
 
-class ResultScreen extends StatelessWidget {
+class ResultScreen extends StatefulWidget {
   final ProductAnalysis analysis;
   const ResultScreen({super.key, required this.analysis});
 
   @override
+  State<ResultScreen> createState() => _ResultScreenState();
+}
+
+class _ResultScreenState extends State<ResultScreen> {
+  bool _showFullReport = false;
+
+  ProductAnalysis get analysis => widget.analysis;
+
+  @override
   Widget build(BuildContext context) {
+    return _buildContent(context);
+  }
+
+  Widget _buildContent(BuildContext context) {
+    // We'll wrap the main logic in a helper to keep build clean
+    // Access widget.analysis instead of analysis
+    final analysis = widget.analysis;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final ratingColor = analysis.rating == SafetyBadge.safe
         ? AppTheme.safe
@@ -69,33 +85,90 @@ class ResultScreen extends StatelessWidget {
                         const SizedBox(height: 40),
                         _buildQuickStats(isDark),
                         const SizedBox(height: 32),
-                        _buildHighlightChips(isDark, ratingColor),
-                        const SizedBox(height: 48),
-                        SectionHeader(title: "AI INSIGHTS", isDark: isDark),
-                        const SizedBox(height: 16),
-                        _buildSummaryCard(isDark, ratingColor),
-                        const SizedBox(height: 48),
-                        SectionHeader(
-                            title: "INGREDIENT BREAKDOWN", isDark: isDark),
+                        ...[
+                          if (!_showFullReport) ...[
+                            _buildCompositionAnalysis(isDark),
+                            const SizedBox(height: 24),
+                            _buildCriticalAlerts(isDark),
+                            const SizedBox(height: 24),
+                          ],
+                          if (!_showFullReport)
+                            GestureDetector(
+                              onTap: () =>
+                                  setState(() => _showFullReport = true),
+                              child: Container(
+                                width: double.infinity,
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: ratingColor.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                      color:
+                                          ratingColor.withValues(alpha: 0.2)),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text("VIEW FULL ANALYSIS",
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: ratingColor,
+                                            fontWeight: FontWeight.w900,
+                                            letterSpacing: 1.0)),
+                                    const SizedBox(width: 8),
+                                    Icon(LucideIcons.chevronDown,
+                                        color: ratingColor, size: 16),
+                                  ],
+                                ),
+                              ),
+                            ).animate().fadeIn().slideY(begin: 0.2, end: 0)
+                          else
+                            ...[
+                              _buildHighlightChips(isDark, ratingColor),
+                              const SizedBox(height: 48),
+                              if (_showFullReport) ...[
+                                SectionHeader(
+                                    title: "AI INSIGHTS", isDark: isDark),
+                                const SizedBox(height: 16),
+                                _buildSummaryCard(isDark, ratingColor),
+                              ],
+                              const SizedBox(height: 48),
+                              SectionHeader(
+                                  title: "INGREDIENT BREAKDOWN",
+                                  isDark: isDark),
+                              const SizedBox(height: 24),
+                              ...analysis.ingredients.map((ing) =>
+                                  _buildModernIngredientTile(ing, isDark)),
+                              const SizedBox(height: 48),
+                            ].animate(interval: 50.ms).fadeIn(duration: 300.ms),
+                        ],
                         const SizedBox(height: 24),
-                        ...analysis.ingredients.map(
-                            (ing) => _buildModernIngredientTile(ing, isDark)),
-                        const SizedBox(height: 48),
-                        ElevatedButton(
-                          onPressed: () => context.pop(),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ratingColor,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 18),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16)),
-                            elevation: 0,
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: () => context.pop(),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: ratingColor,
+                              foregroundColor: Colors.white,
+                              fixedSize: const Size(180, 50),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(100)),
+                              elevation: 0,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(LucideIcons.scanLine, size: 18),
+                                const SizedBox(width: 8),
+                                const Text('NEW SCAN',
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w900,
+                                        letterSpacing: 1.0)),
+                              ],
+                            ),
                           ),
-                          child: const Text('NEW SCAN',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 1.2)),
                         ),
                       ],
                     ),
@@ -305,45 +378,163 @@ class ResultScreen extends StatelessWidget {
         analysis.ingredients.where((i) => i.rating == SafetyBadge.avoid).length;
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         Expanded(
-            child: _buildStatItem(
-                "SAFE", safeCount.toString(), AppTheme.safe, isDark)),
-        _buildStatDivider(isDark),
+          child: _buildStatCard(safeCount.toString(), "SAFE", AppTheme.safe,
+              LucideIcons.checkCircle, isDark),
+        ),
+        const SizedBox(width: 12),
         Expanded(
-            child: _buildStatItem(
-                "CAUTION", cautionCount.toString(), AppTheme.caution, isDark)),
-        _buildStatDivider(isDark),
+          child: _buildStatCard(cautionCount.toString(), "CAUTION",
+              AppTheme.caution, LucideIcons.alertTriangle, isDark),
+        ),
+        const SizedBox(width: 12),
         Expanded(
-            child: _buildStatItem(
-                "AVOID", avoidCount.toString(), AppTheme.avoid, isDark)),
+          child: _buildStatCard(avoidCount.toString(), "AVOID", AppTheme.avoid,
+              LucideIcons.xCircle, isDark),
+        ),
       ],
     ).animate().fadeIn(delay: 700.ms).slideY(begin: 0.2, end: 0);
   }
 
-  Widget _buildStatItem(String label, String value, Color color, bool isDark) {
+  Widget _buildCompositionAnalysis(bool isDark) {
+    if (analysis.ingredients.isEmpty) return const SizedBox.shrink();
+
+    final total = analysis.ingredients.length;
+
+    // Calculate counts
+    final harmfulCount = analysis.ingredients
+        .where((i) =>
+            i.rating == SafetyBadge.avoid || i.rating == SafetyBadge.caution)
+        .length;
+
+    final stabilizerCount = analysis.ingredients.where((i) {
+      final f = i.function.toLowerCase();
+      return f.contains('stabilizer') ||
+          f.contains('thickener') ||
+          f.contains('emulsifier') ||
+          f.contains('preservative');
+    }).length;
+
+    final sugarCount = analysis.ingredients.where((i) {
+      final n = i.name.toLowerCase();
+      final f = i.function.toLowerCase();
+      return f.contains('sweetener') ||
+          n.contains('sugar') ||
+          n.contains('syrup') ||
+          n.contains('fructose') ||
+          n.contains('glucose');
+    }).length;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 24),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+            color:
+                (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(LucideIcons.pieChart,
+                  size: 14,
+                  color: (isDark ? Colors.white : Colors.black)
+                      .withValues(alpha: 0.6)),
+              const SizedBox(width: 8),
+              Text("COMPOSITION BREAKDOWN",
+                  style: AppTheme.caption(isDark).copyWith(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5)),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildMiniRing(
+                  harmfulCount / total, "RISK", AppTheme.avoid, isDark),
+              _buildMiniRing(stabilizerCount / total, "PROCESSED",
+                  const Color(0xFFFFA000), isDark),
+              _buildMiniRing(
+                  sugarCount / total, "SUGAR", const Color(0xFFEC407A), isDark),
+            ],
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 800.ms);
+  }
+
+  Widget _buildMiniRing(
+      double percent, String label, Color color, bool isDark) {
     return Column(
       children: [
-        Text(
-          value,
-          style: AppTheme.h2(isDark)
-              .copyWith(color: color, fontWeight: FontWeight.w900),
+        SizedBox(
+          width: 50,
+          height: 50,
+          child: CustomPaint(
+            painter: _MiniRingPainter(
+                percent: percent, color: color, isDark: isDark),
+            child: Center(
+              child: Text(
+                "${(percent * 100).toInt()}%",
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+            ),
+          ),
         ),
+        const SizedBox(height: 8),
         Text(
           label,
-          style:
-              AppTheme.caption(isDark).copyWith(fontSize: 8, letterSpacing: 1),
+          style: AppTheme.caption(isDark)
+              .copyWith(fontSize: 8, fontWeight: FontWeight.w700),
         ),
       ],
     );
   }
 
-  Widget _buildStatDivider(bool isDark) {
+  Widget _buildStatCard(
+      String value, String label, Color color, IconData icon, bool isDark) {
     return Container(
-      height: 24,
-      width: 1,
-      color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, size: 20, color: color),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: AppTheme.h2(isDark).copyWith(
+              color: color,
+              fontSize: 24,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: AppTheme.caption(isDark).copyWith(
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1,
+              color: color.withValues(alpha: 0.8),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -591,6 +782,94 @@ class ResultScreen extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildCriticalAlerts(bool isDark) {
+    // Filter for avoid/caution ingredients
+    final alerts = analysis.ingredients
+        .where((i) =>
+            i.rating == SafetyBadge.avoid || i.rating == SafetyBadge.caution)
+        .take(3)
+        .toList();
+
+    if (alerts.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(LucideIcons.alertTriangle,
+                size: 16, color: AppTheme.avoid.withValues(alpha: 0.8)),
+            const SizedBox(width: 8),
+            Text(
+              "CRITICAL INGREDIENTS TO WATCH",
+              style: AppTheme.caption(isDark).copyWith(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1,
+                  color: AppTheme.avoid),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        ...alerts.map((ing) {
+          final color = ing.rating == SafetyBadge.avoid
+              ? AppTheme.avoid
+              : AppTheme.caution;
+          return Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: color.withValues(alpha: 0.1)),
+            ),
+            child: Row(
+              children: [
+                Icon(LucideIcons.xCircle, size: 16, color: color),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        ing.name,
+                        style: AppTheme.bodySmall(isDark).copyWith(
+                            fontWeight: FontWeight.w900, fontSize: 13),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        ing.function,
+                        style: AppTheme.caption(isDark)
+                            .copyWith(fontSize: 10, letterSpacing: 0),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    ing.rating.name.toUpperCase(),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
+    );
+  }
 }
 
 class _SafetyGaugePainter extends CustomPainter {
@@ -660,6 +939,47 @@ class _SafetyGaugePainter extends CustomPainter {
       final y = center.dy + (radius - strokeWidth * 2.5) * math.sin(angle);
       canvas.drawCircle(Offset(x, y), 2, markerPaint);
     }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+class _MiniRingPainter extends CustomPainter {
+  final double percent;
+  final Color color;
+  final bool isDark;
+
+  _MiniRingPainter(
+      {required this.percent, required this.color, required this.isDark});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+    const strokeWidth = 5.0;
+
+    final bgPaint = Paint()
+      ..color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawCircle(center, radius - strokeWidth / 2, bgPaint);
+
+    final progressPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius - strokeWidth / 2),
+      -math.pi / 2,
+      2 * math.pi * percent.clamp(0.0, 1.0),
+      false,
+      progressPaint,
+    );
   }
 
   @override

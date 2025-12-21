@@ -112,7 +112,7 @@ class GeminiService {
 
   String _buildPrompt(String category) {
     return '''
-    Act as an expert Product Safety Toxicologist and high-precision OCR engine.
+    Act as an UNCOMPROMISING, STRICT International Food Safety Inspector & Toxicologist.
 
     TASK:
     1. Perform ultra-precise OCR on the provided image of a $category product label.
@@ -120,16 +120,19 @@ class GeminiService {
     3. Extract EVERY single ingredient listed on the label. Do not skip any.
     4. For each ingredient:
        - Identify its common name and technical/INCI name.
-       - Determine its function (e.g., Preservative, Emulsifier, Sweetener).
-       - Rate its safety ("safe", "caution", "avoid") based on EWG, FDA, and EU health standards.
-       - Provide a brief, evidence-based explanation for the rating.
-    5. Calculate an overall Safety Score (0-100) where 100 is perfectly safe.
-    6. Generate a 2-3 sentence overview of the health impact.
-    7. Identify 3-5 key highlights (e.g., "Paraben-Free", "High Sodium", "Organic").
+       - Determine its function using standard categories: "Stabilizer", "Preservative", "Sweetener", "Emulsifier", "Colorant", "Flavor enhancer", "Thickener", "Surfactant", "Antioxidant", or "Nutrient".
+       - Evaluate safety based on the STRICTEST international standards (specifically EU EFSA, WHO, and California Prop 65).
+       - If an ingredient is banned or restricted in Europe/Japan but allowed locally, mark it as "CAUTION" or "AVOID".
+       - Rate its safety ("safe", "caution", "avoid").
+       - Provide a brutal, truth-telling explanation. If it's a carcinogen or endocrine disruptor, SAY SO clearly.
+    5. Calculate a strict Safety Score (0-100). Penalize heavily for harmful additives.
+    6. Generate a 2-3 sentence overview. Be direct about long-term health risks.
+    7. Identify key highlights (e.g., "Contains Banned Dyes", "High Sugar", "Paraben-Free").
 
     CRITICAL RULES:
-    - If part of the text is blurry, use context from known ingredient databases to infer the correct name.
-    - Be extremely strict with "Avoid" ingredients like Parabens, Phthalates, BHA/BHT, High Fructose Corn Syrup, or Artificial Dyes.
+    - BE STRICT. Do not sugarcoat. If a product has 1% harmful ingredient, it is NOT safe.
+    - Flag "Avoid" ingredients like Parabens, Phthalates, BHA/BHT, High Fructose Corn Syrup, Artificial Dyes, and hidden sugars immediately.
+    - Be transparent about percentage if inferred context suggests high quantity (e.g. first 3 ingredients).
     - Respond ONLY in valid JSON.
 
     JSON STRUCTURE:
@@ -146,7 +149,7 @@ class GeminiService {
           "name": "Common Name",
           "technicalName": "Technical/INCI Name",
           "rating": "safe" | "caution" | "avoid",
-          "explanation": "Why this rating?",
+          "explanation": "Strict explanation referencing EU/WHO if applicable",
           "function": "Ingredient function"
         }
       ]
