@@ -132,3 +132,4 @@ class DailyInsights {
     return insights[dayOfYear % insights.length];
   }
 }
+

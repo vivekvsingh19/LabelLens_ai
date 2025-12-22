@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:labelsafe_ai/features/splash/splash_screen.dart';
 import 'package:labelsafe_ai/features/onboarding/onboarding_screen.dart';
+import 'package:labelsafe_ai/features/onboarding/login_screen.dart';
 import 'package:labelsafe_ai/features/home/home_screen.dart';
 import 'package:labelsafe_ai/features/scan/camera_screen.dart';
 import 'package:labelsafe_ai/features/result/result_screen.dart';
@@ -25,6 +26,10 @@ class AppRouter {
       GoRoute(
         path: '/onboarding',
         builder: (context, state) => const OnboardingScreen(),
+      ),
+      GoRoute(
+        path: '/login',
+        builder: (context, state) => const LoginScreen(),
       ),
       ShellRoute(
         navigatorKey: _shellNavigatorKey,

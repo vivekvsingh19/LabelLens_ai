@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:labelsafe_ai/core/theme/app_theme.dart';
+import 'package:labelsafe_ai/features/onboarding/login_screen.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -270,24 +271,70 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   Container(
                     width: 20,
                     height: 20,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Center(
+                    // decoration: BoxDecoration(
+                    //   color: Colors.white,
+                    //   borderRadius: BorderRadius.circular(4),
+                    // ),
+                    child: const Center(
                       child: Text(
                         'G',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 20,
                           fontWeight: FontWeight.w700,
-                          color: Colors.black,
+                          color: Colors.white,
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Text(
+                  const Text(
                     "Continue with Google",
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Sign In with Email button
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: OutlinedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginScreen(),
+                  ),
+                );
+              },
+              style: OutlinedButton.styleFrom(
+                foregroundColor: isDark ? Colors.white : Colors.black,
+                side: BorderSide(
+                  color: isDark
+                      ? Colors.white.withOpacity(0.2)
+                      : Colors.black.withOpacity(0.2),
+                  width: 1,
+                ),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(LucideIcons.mail, size: 18),
+                  const SizedBox(width: 12),
+                  Text(
+                    "Sign In with Email",
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
