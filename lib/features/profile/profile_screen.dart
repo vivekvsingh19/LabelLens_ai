@@ -15,78 +15,83 @@ class ProfileScreen extends ConsumerWidget {
     final currentTheme = ref.watch(themeModeProvider);
 
     return PopScope(
-      canPop: false,
-      onPopInvoked: (didPop) {
-        if (didPop) return;
-        context.go('/home');
-      },
-      child: Scaffold(
-        backgroundColor:
-            isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
-        appBar: AppBar(
-        title: Text('SETTINGS',
-            style: AppTheme.h2(isDark).copyWith(
-                letterSpacing: -1, fontWeight: FontWeight.w900, fontSize: 24)),
-        centerTitle: false,
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            _buildUserHero(isDark),
-            const SizedBox(height: 32),
-            _buildThemeSelector(context, ref, isDark, currentTheme),
-            const SizedBox(height: 32),
-            _buildSettingsGroup(
-              isDark,
-              "ACCOUNT",
-              [
-                _SettingAction(LucideIcons.user, "Personal Details", null),
-                _SettingAction(
-                    LucideIcons.shield, "Security & Privacy", "LOCKED"),
-              ],
-            ),
-            const SizedBox(height: 24),
-            _buildSettingsGroup(
-              isDark,
-              "PREFERENCES",
-              [
-                _SettingAction(LucideIcons.bell, "Notifications", "ON"),
-                _SettingAction(LucideIcons.globe, "Analysis Language", "EN"),
-                _SettingAction(LucideIcons.cpu, "AI Model Performance", "PRO"),
-              ],
-            ),
-            const SizedBox(height: 48),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              decoration: BoxDecoration(
-                border: Border.all(
-                    color: AppTheme.avoidColor.withValues(alpha: 0.2)),
-                borderRadius:
-                    BorderRadius.circular(AppTheme.borderRadiusMedium),
-              ),
-              child: Center(
-                child: Text(
-                  "SIGN OUT",
-                  style: AppTheme.caption(isDark).copyWith(
-                      color: AppTheme.avoidColor, fontWeight: FontWeight.w900),
+        canPop: false,
+        onPopInvoked: (didPop) {
+          if (didPop) return;
+          context.go('/home');
+        },
+        child: Scaffold(
+          backgroundColor:
+              isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
+          appBar: AppBar(
+            title: Text('SETTINGS',
+                style: AppTheme.h2(isDark).copyWith(
+                    letterSpacing: -1,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 24)),
+            centerTitle: false,
+            elevation: 0,
+          ),
+          body: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                _buildUserHero(isDark),
+                const SizedBox(height: 32),
+                _buildThemeSelector(context, ref, isDark, currentTheme),
+                const SizedBox(height: 32),
+                _buildSettingsGroup(
+                  isDark,
+                  "ACCOUNT",
+                  [
+                    _SettingAction(LucideIcons.user, "Personal Details", null),
+                    _SettingAction(
+                        LucideIcons.shield, "Security & Privacy", "LOCKED"),
+                  ],
                 ),
-              ),
+                const SizedBox(height: 24),
+                _buildSettingsGroup(
+                  isDark,
+                  "PREFERENCES",
+                  [
+                    _SettingAction(LucideIcons.bell, "Notifications", "ON"),
+                    _SettingAction(
+                        LucideIcons.globe, "Analysis Language", "EN"),
+                    _SettingAction(
+                        LucideIcons.cpu, "AI Model Performance", "PRO"),
+                  ],
+                ),
+                const SizedBox(height: 48),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                        color: AppTheme.avoidColor.withValues(alpha: 0.2)),
+                    borderRadius:
+                        BorderRadius.circular(AppTheme.borderRadiusMedium),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "SIGN OUT",
+                      style: AppTheme.caption(isDark).copyWith(
+                          color: AppTheme.avoidColor,
+                          fontWeight: FontWeight.w900),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Text(
+                  "BUILD 2.4.0 (BETA)",
+                  style: AppTheme.caption(isDark)
+                      .copyWith(fontSize: 8, letterSpacing: 3),
+                ),
+                const SizedBox(height: 100),
+              ],
             ),
-            const SizedBox(height: 32),
-            Text(
-              "BUILD 2.4.0 (BETA)",
-              style: AppTheme.caption(isDark)
-                  .copyWith(fontSize: 8, letterSpacing: 3),
-            ),
-            const SizedBox(height: 100),
-          ],
-        ),
-      ),
-    ));
+          ),
+        ));
   }
 
   Widget _buildThemeSelector(

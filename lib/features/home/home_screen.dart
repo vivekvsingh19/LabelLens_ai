@@ -190,7 +190,7 @@ class HomeScreen extends ConsumerWidget {
         .expand((p) => p.ingredients)
         .where((i) => i.rating == SafetyBadge.avoid)
         .length;
-    
+
     int safeScans = history.where((p) => p.rating == SafetyBadge.safe).length;
 
     // Theme: "Health Guard" - Teal/Mint for medical/safety trust
@@ -214,7 +214,7 @@ class HomeScreen extends ConsumerWidget {
                   const Color(0xFFB2DFDB),
                 ],
         ),
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: primaryColor.withValues(alpha: 0.2),
@@ -224,7 +224,7 @@ class HomeScreen extends ConsumerWidget {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(16),
         child: Stack(
           children: [
             // Background Pulse Visualization
@@ -278,9 +278,9 @@ class HomeScreen extends ConsumerWidget {
                         height: 1.1,
                         color: isDark ? Colors.white : const Color(0xFF004D40)),
                   ),
-                  
+
                   const SizedBox(height: 12),
-                  
+
                   Text(
                     "Every harmful ingredient you avoid is a victory for your long-term health.",
                     style: AppTheme.bodySmall(isDark).copyWith(
@@ -295,19 +295,11 @@ class HomeScreen extends ConsumerWidget {
                   // Stats Row
                   Row(
                     children: [
-                      _buildImpactBadge(
-                        isDark, 
-                        "$safeScans", 
-                        "Clean Choices", 
-                        LucideIcons.check
-                      ),
+                      _buildImpactBadge(isDark, "$safeScans", "Clean Choices",
+                          LucideIcons.check),
                       const SizedBox(width: 12),
-                      _buildImpactBadge(
-                        isDark, 
-                        "${history.length}", 
-                        "Labels Analyzed", 
-                        LucideIcons.scanLine
-                      ),
+                      _buildImpactBadge(isDark, "${history.length}",
+                          "Labels Analyzed", LucideIcons.scanLine),
                     ],
                   ),
                 ],
@@ -319,7 +311,8 @@ class HomeScreen extends ConsumerWidget {
     ).animate().fadeIn(duration: 800.ms).slideY(begin: 0.1, end: 0);
   }
 
-  Widget _buildImpactBadge(bool isDark, String value, String label, IconData icon) {
+  Widget _buildImpactBadge(
+      bool isDark, String value, String label, IconData icon) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
@@ -331,20 +324,26 @@ class HomeScreen extends ConsumerWidget {
       ),
       child: Row(
         children: [
-          Icon(icon, size: 14, color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.6)),
+          Icon(icon,
+              size: 14,
+              color: (isDark ? Colors.white : Colors.black)
+                  .withValues(alpha: 0.6)),
           const SizedBox(width: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(value, style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-                color: isDark ? Colors.white : Colors.black,
-              )),
-              Text(label, style: TextStyle(
-                fontSize: 10,
-                color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.5),
-              )),
+              Text(value,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: isDark ? Colors.white : Colors.black,
+                  )),
+              Text(label,
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: (isDark ? Colors.white : Colors.black)
+                        .withValues(alpha: 0.5),
+                  )),
             ],
           ),
         ],
@@ -361,8 +360,8 @@ class HomeScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(32),
         boxShadow: AppTheme.premiumShadow(isDark),
         border: Border.all(
-            color: (isDark ? Colors.white : Colors.black)
-                .withValues(alpha: 0.05)),
+            color:
+                (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05)),
       ),
       child: Center(
         child: Column(
@@ -400,16 +399,16 @@ class HomeScreen extends ConsumerWidget {
     return Row(
       children: [
         Expanded(
-            child: _buildActionTile("AVOIDED", avoidCount.toString(),
-                LucideIcons.skull, isDark)),
+            child: _buildActionTile(
+                "AVOIDED", avoidCount.toString(), LucideIcons.skull, isDark)),
         const SizedBox(width: 12),
         Expanded(
             child: _buildActionTile("CAUTIONS", cautionCount.toString(),
                 LucideIcons.alertTriangle, isDark)),
         const SizedBox(width: 12),
         Expanded(
-            child: _buildActionTile("SAFE", safeCount.toString(),
-                LucideIcons.checkCircle, isDark)),
+            child: _buildActionTile(
+                "SAFE", safeCount.toString(), LucideIcons.checkCircle, isDark)),
       ],
     );
   }
@@ -715,13 +714,13 @@ class _HealthPulsePainter extends CustomPainter {
     final midY = height * 0.6;
 
     path.moveTo(0, midY);
-    
+
     // Draw a stylized "heartbeat" pulse
     path.lineTo(width * 0.3, midY);
     path.lineTo(width * 0.35, midY - 20);
     path.lineTo(width * 0.4, midY + 20);
     path.lineTo(width * 0.45, midY - 40); // Peak
-    path.lineTo(width * 0.5, midY + 40);  // Trough
+    path.lineTo(width * 0.5, midY + 40); // Trough
     path.lineTo(width * 0.55, midY - 15);
     path.lineTo(width * 0.6, midY + 10);
     path.lineTo(width * 0.65, midY);
