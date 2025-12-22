@@ -21,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void _navigateToNext() async {
     final minSplashTime = Future.delayed(const Duration(milliseconds: 2500));
     final prefs = PreferencesService();
-    
+
     // Run checks in parallel with splash timer
     final results = await Future.wait([
       minSplashTime,

@@ -103,10 +103,9 @@ class _ResultScreenState extends State<ResultScreen> {
                                       .withValues(alpha: 0.03),
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                      color: (isDark
-                                              ? Colors.white
-                                              : Colors.black)
-                                          .withValues(alpha: 0.05)),
+                                      color:
+                                          (isDark ? Colors.white : Colors.black)
+                                              .withValues(alpha: 0.05)),
                                 ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -577,10 +576,12 @@ class _ResultScreenState extends State<ResultScreen> {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
-            color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03),
+            color:
+                (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03),
             borderRadius: BorderRadius.circular(100),
             border: Border.all(
-              color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
+              color: (isDark ? Colors.white : Colors.black)
+                  .withValues(alpha: 0.05),
             ),
           ),
           child: Row(

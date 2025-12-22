@@ -186,8 +186,8 @@ class ProfileScreen extends ConsumerWidget {
                 Text("VIVEK",
                     style: AppTheme.h2(isDark).copyWith(fontSize: 22)),
                 Text("PREMIUM ANALYST",
-                    style: AppTheme.caption(isDark).copyWith(
-                        color: isDark ? Colors.white : Colors.black)),
+                    style: AppTheme.caption(isDark)
+                        .copyWith(color: isDark ? Colors.white : Colors.black)),
                 const SizedBox(height: 8),
                 Container(
                   padding:

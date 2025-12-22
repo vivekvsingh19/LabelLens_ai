@@ -49,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ).animate(onPlay: (c) => c.repeat(reverse: true))
             .scale(begin: const Offset(1, 1), end: const Offset(1.2, 1.2), duration: 4.seconds),
           ),
-          
+
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -89,15 +89,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: 1.1,
                     ),
                   ).animate().fade(delay: 200.ms).slideY(begin: 0.2, end: 0),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   Text(
                     "Login to sync your scan history and preferences across devices.",
                     style: AppTheme.body(isDark).copyWith(
                       fontSize: 16,
-                      color: isDark 
-                          ? Colors.white.withValues(alpha: 0.6) 
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.6)
                           : Colors.black.withValues(alpha: 0.6),
                     ),
                   ).animate().fade(delay: 400.ms).slideY(begin: 0.2, end: 0),

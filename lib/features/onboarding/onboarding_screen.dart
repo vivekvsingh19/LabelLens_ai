@@ -87,7 +87,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ).animate(onPlay: (controller) => controller.repeat(reverse: true))
             .scale(begin: const Offset(1, 1), end: const Offset(1.3, 1.3), duration: 5.seconds),
           ),
-          
+
           // Main Content
           SafeArea(
             child: Column(
