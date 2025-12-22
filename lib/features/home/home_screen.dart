@@ -74,8 +74,8 @@ class HomeScreen extends ConsumerWidget {
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  (isDark ? AppTheme.accentPrimary : const Color(0xFFE0F7FA))
-                      .withValues(alpha: 0.1),
+                  (isDark ? AppTheme.accentPrimary : Colors.black)
+                      .withValues(alpha: 0.05),
                   Colors.transparent,
                 ],
               ),
@@ -94,8 +94,8 @@ class HomeScreen extends ConsumerWidget {
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  (isDark ? AppTheme.accentSecondary : const Color(0xFFE8EAF6))
-                      .withValues(alpha: 0.08),
+                  (isDark ? AppTheme.accentSecondary : Colors.black)
+                      .withValues(alpha: 0.04),
                   Colors.transparent,
                 ],
               ),
@@ -147,24 +147,25 @@ class HomeScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color(0xFFFF6B35).withValues(alpha: 0.15),
-            const Color(0xFFFF8C42).withValues(alpha: 0.15),
+            (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1),
+            (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xFFFF6B35).withValues(alpha: 0.3),
+          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.2),
           width: 1.5,
         ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            '🔥',
-            style: const TextStyle(fontSize: 20),
+          Icon(
+            LucideIcons.flame,
+            size: 20,
+            color: isDark ? Colors.white : Colors.black,
           ),
           const SizedBox(width: 6),
           Text(
@@ -291,18 +292,23 @@ class HomeScreen extends ConsumerWidget {
         color: isDark ? AppTheme.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
         boxShadow: AppTheme.softShadow(isDark),
+        border: Border.all(
+          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
+        ),
       ),
       child: Column(
         children: [
-          Icon(icon, size: 20, color: color),
+          Icon(icon, size: 20, color: isDark ? Colors.white : Colors.black),
           const SizedBox(height: 12),
           Text(value,
-              style: AppTheme.h3(isDark)
-                  .copyWith(fontSize: 16, fontWeight: FontWeight.w900)),
-          const SizedBox(height: 2),
+              style: AppTheme.h2(isDark).copyWith(
+                  fontSize: 24, color: isDark ? Colors.white : Colors.black)),
+          const SizedBox(height: 4),
           Text(label,
-              style: AppTheme.caption(isDark)
-                  .copyWith(fontSize: 8, letterSpacing: 1)),
+              style: AppTheme.caption(isDark).copyWith(
+                  fontSize: 10,
+                  color: (isDark ? Colors.white : Colors.black)
+                      .withValues(alpha: 0.5))),
         ],
       ),
     );

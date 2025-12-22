@@ -17,14 +17,14 @@ class AppTheme {
   static const Color lightDivider = Color(0xFFE2E8F0);
 
   // AI-Centric Accent Colors
-  static const Color accentPrimary = Color(0xFF00D1FF); // Cyber Cyan
-  static const Color accentSecondary = Color(0xFF3D5AFE); // Deep Indigo-Blue
-  static const Color accentSpark = Color(0xFF7C4DFF); // Hyper Violet
+  static const Color accentPrimary = Color(0xFFFFFFFF); // White
+  static const Color accentSecondary = Color(0xFFE0E0E0); // Light Gray
+  static const Color accentSpark = Color(0xFFBDBDBD); // Silver
 
   // Status Colors
-  static const Color safeColor = Colors.green;
-  static const Color cautionColor = Colors.orange;
-  static const Color avoidColor = Colors.red;
+  static const Color safeColor = Color(0xFF808080); // Gray
+  static const Color cautionColor = Color(0xFF606060); // Darker Gray
+  static const Color avoidColor = Color(0xFF404040); // Darkest Gray
 
   // Design Tokens
   static const double borderRadiusLarge = 24.0;

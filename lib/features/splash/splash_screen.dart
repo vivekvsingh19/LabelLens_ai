@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:labelsafe_ai/core/theme/app_theme.dart';
+import 'package:labelsafe_ai/core/services/preferences_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -18,8 +19,28 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToNext() async {
-    await Future.delayed(const Duration(milliseconds: 2500));
-    if (mounted) context.go('/onboarding');
+    final minSplashTime = Future.delayed(const Duration(milliseconds: 2500));
+    final prefs = PreferencesService();
+    
+    // Run checks in parallel with splash timer
+    final results = await Future.wait([
+      minSplashTime,
+      prefs.isOnboardingComplete(),
+      prefs.isLoggedIn(),
+    ]);
+
+    if (!mounted) return;
+
+    final onboardingComplete = results[1] as bool;
+    final isLoggedIn = results[2] as bool;
+
+    if (!onboardingComplete) {
+      context.go('/onboarding');
+    } else if (!isLoggedIn) {
+      context.go('/login');
+    } else {
+      context.go('/home');
+    }
   }
 
   @override

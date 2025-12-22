@@ -34,8 +34,7 @@ class ScaffoldWithNavbar extends ConsumerWidget {
                       : Colors.white.withValues(alpha: 0.95),
                   borderRadius: BorderRadius.circular(30),
                   border: Border.all(
-                      color: (isDark ? Colors.white : Colors.black)
-                          .withValues(alpha: 0.05)),
+                      color: isDark ? Colors.white : Colors.black, width: 0.5),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.1),
@@ -119,12 +118,12 @@ class ScaffoldWithNavbar extends ConsumerWidget {
   }
 }
 
-class _ScanTooltip extends StatelessWidget {
+class _ScanTooltip extends ConsumerWidget {
   final VoidCallback onTap;
-  const _ScanTooltip({required this.onTap});
+  const _ScanTooltip({super.key, required this.onTap});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? Colors.white : Colors.black;
     final textColor = isDark ? Colors.black : Colors.white;
@@ -161,7 +160,14 @@ class _ScanTooltip extends StatelessWidget {
           ),
         ],
       ),
-    ).animate().fadeIn().slideY(begin: 0.2, end: 0);
+    )
+        .animate(onComplete: (c) {
+          ref.read(showScanTooltipProvider.notifier).state = false;
+        })
+        .fadeIn()
+        .slideY(begin: 0.2, end: 0)
+        .then(delay: 4.seconds)
+        .fadeOut();
   }
 }
 

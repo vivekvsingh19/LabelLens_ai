@@ -133,7 +133,7 @@ class ProfileScreen extends ConsumerWidget {
               Icon(icon,
                   size: 18,
                   color: isSelected
-                      ? AppTheme.accentPrimary
+                      ? (isDark ? Colors.white : Colors.black)
                       : (isDark ? Colors.white70 : Colors.black54)),
               const SizedBox(height: 6),
               Text(
@@ -164,16 +164,19 @@ class ProfileScreen extends ConsumerWidget {
           Container(
             width: 80,
             height: 80,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
-                colors: [AppTheme.accentPrimary, AppTheme.accentSecondary],
+                colors: isDark
+                    ? [Colors.white, const Color(0xFFE0E0E0)]
+                    : [Colors.black, const Color(0xFF424242)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
             ),
-            child: const Center(
-                child: Icon(LucideIcons.user, size: 32, color: Colors.black)),
+            child: Center(
+                child: Icon(LucideIcons.user,
+                    size: 32, color: isDark ? Colors.black : Colors.white)),
           ),
           const SizedBox(width: 20),
           Expanded(
@@ -183,8 +186,8 @@ class ProfileScreen extends ConsumerWidget {
                 Text("VIVEK",
                     style: AppTheme.h2(isDark).copyWith(fontSize: 22)),
                 Text("PREMIUM ANALYST",
-                    style: AppTheme.caption(isDark)
-                        .copyWith(color: AppTheme.accentPrimary)),
+                    style: AppTheme.caption(isDark).copyWith(
+                        color: isDark ? Colors.white : Colors.black)),
                 const SizedBox(height: 8),
                 Container(
                   padding:

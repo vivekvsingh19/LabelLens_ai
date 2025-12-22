@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:labelsafe_ai/core/theme/app_theme.dart';
-import 'package:labelsafe_ai/features/onboarding/login_screen.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:lottie/lottie.dart';
+import 'package:labelsafe_ai/core/services/preferences_service.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -11,11 +13,9 @@ class OnboardingScreen extends StatefulWidget {
   State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen>
-    with SingleTickerProviderStateMixin {
+class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-  late AnimationController _fadeController;
 
   final List<OnboardingItem> _items = [
     OnboardingItem(
@@ -23,41 +23,32 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       description:
           "Decode ingredients and nutritional facts with AI-powered analysis in seconds.",
       icon: LucideIcons.scanLine,
+      lottiePath: 'assets/animations/scan.json',
     ),
     OnboardingItem(
       title: "Stay Safe",
       description:
           "Identify hidden additives, allergens, and potentially harmful chemicals.",
       icon: LucideIcons.shieldCheck,
+      lottiePath: 'assets/animations/shield.json',
     ),
     OnboardingItem(
       title: "Smart Insights",
       description:
           "Make informed consumption choices with personalized recommendations.",
       icon: LucideIcons.sparkles,
+      lottiePath: 'assets/animations/insights.json',
     ),
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _fadeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-    _fadeController.forward();
-  }
-
-  @override
   void dispose() {
     _pageController.dispose();
-    _fadeController.dispose();
     super.dispose();
   }
 
   void _onPageChanged(int index) {
     setState(() => _currentPage = index);
-    _fadeController.forward(from: 0);
   }
 
   @override
@@ -67,23 +58,56 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     return Scaffold(
       backgroundColor:
           isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(context, isDark),
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: _onPageChanged,
-                itemCount: _items.length,
-                itemBuilder: (context, index) {
-                  return _buildPage(_items[index], isDark, index);
-                },
+      body: Stack(
+        children: [
+          // Background Gradient Blob
+          Positioned(
+            top: -100,
+            right: -100,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: (isDark ? Colors.white : Colors.black).withOpacity(0.05),
               ),
+            ).animate(onPlay: (controller) => controller.repeat(reverse: true))
+            .scale(begin: const Offset(1, 1), end: const Offset(1.2, 1.2), duration: 4.seconds),
+          ),
+          Positioned(
+            bottom: -50,
+            left: -50,
+            child: Container(
+              width: 250,
+              height: 250,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: (isDark ? Colors.white : Colors.black).withOpacity(0.03),
+              ),
+            ).animate(onPlay: (controller) => controller.repeat(reverse: true))
+            .scale(begin: const Offset(1, 1), end: const Offset(1.3, 1.3), duration: 5.seconds),
+          ),
+          
+          // Main Content
+          SafeArea(
+            child: Column(
+              children: [
+                _buildHeader(context, isDark),
+                Expanded(
+                  child: PageView.builder(
+                    controller: _pageController,
+                    onPageChanged: _onPageChanged,
+                    itemCount: _items.length,
+                    itemBuilder: (context, index) {
+                      return _buildPage(_items[index], isDark, index);
+                    },
+                  ),
+                ),
+                _buildFooter(context, isDark),
+              ],
             ),
-            _buildFooter(context, isDark),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -123,71 +147,98 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   }
 
   Widget _buildPage(OnboardingItem item, bool isDark, int index) {
-    return FadeTransition(
-      opacity: _fadeController,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Spacer(flex: 2),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        key: ValueKey(index), // Force animation replay on page change
+        children: [
+          const Spacer(flex: 2),
 
-            // Icon
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isDark
-                    ? Colors.white.withOpacity(0.05)
-                    : Colors.black.withOpacity(0.03),
-                border: Border.all(
-                  color: isDark
-                      ? Colors.white.withOpacity(0.1)
-                      : Colors.black.withOpacity(0.08),
-                  width: 1,
-                ),
-              ),
-              child: Center(
-                child: Icon(
-                  item.icon,
-                  size: 44,
-                  color: isDark ? Colors.white : Colors.black,
-                ),
-              ),
+          // Icon / Lottie
+          SizedBox(
+            height: 280,
+            width: 280,
+            child: item.lottiePath != null
+                ? Lottie.asset(
+                    item.lottiePath!,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return _buildIconPlaceholder(item, isDark);
+                    },
+                  )
+                : _buildIconPlaceholder(item, isDark),
+          )
+              .animate()
+              .fade(duration: 600.ms)
+              .scale(delay: 200.ms, begin: const Offset(0.8, 0.8)),
+
+          const SizedBox(height: 48),
+
+          // Title
+          Text(
+            item.title,
+            style: AppTheme.h1(isDark).copyWith(
+              fontSize: 32,
+              letterSpacing: -1.0,
+              height: 1.1,
             ),
+            textAlign: TextAlign.center,
+          )
+              .animate()
+              .fade(duration: 600.ms, delay: 300.ms)
+              .slideY(begin: 0.2, end: 0),
 
-            const SizedBox(height: 48),
+          const SizedBox(height: 16),
 
-            // Title
-            Text(
-              item.title,
-              style: AppTheme.h1(isDark).copyWith(
-                fontSize: 36,
-                letterSpacing: -1.2,
-                height: 1.1,
-              ),
-              textAlign: TextAlign.center,
+          // Description
+          Text(
+            item.description,
+            style: AppTheme.body(isDark).copyWith(
+              fontSize: 16,
+              height: 1.5,
+              color: isDark
+                  ? Colors.white.withOpacity(0.7)
+                  : Colors.black.withOpacity(0.7),
             ),
+            textAlign: TextAlign.center,
+          )
+              .animate()
+              .fade(duration: 600.ms, delay: 500.ms)
+              .slideY(begin: 0.2, end: 0),
 
-            const SizedBox(height: 16),
+          const Spacer(flex: 3),
+        ],
+      ),
+    );
+  }
 
-            // Description
-            Text(
-              item.description,
-              style: AppTheme.body(isDark).copyWith(
-                fontSize: 15,
-                height: 1.6,
-                letterSpacing: 0,
-                color: isDark
-                    ? Colors.white.withOpacity(0.6)
-                    : Colors.black.withOpacity(0.6),
-              ),
-              textAlign: TextAlign.center,
-            ),
-
-            const Spacer(flex: 3),
+  Widget _buildIconPlaceholder(OnboardingItem item, bool isDark) {
+    return Container(
+      width: 200,
+      height: 200,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.accentPrimary.withOpacity(0.1),
+            AppTheme.accentSecondary.withOpacity(0.05),
           ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withOpacity(0.1)
+              : Colors.black.withOpacity(0.05),
+          width: 1,
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          item.icon,
+          size: 64,
+          color: isDark ? Colors.white : Colors.black,
         ),
       ),
     );
@@ -237,178 +288,20 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   Widget _buildCTAButton(BuildContext context, bool isDark) {
     final isLastPage = _currentPage == _items.length - 1;
 
-    if (isLastPage) {
-      // Last page: Show Google sign-in option
-      return Column(
-        children: [
-          // Continue with Google button
-          SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: OutlinedButton(
-              onPressed: () {
-                // TODO: Implement Google Sign-In
-                // For now, navigate to home
-                context.go('/home');
-              },
-              style: OutlinedButton.styleFrom(
-                foregroundColor: isDark ? Colors.white : Colors.black,
-                side: BorderSide(
-                  color: isDark
-                      ? Colors.white.withOpacity(0.2)
-                      : Colors.black.withOpacity(0.2),
-                  width: 1,
-                ),
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Google logo
-                  Container(
-                    width: 20,
-                    height: 20,
-                    // decoration: BoxDecoration(
-                    //   color: Colors.white,
-                    //   borderRadius: BorderRadius.circular(4),
-                    // ),
-                    child: const Center(
-                      child: Text(
-                        'G',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Text(
-                    "Continue with Google",
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.3,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Sign In with Email button
-          SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: OutlinedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const LoginScreen(),
-                  ),
-                );
-              },
-              style: OutlinedButton.styleFrom(
-                foregroundColor: isDark ? Colors.white : Colors.black,
-                side: BorderSide(
-                  color: isDark
-                      ? Colors.white.withOpacity(0.2)
-                      : Colors.black.withOpacity(0.2),
-                  width: 1,
-                ),
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(LucideIcons.mail, size: 18),
-                  const SizedBox(width: 12),
-                  Text(
-                    "Sign In with Email",
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.3,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Divider with "or"
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  height: 1,
-                  color: isDark
-                      ? Colors.white.withOpacity(0.1)
-                      : Colors.black.withOpacity(0.1),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  "or",
-                  style: AppTheme.bodySmall(isDark).copyWith(
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  height: 1,
-                  color: isDark
-                      ? Colors.white.withOpacity(0.1)
-                      : Colors.black.withOpacity(0.1),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          // Skip for now button
-          TextButton(
-            onPressed: () => context.go('/home'),
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-            ),
-            child: Text(
-              "Skip for now",
-              style: AppTheme.bodySmall(isDark).copyWith(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-
-    // Other pages: Regular continue button
     return SizedBox(
       width: double.infinity,
       height: 56,
       child: ElevatedButton(
-        onPressed: () {
-          _pageController.nextPage(
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.easeInOutCubic,
-          );
+        onPressed: () async {
+          if (isLastPage) {
+            await PreferencesService().setOnboardingComplete();
+            if (context.mounted) context.go('/login');
+          } else {
+            _pageController.nextPage(
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeInOutCubic,
+            );
+          }
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: isDark ? Colors.white : Colors.black,
@@ -422,8 +315,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              "Continue",
-              style: TextStyle(
+              isLastPage ? "Get Started" : "Continue",
+              style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.3,
@@ -431,7 +324,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             ),
             const SizedBox(width: 8),
             Icon(
-              LucideIcons.chevronRight,
+              isLastPage ? LucideIcons.arrowRight : LucideIcons.chevronRight,
               size: 18,
             ),
           ],
@@ -445,10 +338,12 @@ class OnboardingItem {
   final String title;
   final String description;
   final IconData icon;
+  final String? lottiePath;
 
   OnboardingItem({
     required this.title,
     required this.description,
     required this.icon,
+    this.lottiePath,
   });
 }

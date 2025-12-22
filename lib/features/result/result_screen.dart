@@ -32,11 +32,7 @@ class _ResultScreenState extends State<ResultScreen> {
     // Access widget.analysis instead of analysis
     final analysis = widget.analysis;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final ratingColor = analysis.rating == SafetyBadge.safe
-        ? AppTheme.safe
-        : (analysis.rating == SafetyBadge.caution
-            ? AppTheme.caution
-            : AppTheme.avoid);
+    final ratingColor = isDark ? Colors.white : Colors.black;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
@@ -103,11 +99,14 @@ class _ResultScreenState extends State<ResultScreen> {
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 12),
                                 decoration: BoxDecoration(
-                                  color: ratingColor.withValues(alpha: 0.1),
+                                  color: (isDark ? Colors.white : Colors.black)
+                                      .withValues(alpha: 0.03),
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                      color:
-                                          ratingColor.withValues(alpha: 0.2)),
+                                      color: (isDark
+                                              ? Colors.white
+                                              : Colors.black)
+                                          .withValues(alpha: 0.05)),
                                 ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -115,12 +114,17 @@ class _ResultScreenState extends State<ResultScreen> {
                                     Text("VIEW FULL ANALYSIS",
                                         style: TextStyle(
                                             fontSize: 12,
-                                            color: ratingColor,
+                                            color: isDark
+                                                ? Colors.white
+                                                : Colors.black,
                                             fontWeight: FontWeight.w900,
                                             letterSpacing: 1.0)),
                                     const SizedBox(width: 8),
                                     Icon(LucideIcons.chevronDown,
-                                        color: ratingColor, size: 16),
+                                        color: isDark
+                                            ? Colors.white
+                                            : Colors.black,
+                                        size: 16),
                                   ],
                                 ),
                               ),
@@ -359,8 +363,8 @@ class _ResultScreenState extends State<ResultScreen> {
       ),
       child: Text(
         rating.name.toUpperCase(),
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: isDark ? Colors.black : Colors.white,
           fontSize: 10,
           fontWeight: FontWeight.w900,
           letterSpacing: 1,
@@ -381,18 +385,30 @@ class _ResultScreenState extends State<ResultScreen> {
     return Row(
       children: [
         Expanded(
-          child: _buildStatCard(safeCount.toString(), "SAFE", AppTheme.safe,
-              LucideIcons.checkCircle, isDark),
+          child: _buildStatCard(
+              safeCount.toString(),
+              "SAFE",
+              isDark ? Colors.white : Colors.black,
+              LucideIcons.checkCircle,
+              isDark),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _buildStatCard(cautionCount.toString(), "CAUTION",
-              AppTheme.caution, LucideIcons.alertTriangle, isDark),
+          child: _buildStatCard(
+              cautionCount.toString(),
+              "CAUTION",
+              isDark ? Colors.white : Colors.black,
+              LucideIcons.alertTriangle,
+              isDark),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _buildStatCard(avoidCount.toString(), "AVOID", AppTheme.avoid,
-              LucideIcons.xCircle, isDark),
+          child: _buildStatCard(
+              avoidCount.toString(),
+              "AVOID",
+              isDark ? Colors.white : Colors.black,
+              LucideIcons.xCircle,
+              isDark),
         ),
       ],
     ).animate().fadeIn(delay: 700.ms).slideY(begin: 0.2, end: 0);
@@ -458,12 +474,12 @@ class _ResultScreenState extends State<ResultScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildMiniRing(
-                  harmfulCount / total, "RISK", AppTheme.avoid, isDark),
+              _buildMiniRing(harmfulCount / total, "RISK",
+                  isDark ? Colors.white : Colors.black, isDark),
               _buildMiniRing(stabilizerCount / total, "PROCESSED",
-                  const Color(0xFFFFA000), isDark),
-              _buildMiniRing(
-                  sugarCount / total, "SUGAR", const Color(0xFFEC407A), isDark),
+                  isDark ? Colors.white : Colors.black, isDark),
+              _buildMiniRing(sugarCount / total, "SUGAR",
+                  isDark ? Colors.white : Colors.black, isDark),
             ],
           ),
         ],
@@ -480,7 +496,9 @@ class _ResultScreenState extends State<ResultScreen> {
           height: 50,
           child: CustomPaint(
             painter: _MiniRingPainter(
-                percent: percent, color: color, isDark: isDark),
+                percent: percent,
+                color: isDark ? Colors.white : Colors.black,
+                isDark: isDark),
             child: Center(
               child: Text(
                 "${(percent * 100).toInt()}%",
@@ -508,18 +526,23 @@ class _ResultScreenState extends State<ResultScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
+        color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
+        border: Border.all(
+            color:
+                (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05)),
       ),
       child: Column(
         children: [
-          Icon(icon, size: 20, color: color),
+          Icon(icon,
+              size: 20,
+              color: (isDark ? Colors.white : Colors.black)
+                  .withValues(alpha: 0.8)),
           const SizedBox(height: 8),
           Text(
             value,
             style: AppTheme.h2(isDark).copyWith(
-              color: color,
+              color: isDark ? Colors.white : Colors.black,
               fontSize: 24,
               fontWeight: FontWeight.w900,
             ),
@@ -531,7 +554,8 @@ class _ResultScreenState extends State<ResultScreen> {
               fontSize: 10,
               fontWeight: FontWeight.w800,
               letterSpacing: 1,
-              color: color.withValues(alpha: 0.8),
+              color:
+                  (isDark ? Colors.white : Colors.black).withValues(alpha: 0.5),
             ),
           ),
         ],
@@ -548,15 +572,15 @@ class _ResultScreenState extends State<ResultScreen> {
         final isNegative = tag.toLowerCase().contains("contains") ||
             tag.toLowerCase().contains("processed") ||
             tag.toLowerCase().contains("regulator");
-        final chipColor = isNegative ? AppTheme.avoid : AppTheme.safe;
+        final chipColor = isDark ? Colors.white : Colors.black;
 
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
-            color: chipColor.withValues(alpha: 0.05),
+            color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03),
             borderRadius: BorderRadius.circular(100),
             border: Border.all(
-              color: chipColor.withValues(alpha: 0.2),
+              color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
             ),
           ),
           child: Row(
@@ -565,7 +589,7 @@ class _ResultScreenState extends State<ResultScreen> {
               Icon(
                 isNegative ? LucideIcons.alertCircle : LucideIcons.sparkles,
                 size: 12,
-                color: chipColor,
+                color: chipColor.withValues(alpha: 0.7),
               ),
               const SizedBox(width: 8),
               Flexible(
@@ -592,10 +616,10 @@ class _ResultScreenState extends State<ResultScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: ratingColor.withValues(alpha: 0.03),
+        color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
         border: Border.all(
-          color: ratingColor.withValues(alpha: 0.1),
+          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
         ),
       ),
       child: Column(
@@ -603,12 +627,16 @@ class _ResultScreenState extends State<ResultScreen> {
         children: [
           Row(
             children: [
-              Icon(LucideIcons.brainCircuit, color: ratingColor, size: 20),
+              Icon(LucideIcons.brainCircuit,
+                  color: (isDark ? Colors.white : Colors.black)
+                      .withValues(alpha: 0.8),
+                  size: 20),
               const SizedBox(width: 12),
               Text(
                 "AI ANALYSIS",
                 style: AppTheme.caption(isDark).copyWith(
-                  color: ratingColor,
+                  color: (isDark ? Colors.white : Colors.black)
+                      .withValues(alpha: 0.8),
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -630,11 +658,7 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
   Widget _buildModernIngredientTile(IngredientDetail ing, bool isDark) {
-    final color = ing.rating == SafetyBadge.safe
-        ? AppTheme.safe
-        : (ing.rating == SafetyBadge.caution
-            ? AppTheme.caution
-            : AppTheme.avoid);
+    final color = isDark ? Colors.white : Colors.black;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -643,7 +667,7 @@ class _ResultScreenState extends State<ResultScreen> {
         borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
         boxShadow: AppTheme.softShadow(isDark),
         border: Border.all(
-          color: color.withValues(alpha: 0.15),
+          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
           width: 1.5,
         ),
       ),
@@ -659,8 +683,8 @@ class _ResultScreenState extends State<ResultScreen> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      color.withValues(alpha: 0.04),
-                      color.withValues(alpha: 0.01),
+                      (isDark ? Colors.white : Colors.black)
+                          .withValues(alpha: 0.02),
                       Colors.transparent,
                     ],
                   ),
@@ -679,13 +703,13 @@ class _ResultScreenState extends State<ResultScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: color,
+                          color: color.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           ing.rating.name.toUpperCase(),
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: color,
                             fontSize: 8,
                             fontWeight: FontWeight.w900,
                             letterSpacing: 0.5,
@@ -740,7 +764,8 @@ class _ResultScreenState extends State<ResultScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(LucideIcons.info, size: 14, color: color),
+                        Icon(LucideIcons.info,
+                            size: 14, color: color.withValues(alpha: 0.5)),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
@@ -794,13 +819,15 @@ class _ResultScreenState extends State<ResultScreen> {
 
     if (alerts.isEmpty) return const SizedBox.shrink();
 
+    final alertColor = isDark ? Colors.white : Colors.black;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
             Icon(LucideIcons.alertTriangle,
-                size: 16, color: AppTheme.avoid.withValues(alpha: 0.8)),
+                size: 16, color: alertColor.withValues(alpha: 0.8)),
             const SizedBox(width: 8),
             Text(
               "CRITICAL INGREDIENTS TO WATCH",
@@ -808,7 +835,7 @@ class _ResultScreenState extends State<ResultScreen> {
                   fontSize: 10,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1,
-                  color: AppTheme.avoid),
+                  color: alertColor),
             ),
           ],
         ),
@@ -816,9 +843,6 @@ class _ResultScreenState extends State<ResultScreen> {
         ...alerts.asMap().entries.map((entry) {
           final index = entry.key;
           final ing = entry.value;
-          final color = ing.rating == SafetyBadge.avoid
-              ? AppTheme.avoid
-              : AppTheme.caution;
           final isExpanded = _expandedAlerts.contains(index);
 
           return GestureDetector(
@@ -835,15 +859,19 @@ class _ResultScreenState extends State<ResultScreen> {
               margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.05),
+                color: (isDark ? Colors.white : Colors.black)
+                    .withValues(alpha: 0.03),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: color.withValues(alpha: 0.1)),
+                border: Border.all(
+                    color: (isDark ? Colors.white : Colors.black)
+                        .withValues(alpha: 0.05)),
               ),
               child: Column(
                 children: [
                   Row(
                     children: [
-                      Icon(LucideIcons.xCircle, size: 16, color: color),
+                      Icon(LucideIcons.xCircle,
+                          size: 16, color: alertColor.withValues(alpha: 0.7)),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -876,13 +904,13 @@ class _ResultScreenState extends State<ResultScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: color,
+                          color: alertColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           ing.rating.name.toUpperCase(),
-                          style: const TextStyle(
-                              color: Colors.white,
+                          style: TextStyle(
+                              color: alertColor,
                               fontSize: 8,
                               fontWeight: FontWeight.bold),
                         ),
@@ -900,14 +928,14 @@ class _ResultScreenState extends State<ResultScreen> {
                                 ? LucideIcons.chevronUp
                                 : LucideIcons.chevronDown,
                             size: 14,
-                            color: color.withValues(alpha: 0.6),
+                            color: alertColor.withValues(alpha: 0.6),
                           ),
                           const SizedBox(width: 4),
                           Text(
                             isExpanded ? "Show less" : "Show details",
                             style: AppTheme.caption(isDark).copyWith(
                               fontSize: 10,
-                              color: color.withValues(alpha: 0.8),
+                              color: alertColor.withValues(alpha: 0.8),
                               fontWeight: FontWeight.w700,
                             ),
                           ),

@@ -32,7 +32,8 @@ class HistoryScreen extends ConsumerWidget {
               await ref.read(analysisRepositoryProvider).clearHistory();
               ref.invalidate(scanHistoryProvider);
             },
-            icon: const Icon(LucideIcons.trash2, size: 20, color: Colors.red),
+            icon: Icon(LucideIcons.trash2,
+                size: 20, color: isDark ? Colors.white : Colors.black),
           ),
         ],
       ),
@@ -100,13 +101,13 @@ class HistoryScreen extends ConsumerWidget {
       childAspectRatio: 1.2,
       children: [
         _buildStatCard("SCANNED", "$scannedCount", LucideIcons.scan,
-            AppTheme.accentPrimary, isDark),
+            isDark ? Colors.white : Colors.black, isDark),
         _buildStatCard("AVG SCORE", "$avgScore", LucideIcons.activity,
-            AppTheme.accentSecondary, isDark),
+            isDark ? Colors.white : Colors.black, isDark),
         _buildStatCard("UNSAFE FOUND", "$unsafeIngredients",
-            LucideIcons.shieldAlert, AppTheme.accentSpark, isDark),
-        _buildStatCard(
-            "STREAK", "02", LucideIcons.zap, AppTheme.accentPrimary, isDark),
+            LucideIcons.shieldAlert, isDark ? Colors.white : Colors.black, isDark),
+        _buildStatCard("STREAK", "02", LucideIcons.zap,
+            isDark ? Colors.white : Colors.black, isDark),
       ],
     );
   }
@@ -169,11 +170,12 @@ class HistoryScreen extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: _getRatingColor(scan.rating).withValues(alpha: 0.1),
+                    color: (isDark ? Colors.white : Colors.black)
+                        .withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(_getRatingIcon(scan.rating),
-                      color: _getRatingColor(scan.rating), size: 16),
+                      color: isDark ? Colors.white : Colors.black, size: 16),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -192,7 +194,7 @@ class HistoryScreen extends ConsumerWidget {
                   children: [
                     Text("${scan.score.toInt()}%",
                         style: AppTheme.h3(isDark).copyWith(
-                            color: _getRatingColor(scan.rating),
+                            color: isDark ? Colors.white : Colors.black,
                             fontWeight: FontWeight.w900)),
                     Text(_getFormattedDate(scan.date),
                         style: AppTheme.caption(isDark).copyWith(fontSize: 8)),
@@ -207,17 +209,6 @@ class HistoryScreen extends ConsumerWidget {
         );
       },
     );
-  }
-
-  Color _getRatingColor(SafetyBadge rating) {
-    switch (rating) {
-      case SafetyBadge.safe:
-        return AppTheme.safe;
-      case SafetyBadge.caution:
-        return AppTheme.caution;
-      case SafetyBadge.avoid:
-        return AppTheme.avoid;
-    }
   }
 
   IconData _getRatingIcon(SafetyBadge rating) {
