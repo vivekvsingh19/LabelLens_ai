@@ -128,13 +128,15 @@ class _LoginScreenState extends State<LoginScreen>
                                     gradient: LinearGradient(
                                       colors: [
                                         AppTheme.accentPrimary.withOpacity(0.2),
-                                        AppTheme.accentSecondary.withOpacity(0.1),
+                                        AppTheme.accentSecondary
+                                            .withOpacity(0.1),
                                       ],
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                     ),
                                     border: Border.all(
-                                      color: AppTheme.accentPrimary.withOpacity(0.3),
+                                      color: AppTheme.accentPrimary
+                                          .withOpacity(0.3),
                                       width: 2,
                                     ),
                                   ),
@@ -256,7 +258,8 @@ class _LoginScreenState extends State<LoginScreen>
                                 children: [
                                   GestureDetector(
                                     onTap: () {
-                                      setState(() => _rememberMe = !_rememberMe);
+                                      setState(
+                                          () => _rememberMe = !_rememberMe);
                                     },
                                     child: Row(
                                       children: [
@@ -286,8 +289,8 @@ class _LoginScreenState extends State<LoginScreen>
                                                   child: Icon(
                                                     LucideIcons.check,
                                                     size: 12,
-                                                    color: AppTheme
-                                                        .accentPrimary,
+                                                    color:
+                                                        AppTheme.accentPrimary,
                                                   ),
                                                 )
                                               : null,
@@ -309,8 +312,8 @@ class _LoginScreenState extends State<LoginScreen>
                                     },
                                     child: Text(
                                       "Forgot Password?",
-                                      style: AppTheme.bodySmall(isDark)
-                                          .copyWith(
+                                      style:
+                                          AppTheme.bodySmall(isDark).copyWith(
                                         fontSize: 13,
                                         color: AppTheme.accentPrimary,
                                         fontWeight: FontWeight.w600,
@@ -342,8 +345,8 @@ class _LoginScreenState extends State<LoginScreen>
                       curve: const Interval(0.5, 0.9),
                     ),
                     child: Padding(
-                      padding:
-                          const EdgeInsets.only(left: 24, right: 24, bottom: 24),
+                      padding: const EdgeInsets.only(
+                          left: 24, right: 24, bottom: 24),
                       child: Column(
                         children: [
                           // Login Button
@@ -521,8 +524,9 @@ class _LoginScreenState extends State<LoginScreen>
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            color:
-                isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.03),
+            color: isDark
+                ? Colors.white.withOpacity(0.06)
+                : Colors.black.withOpacity(0.03),
             border: Border.all(
               color: isDark
                   ? Colors.white.withOpacity(0.1)
@@ -573,8 +577,9 @@ class _LoginScreenState extends State<LoginScreen>
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            color:
-                isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.03),
+            color: isDark
+                ? Colors.white.withOpacity(0.06)
+                : Colors.black.withOpacity(0.03),
             border: Border.all(
               color: isDark
                   ? Colors.white.withOpacity(0.1)
@@ -609,9 +614,7 @@ class _LoginScreenState extends State<LoginScreen>
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Icon(
-                    _obscurePassword
-                        ? LucideIcons.eye
-                        : LucideIcons.eyeOff,
+                    _obscurePassword ? LucideIcons.eye : LucideIcons.eyeOff,
                     size: 20,
                     color: isDark
                         ? Colors.white.withOpacity(0.5)
