@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labelsafe_ai/core/theme/app_theme.dart';
@@ -110,22 +111,28 @@ class HomeScreen extends ConsumerWidget {
 
   Widget _buildHeader(bool isDark) {
     return SliverPadding(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
       sliver: SliverToBoxAdapter(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("HELLO, VIVEK", style: AppTheme.caption(isDark)),
-                  const SizedBox(height: 4),
-                  Text("DASHBOARD",
-                      style: AppTheme.h2(isDark).copyWith(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                          color: isDark ? AppTheme.accentPrimary : null)),
+                  Text("HELLO, VIVEK",
+                      style: AppTheme.caption(isDark).copyWith(
+                          fontSize: 12,
+                          letterSpacing: 3,
+                          fontWeight: FontWeight.w900)),
+                  const SizedBox(height: 8),
+                  Text("YOUR\nSAFETY INDEX",
+                      style: AppTheme.h1(isDark).copyWith(
+                          fontSize: 32,
+                          height: 0.9,
+                          letterSpacing: -1.5,
+                          color: isDark ? Colors.white : Colors.black)),
                 ],
               ),
             ),
@@ -139,42 +146,33 @@ class HomeScreen extends ConsumerWidget {
 
   Widget _buildStreakIndicator(bool isDark) {
     // Calculate streak based on scan history
-    // For now, using a simple counter - can be enhanced with actual streak logic
-    final streak = 7; // This can be calculated from actual scan dates
+    final streak = 7;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1),
-            (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
+        color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.2),
-          width: 1.5,
+          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1),
         ),
       ),
-      child: Row(
+      child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             LucideIcons.flame,
-            size: 20,
+            size: 24,
             color: isDark ? Colors.white : Colors.black,
           ),
-          const SizedBox(width: 6),
+          const SizedBox(height: 4),
           Text(
-            '$streak',
+            '$streak DAYS',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 10,
               fontWeight: FontWeight.w900,
-              color: isDark ? Colors.white : Colors.black87,
-              letterSpacing: 0.5,
+              color: isDark ? Colors.white : Colors.black,
+              letterSpacing: 1,
             ),
           ),
         ],
@@ -183,74 +181,206 @@ class HomeScreen extends ConsumerWidget {
   }
 
   Widget _buildMainHeroCard(bool isDark, List<ProductAnalysis> history) {
-    final lastScore = history.isEmpty ? 0 : history.first.score.toInt();
+    if (history.isEmpty) {
+      return _buildEmptyHero(isDark);
+    }
+
+    // Calculate Impact
+    int risksAvoided = history
+        .expand((p) => p.ingredients)
+        .where((i) => i.rating == SafetyBadge.avoid)
+        .length;
+    
+    int safeScans = history.where((p) => p.rating == SafetyBadge.safe).length;
+
+    // Theme: "Health Guard" - Teal/Mint for medical/safety trust
+    Color primaryColor = const Color(0xFF00BFA5); // Teal Accent
+    Color secondaryColor = const Color(0xFF64FFDA); // Mint
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(32),
+      height: 280,
       decoration: BoxDecoration(
-        color: isDark ? AppTheme.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
-        boxShadow: AppTheme.premiumShadow(isDark),
-        border: Border.all(
-            color: (isDark ? AppTheme.accentPrimary : Colors.black)
-                .withValues(alpha: 0.05)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("LATEST SAFETY SCORE",
-                  style: AppTheme.caption(isDark)
-                      .copyWith(color: isDark ? AppTheme.accentPrimary : null)),
-              Icon(LucideIcons.info,
-                  size: 16,
-                  color: (isDark ? Colors.white : Colors.black)
-                      .withValues(alpha: 0.3)),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                "$lastScore",
-                style: AppTheme.score(isDark).copyWith(height: 1),
-              ).animate().shimmer(duration: 2.seconds),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12, left: 4),
-                child: Text("/100",
-                    style: AppTheme.h2(isDark).copyWith(
-                        color: (isDark ? Colors.white : Colors.black)
-                            .withValues(alpha: 0.2))),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(100),
-            child: LinearProgressIndicator(
-              value: lastScore / 100,
-              minHeight: 8,
-              backgroundColor: (isDark ? Colors.white : Colors.black)
-                  .withValues(alpha: 0.05),
-              valueColor: AlwaysStoppedAnimation<Color>(
-                  isDark ? AppTheme.accentPrimary : Colors.black),
-            ),
-          ).animate().scaleX(duration: 1.seconds, curve: Curves.easeOutBack),
-          const SizedBox(height: 20),
-          Text(
-            history.isEmpty
-                ? "Start scanning products to see your safety index."
-                : "Your safety profile is based on your latest analysis.",
-            style: AppTheme.bodySmall(isDark)
-                .copyWith(fontStyle: FontStyle.italic),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? [
+                  const Color(0xFF004D40),
+                  const Color(0xFF00695C),
+                ]
+              : [
+                  const Color(0xFFE0F2F1),
+                  const Color(0xFFB2DFDB),
+                ],
+        ),
+        borderRadius: BorderRadius.circular(32),
+        boxShadow: [
+          BoxShadow(
+            color: primaryColor.withValues(alpha: 0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(32),
+        child: Stack(
+          children: [
+            // Background Pulse Visualization
+            Positioned.fill(
+              child: CustomPaint(
+                painter: _HealthPulsePainter(
+                  color: primaryColor,
+                  isDark: isDark,
+                ),
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.all(28),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: (isDark ? Colors.white : primaryColor)
+                              .withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(LucideIcons.heartPulse,
+                            size: 18,
+                            color: isDark ? Colors.white : primaryColor),
+                      ),
+                      const SizedBox(width: 12),
+                      Text("YOUR HEALTH GUARD",
+                          style: AppTheme.caption(isDark).copyWith(
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1,
+                              color: (isDark ? Colors.white : Colors.black)
+                                  .withValues(alpha: 0.6))),
+                    ],
+                  ),
+
+                  const Spacer(),
+
+                  // Main Impact Statement
+                  Text(
+                    risksAvoided > 0
+                        ? "$risksAvoided Potential\nRisks Prevented"
+                        : "Active Protection\nEnabled",
+                    style: AppTheme.h1(isDark).copyWith(
+                        fontSize: 32,
+                        height: 1.1,
+                        color: isDark ? Colors.white : const Color(0xFF004D40)),
+                  ),
+                  
+                  const SizedBox(height: 12),
+                  
+                  Text(
+                    "Every harmful ingredient you avoid is a victory for your long-term health.",
+                    style: AppTheme.bodySmall(isDark).copyWith(
+                        fontSize: 13,
+                        height: 1.4,
+                        color: (isDark ? Colors.white : Colors.black)
+                            .withValues(alpha: 0.6)),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Stats Row
+                  Row(
+                    children: [
+                      _buildImpactBadge(
+                        isDark, 
+                        "$safeScans", 
+                        "Clean Choices", 
+                        LucideIcons.check
+                      ),
+                      const SizedBox(width: 12),
+                      _buildImpactBadge(
+                        isDark, 
+                        "${history.length}", 
+                        "Labels Analyzed", 
+                        LucideIcons.scanLine
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     ).animate().fadeIn(duration: 800.ms).slideY(begin: 0.1, end: 0);
+  }
+
+  Widget _buildImpactBadge(bool isDark, String value, String label, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 14, color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.6)),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(value, style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: isDark ? Colors.white : Colors.black,
+              )),
+              Text(label, style: TextStyle(
+                fontSize: 10,
+                color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.5),
+              )),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyHero(bool isDark) {
+    return Container(
+      width: double.infinity,
+      height: 220,
+      decoration: BoxDecoration(
+        color: isDark ? AppTheme.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(32),
+        boxShadow: AppTheme.premiumShadow(isDark),
+        border: Border.all(
+            color: (isDark ? Colors.white : Colors.black)
+                .withValues(alpha: 0.05)),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(LucideIcons.scanLine,
+                size: 48,
+                color: (isDark ? Colors.white : Colors.black)
+                    .withValues(alpha: 0.2)),
+            const SizedBox(height: 16),
+            Text("Start scanning to build your profile",
+                style: AppTheme.bodySmall(isDark).copyWith(
+                    color: (isDark ? Colors.white : Colors.black)
+                        .withValues(alpha: 0.6))),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildQuickActions(bool isDark, List<ProductAnalysis> history) {
@@ -271,47 +401,61 @@ class HomeScreen extends ConsumerWidget {
       children: [
         Expanded(
             child: _buildActionTile("AVOIDED", avoidCount.toString(),
-                LucideIcons.skull, AppTheme.avoid, isDark)),
+                LucideIcons.skull, isDark)),
         const SizedBox(width: 12),
         Expanded(
             child: _buildActionTile("CAUTIONS", cautionCount.toString(),
-                LucideIcons.alertTriangle, AppTheme.caution, isDark)),
+                LucideIcons.alertTriangle, isDark)),
         const SizedBox(width: 12),
         Expanded(
             child: _buildActionTile("SAFE", safeCount.toString(),
-                LucideIcons.checkCircle, AppTheme.safe, isDark)),
+                LucideIcons.checkCircle, isDark)),
       ],
     );
   }
 
   Widget _buildActionTile(
-      String label, String value, IconData icon, Color color, bool isDark) {
+      String label, String value, IconData icon, bool isDark) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
+      height: 110,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isDark ? AppTheme.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: AppTheme.softShadow(isDark),
         border: Border.all(
           color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
         ),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(icon, size: 20, color: isDark ? Colors.white : Colors.black),
-          const SizedBox(height: 12),
-          Text(value,
-              style: AppTheme.h2(isDark).copyWith(
-                  fontSize: 24, color: isDark ? Colors.white : Colors.black)),
-          const SizedBox(height: 4),
-          Text(label,
-              style: AppTheme.caption(isDark).copyWith(
-                  fontSize: 10,
-                  color: (isDark ? Colors.white : Colors.black)
-                      .withValues(alpha: 0.5))),
+          Icon(icon,
+              size: 20,
+              color: (isDark ? Colors.white : Colors.black)
+                  .withValues(alpha: 0.7)),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(value,
+                  style: AppTheme.h2(isDark).copyWith(
+                      fontSize: 28,
+                      height: 1,
+                      fontWeight: FontWeight.w900,
+                      color: isDark ? Colors.white : Colors.black)),
+              const SizedBox(height: 4),
+              Text(label,
+                  style: AppTheme.caption(isDark).copyWith(
+                      fontSize: 8,
+                      letterSpacing: 1,
+                      color: (isDark ? Colors.white : Colors.black)
+                          .withValues(alpha: 0.5))),
+            ],
+          ),
         ],
       ),
-    );
+    ).animate().scale(duration: 400.ms, curve: Curves.easeOutBack);
   }
 
   Widget _buildModernScansList(
@@ -322,9 +466,25 @@ class HomeScreen extends ConsumerWidget {
         decoration: BoxDecoration(
           color: isDark ? AppTheme.darkCard : Colors.white,
           borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+          border: Border.all(
+            color:
+                (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
+          ),
         ),
         child: Center(
-          child: Text("No scans yet", style: AppTheme.caption(isDark)),
+          child: Column(
+            children: [
+              Icon(LucideIcons.scanLine,
+                  size: 32,
+                  color: (isDark ? Colors.white : Colors.black)
+                      .withValues(alpha: 0.2)),
+              const SizedBox(height: 16),
+              Text("NO SCANS YET",
+                  style: AppTheme.caption(isDark).copyWith(
+                      color: (isDark ? Colors.white : Colors.black)
+                          .withValues(alpha: 0.4))),
+            ],
+          ),
         ),
       );
     }
@@ -344,69 +504,86 @@ class HomeScreen extends ConsumerWidget {
               extra: scan),
           child: Container(
             margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: isDark ? AppTheme.darkCard : Colors.white,
-              borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+              borderRadius: BorderRadius.circular(24),
               boxShadow: AppTheme.softShadow(isDark),
               border: Border.all(
                   color: (isDark ? Colors.white : Colors.black)
-                      .withValues(alpha: 0.02)),
+                      .withValues(alpha: 0.03)),
             ),
             child: Row(
               children: [
                 Container(
-                  width: 60,
-                  height: 60,
+                  width: 56,
+                  height: 56,
                   decoration: BoxDecoration(
-                    color: (isDark ? AppTheme.accentPrimary : Colors.black)
+                    color: (isDark ? Colors.white : Colors.black)
                         .withValues(alpha: 0.05),
-                    borderRadius:
-                        BorderRadius.circular(AppTheme.borderRadiusSmall),
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Icon(
-                      scan.category.toLowerCase() == 'food'
-                          ? LucideIcons.apple
-                          : LucideIcons.sparkles,
-                      size: 28,
-                      color: (isDark ? AppTheme.accentPrimary : Colors.black)
-                          .withValues(alpha: 0.4)),
+                  child: Center(
+                    child: Text(
+                      scan.score.toInt().toString(),
+                      style: AppTheme.h3(isDark).copyWith(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? Colors.white : Colors.black),
+                    ),
+                  ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 20),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(scan.productName,
-                          style: AppTheme.bodyLarge(isDark)
-                              .copyWith(fontSize: 14)),
+                      Text(scan.productName.toUpperCase(),
+                          style: AppTheme.h3(isDark).copyWith(fontSize: 15),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis),
                       const SizedBox(height: 4),
-                      Text(
-                        "ANALYZED $timeAgo",
-                        style: AppTheme.caption(isDark).copyWith(
-                            fontSize: 8,
-                            color: isDark
-                                ? AppTheme.accentPrimary.withValues(alpha: 0.6)
-                                : null),
+                      Row(
+                        children: [
+                          Icon(
+                            scan.category.toLowerCase() == 'food'
+                                ? LucideIcons.apple
+                                : LucideIcons.sparkles,
+                            size: 12,
+                            color: (isDark ? Colors.white : Colors.black)
+                                .withValues(alpha: 0.5),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            timeAgo,
+                            style: AppTheme.caption(isDark).copyWith(
+                                fontSize: 9,
+                                color: (isDark ? Colors.white : Colors.black)
+                                    .withValues(alpha: 0.4)),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                IconButton(
-                  onPressed: () => context.push(
-                      '/result/${Uri.encodeComponent(scan.category)}',
-                      extra: scan),
-                  icon: const Icon(LucideIcons.arrowRight, size: 18),
-                  style: IconButton.styleFrom(
-                    backgroundColor: (isDark ? Colors.white : Colors.black)
-                        .withValues(alpha: 0.05),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                        color: (isDark ? Colors.white : Colors.black)
+                            .withValues(alpha: 0.1)),
                   ),
+                  child: Icon(LucideIcons.arrowRight,
+                      size: 16,
+                      color: (isDark ? Colors.white : Colors.black)
+                          .withValues(alpha: 0.5)),
                 ),
               ],
             ),
           )
               .animate()
-              .fadeIn(delay: (200 * index).ms)
+              .fadeIn(delay: (100 * index).ms)
               .slideX(begin: 0.05, end: 0),
         );
       },
@@ -419,5 +596,159 @@ class HomeScreen extends ConsumerWidget {
     if (diff.inHours > 0) return "${diff.inHours}H AGO";
     if (diff.inMinutes > 0) return "${diff.inMinutes}M AGO";
     return "JUST NOW";
+  }
+}
+
+class _DotPatternPainter extends CustomPainter {
+  final bool isDark;
+  _DotPatternPainter({required this.isDark});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05)
+      ..strokeWidth = 1.5
+      ..strokeCap = StrokeCap.round;
+
+    const spacing = 20.0;
+    for (var x = 0.0; x < size.width; x += spacing) {
+      for (var y = 0.0; y < size.height; y += spacing) {
+        if ((x + y) % (spacing * 2) == 0) {
+          canvas.drawCircle(Offset(x, y), 1, paint);
+        }
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _OrbitPainter extends CustomPainter {
+  final List<IngredientDetail> ingredients;
+  final bool isDark;
+  final double score;
+
+  _OrbitPainter(
+      {required this.ingredients, required this.isDark, required this.score});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center =
+        Offset(size.width / 2, size.height / 2 - 20); // Shift up slightly
+
+    // Draw central "Core" (The Product)
+    final corePaint = Paint()
+      ..color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05)
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(center, 40, corePaint);
+
+    // Draw Orbits
+    final orbitPaint = Paint()
+      ..color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+
+    canvas.drawCircle(center, 60, orbitPaint);
+    canvas.drawCircle(center, 90, orbitPaint);
+    canvas.drawCircle(center, 120, orbitPaint);
+
+    // Draw Particles (Ingredients)
+    final random = math.Random(score.toInt()); // Deterministic based on score
+
+    for (var i = 0; i < ingredients.length; i++) {
+      final ing = ingredients[i];
+      // Determine orbit radius based on safety
+      // Safe = close, Avoid = far
+      double radius;
+      if (ing.rating == SafetyBadge.safe) {
+        radius = 50 + random.nextDouble() * 20;
+      } else if (ing.rating == SafetyBadge.caution) {
+        radius = 80 + random.nextDouble() * 20;
+      } else {
+        radius = 110 + random.nextDouble() * 30;
+      }
+
+      final angle = random.nextDouble() * 2 * math.pi;
+
+      final x = center.dx + radius * math.cos(angle);
+      final y = center.dy + radius * math.sin(angle);
+
+      final particlePaint = Paint()
+        ..color = (isDark ? Colors.white : Colors.black).withValues(
+            alpha: ing.rating == SafetyBadge.avoid
+                ? 0.8
+                : (ing.rating == SafetyBadge.caution ? 0.5 : 0.2))
+        ..style = PaintingStyle.fill;
+
+      // Size based on rating
+      final size = ing.rating == SafetyBadge.avoid
+          ? 4.0
+          : (ing.rating == SafetyBadge.caution ? 3.0 : 2.0);
+
+      canvas.drawCircle(Offset(x, y), size, particlePaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _HealthPulsePainter extends CustomPainter {
+  final Color color;
+  final bool isDark;
+
+  _HealthPulsePainter({required this.color, required this.isDark});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color.withValues(alpha: 0.2)
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    final path = Path();
+    final width = size.width;
+    final height = size.height;
+    final midY = height * 0.6;
+
+    path.moveTo(0, midY);
+    
+    // Draw a stylized "heartbeat" pulse
+    path.lineTo(width * 0.3, midY);
+    path.lineTo(width * 0.35, midY - 20);
+    path.lineTo(width * 0.4, midY + 20);
+    path.lineTo(width * 0.45, midY - 40); // Peak
+    path.lineTo(width * 0.5, midY + 40);  // Trough
+    path.lineTo(width * 0.55, midY - 15);
+    path.lineTo(width * 0.6, midY + 10);
+    path.lineTo(width * 0.65, midY);
+    path.lineTo(width, midY);
+
+    // Draw Glow
+    final glowPaint = Paint()
+      ..color = color.withValues(alpha: 0.1)
+      ..strokeWidth = 8
+      ..style = PaintingStyle.stroke
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
+
+    canvas.drawPath(path, glowPaint);
+    canvas.drawPath(path, paint);
+
+    // Draw subtle grid background
+    final gridPaint = Paint()
+      ..color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03)
+      ..strokeWidth = 1;
+
+    for (double i = 0; i < width; i += 40) {
+      canvas.drawLine(Offset(i, 0), Offset(i, height), gridPaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _HealthPulsePainter oldDelegate) {
+    return oldDelegate.color != color || oldDelegate.isDark != isDark;
   }
 }

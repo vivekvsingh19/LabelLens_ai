@@ -3,8 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Dark Mode Colors
-  static const Color darkBackground = Color(0xFF000000); // True Black
-  static const Color darkCard = Color(0xFF0A0A0A); // Neutral Dark Gray/Black
+  static const Color darkBackground = Color(0xFF121212); // Material Dark
+  static const Color darkCard = Color(0xFF1E1E1E); // Lighter Dark Gray
   static const Color darkText = Color(0xFFF1F5F9);
   static const Color darkTextMuted = Color(0xFF64748B);
   static const Color darkDivider = Color(0xFF1E293B);

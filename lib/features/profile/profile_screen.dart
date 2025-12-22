@@ -4,6 +4,7 @@ import 'package:labelsafe_ai/core/theme/app_theme.dart';
 import 'package:labelsafe_ai/core/providers/ui_providers.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -13,10 +14,16 @@ class ProfileScreen extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final currentTheme = ref.watch(themeModeProvider);
 
-    return Scaffold(
-      backgroundColor:
-          isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
-      appBar: AppBar(
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (didPop) return;
+        context.go('/home');
+      },
+      child: Scaffold(
+        backgroundColor:
+            isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
+        appBar: AppBar(
         title: Text('SETTINGS',
             style: AppTheme.h2(isDark).copyWith(
                 letterSpacing: -1, fontWeight: FontWeight.w900, fontSize: 24)),
@@ -79,7 +86,7 @@ class ProfileScreen extends ConsumerWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildThemeSelector(

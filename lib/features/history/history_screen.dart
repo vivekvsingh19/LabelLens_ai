@@ -17,47 +17,55 @@ class HistoryScreen extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final historyAsync = ref.watch(scanHistoryProvider);
 
-    return Scaffold(
-      backgroundColor:
-          isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
-      appBar: AppBar(
-        title: Text('PROGRESS',
-            style: AppTheme.h2(isDark).copyWith(
-                letterSpacing: -1, fontWeight: FontWeight.w900, fontSize: 24)),
-        centerTitle: false,
-        elevation: 0,
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await ref.read(analysisRepositoryProvider).clearHistory();
-              ref.invalidate(scanHistoryProvider);
-            },
-            icon: Icon(LucideIcons.trash2,
-                size: 20, color: isDark ? Colors.white : Colors.black),
-          ),
-        ],
-      ),
-      body: historyAsync.when(
-        data: (history) => history.isEmpty
-            ? _buildEmptyState(isDark)
-            : SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  children: [
-                    _buildStatGrid(isDark, history),
-                    const SizedBox(height: 32),
-                    SectionHeader(title: "RECENT LOGS", isDark: isDark),
-                    const SizedBox(height: 20),
-                    _buildHistoryList(context, isDark, history),
-                    const SizedBox(height: 100),
-                  ],
-                ),
+    return PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) {
+          if (didPop) return;
+          context.go('/home');
+        },
+        child: Scaffold(
+          backgroundColor:
+              isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
+          appBar: AppBar(
+            title: Text('PROGRESS',
+                style: AppTheme.h2(isDark).copyWith(
+                    letterSpacing: -1,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 24)),
+            centerTitle: false,
+            elevation: 0,
+            actions: [
+              IconButton(
+                onPressed: () async {
+                  await ref.read(analysisRepositoryProvider).clearHistory();
+                  ref.invalidate(scanHistoryProvider);
+                },
+                icon: Icon(LucideIcons.trash2,
+                    size: 20, color: isDark ? Colors.white : Colors.black),
               ),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, s) => Center(child: Text("Error: $e")),
-      ),
-    );
+            ],
+          ),
+          body: historyAsync.when(
+            data: (history) => history.isEmpty
+                ? _buildEmptyState(isDark)
+                : SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        _buildStatGrid(isDark, history),
+                        //const SizedBox(height: 20),
+                        SectionHeader(title: "RECENT LOGS", isDark: isDark),
+                        const SizedBox(height: 20),
+                        _buildHistoryList(context, isDark, history),
+                        const SizedBox(height: 100),
+                      ],
+                    ),
+                  ),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, s) => Center(child: Text("Error: $e")),
+          ),
+        ));
   }
 
   Widget _buildEmptyState(bool isDark) {
