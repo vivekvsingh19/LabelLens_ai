@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:labelsafe_ai/core/theme/app_theme.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -36,23 +35,16 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             Column(
               children: [
-                Icon(
-                  LucideIcons.shield,
-                  size: 64,
-                  color: isDark ? Colors.white : Colors.black,
+                Image.asset(
+                  isDark ? 'assets/images/dark.png' : 'assets/images/light.png',
+                  width: 200,
+                  height: 200,
+                  fit: BoxFit.contain,
                 )
                     .animate()
                     .fadeIn(duration: 800.ms)
                     .scale(begin: const Offset(0.8, 0.8)),
-                const SizedBox(height: 24),
-                Text(
-                  "LABELSAFE AI",
-                  style: AppTheme.h1(isDark).copyWith(
-                    letterSpacing: 2.0,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ).animate().fadeIn(duration: 800.ms).slideY(begin: 0.2, end: 0),
-                const SizedBox(height: 8),
+                const SizedBox(height: 16),
                 Text(
                   "KNOW WHAT YOU CONSUME",
                   style: AppTheme.caption(isDark).copyWith(
