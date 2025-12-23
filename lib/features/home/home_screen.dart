@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labelsafe_ai/core/theme/app_theme.dart';
@@ -152,7 +151,7 @@ class HomeScreen extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1),
         ),
@@ -195,7 +194,6 @@ class HomeScreen extends ConsumerWidget {
 
     // Theme: "Health Guard" - Teal/Mint for medical/safety trust
     Color primaryColor = const Color(0xFF00BFA5); // Teal Accent
-    Color secondaryColor = const Color(0xFF64FFDA); // Mint
 
     return Container(
       width: double.infinity,
@@ -317,7 +315,7 @@ class HomeScreen extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
         ),
@@ -357,7 +355,7 @@ class HomeScreen extends ConsumerWidget {
       height: 220,
       decoration: BoxDecoration(
         color: isDark ? AppTheme.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(22),
         boxShadow: AppTheme.premiumShadow(isDark),
         border: Border.all(
             color:
@@ -420,7 +418,7 @@ class HomeScreen extends ConsumerWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isDark ? AppTheme.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(8),
         boxShadow: AppTheme.softShadow(isDark),
         border: Border.all(
           color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
@@ -464,7 +462,7 @@ class HomeScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
           color: isDark ? AppTheme.darkCard : Colors.white,
-          borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color:
                 (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
@@ -506,7 +504,7 @@ class HomeScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: isDark ? AppTheme.darkCard : Colors.white,
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(10),
               boxShadow: AppTheme.softShadow(isDark),
               border: Border.all(
                   color: (isDark ? Colors.white : Colors.black)
@@ -520,7 +518,7 @@ class HomeScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: (isDark ? Colors.white : Colors.black)
                         .withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: Center(
                     child: Text(
@@ -596,102 +594,6 @@ class HomeScreen extends ConsumerWidget {
     if (diff.inMinutes > 0) return "${diff.inMinutes}M AGO";
     return "JUST NOW";
   }
-}
-
-class _DotPatternPainter extends CustomPainter {
-  final bool isDark;
-  _DotPatternPainter({required this.isDark});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05)
-      ..strokeWidth = 1.5
-      ..strokeCap = StrokeCap.round;
-
-    const spacing = 20.0;
-    for (var x = 0.0; x < size.width; x += spacing) {
-      for (var y = 0.0; y < size.height; y += spacing) {
-        if ((x + y) % (spacing * 2) == 0) {
-          canvas.drawCircle(Offset(x, y), 1, paint);
-        }
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _OrbitPainter extends CustomPainter {
-  final List<IngredientDetail> ingredients;
-  final bool isDark;
-  final double score;
-
-  _OrbitPainter(
-      {required this.ingredients, required this.isDark, required this.score});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center =
-        Offset(size.width / 2, size.height / 2 - 20); // Shift up slightly
-
-    // Draw central "Core" (The Product)
-    final corePaint = Paint()
-      ..color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05)
-      ..style = PaintingStyle.fill;
-
-    canvas.drawCircle(center, 40, corePaint);
-
-    // Draw Orbits
-    final orbitPaint = Paint()
-      ..color = (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-
-    canvas.drawCircle(center, 60, orbitPaint);
-    canvas.drawCircle(center, 90, orbitPaint);
-    canvas.drawCircle(center, 120, orbitPaint);
-
-    // Draw Particles (Ingredients)
-    final random = math.Random(score.toInt()); // Deterministic based on score
-
-    for (var i = 0; i < ingredients.length; i++) {
-      final ing = ingredients[i];
-      // Determine orbit radius based on safety
-      // Safe = close, Avoid = far
-      double radius;
-      if (ing.rating == SafetyBadge.safe) {
-        radius = 50 + random.nextDouble() * 20;
-      } else if (ing.rating == SafetyBadge.caution) {
-        radius = 80 + random.nextDouble() * 20;
-      } else {
-        radius = 110 + random.nextDouble() * 30;
-      }
-
-      final angle = random.nextDouble() * 2 * math.pi;
-
-      final x = center.dx + radius * math.cos(angle);
-      final y = center.dy + radius * math.sin(angle);
-
-      final particlePaint = Paint()
-        ..color = (isDark ? Colors.white : Colors.black).withValues(
-            alpha: ing.rating == SafetyBadge.avoid
-                ? 0.8
-                : (ing.rating == SafetyBadge.caution ? 0.5 : 0.2))
-        ..style = PaintingStyle.fill;
-
-      // Size based on rating
-      final size = ing.rating == SafetyBadge.avoid
-          ? 4.0
-          : (ing.rating == SafetyBadge.caution ? 3.0 : 2.0);
-
-      canvas.drawCircle(Offset(x, y), size, particlePaint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _HealthPulsePainter extends CustomPainter {

@@ -44,10 +44,13 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 300,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
+                color: (isDark ? Colors.white : Colors.black)
+                    .withValues(alpha: 0.05),
               ),
-            ).animate(onPlay: (c) => c.repeat(reverse: true))
-            .scale(begin: const Offset(1, 1), end: const Offset(1.2, 1.2), duration: 4.seconds),
+            ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
+                begin: const Offset(1, 1),
+                end: const Offset(1.2, 1.2),
+                duration: 4.seconds),
           ),
 
           SafeArea(
@@ -153,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
             width: 1,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
           ),
         ),
         child: _isLoading
@@ -191,7 +194,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? const Color(0xFF1F2937) : Colors.white,
+                          color:
+                              isDark ? const Color(0xFF1F2937) : Colors.white,
                         ),
                       ),
                     ),

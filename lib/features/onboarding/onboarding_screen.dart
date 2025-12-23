@@ -71,8 +71,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 shape: BoxShape.circle,
                 color: (isDark ? Colors.white : Colors.black).withOpacity(0.05),
               ),
-            ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-            .scale(begin: const Offset(1, 1), end: const Offset(1.2, 1.2), duration: 4.seconds),
+            )
+                .animate(
+                    onPlay: (controller) => controller.repeat(reverse: true))
+                .scale(
+                    begin: const Offset(1, 1),
+                    end: const Offset(1.2, 1.2),
+                    duration: 4.seconds),
           ),
           Positioned(
             bottom: -50,
@@ -84,8 +89,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 shape: BoxShape.circle,
                 color: (isDark ? Colors.white : Colors.black).withOpacity(0.03),
               ),
-            ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-            .scale(begin: const Offset(1, 1), end: const Offset(1.3, 1.3), duration: 5.seconds),
+            )
+                .animate(
+                    onPlay: (controller) => controller.repeat(reverse: true))
+                .scale(
+                    begin: const Offset(1, 1),
+                    end: const Offset(1.3, 1.3),
+                    duration: 5.seconds),
           ),
 
           // Main Content
@@ -308,7 +318,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           foregroundColor: isDark ? Colors.black : Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
           ),
         ),
         child: Row(

@@ -22,6 +22,17 @@ class _ResultScreenState extends State<ResultScreen> {
 
   ProductAnalysis get analysis => widget.analysis;
 
+  Color _getRatingColor(SafetyBadge rating) {
+    switch (rating) {
+      case SafetyBadge.safe:
+        return AppTheme.safeColor;
+      case SafetyBadge.caution:
+        return AppTheme.cautionColor;
+      case SafetyBadge.avoid:
+        return AppTheme.avoidColor;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return _buildContent(context);
@@ -32,7 +43,7 @@ class _ResultScreenState extends State<ResultScreen> {
     // Access widget.analysis instead of analysis
     final analysis = widget.analysis;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final ratingColor = isDark ? Colors.white : Colors.black;
+    final ratingColor = _getRatingColor(analysis.rating);
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
@@ -387,7 +398,7 @@ class _ResultScreenState extends State<ResultScreen> {
           child: _buildStatCard(
               safeCount.toString(),
               "SAFE",
-              isDark ? Colors.white : Colors.black,
+              AppTheme.safeColor,
               LucideIcons.checkCircle,
               isDark),
         ),
@@ -396,7 +407,7 @@ class _ResultScreenState extends State<ResultScreen> {
           child: _buildStatCard(
               cautionCount.toString(),
               "CAUTION",
-              isDark ? Colors.white : Colors.black,
+              AppTheme.cautionColor,
               LucideIcons.alertTriangle,
               isDark),
         ),
@@ -405,7 +416,7 @@ class _ResultScreenState extends State<ResultScreen> {
           child: _buildStatCard(
               avoidCount.toString(),
               "AVOID",
-              isDark ? Colors.white : Colors.black,
+              AppTheme.avoidColor,
               LucideIcons.xCircle,
               isDark),
         ),
@@ -473,12 +484,12 @@ class _ResultScreenState extends State<ResultScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildMiniRing(harmfulCount / total, "RISK",
-                  isDark ? Colors.white : Colors.black, isDark),
+              _buildMiniRing(harmfulCount / total, "RISK", AppTheme.avoidColor,
+                  isDark),
               _buildMiniRing(stabilizerCount / total, "PROCESSED",
-                  isDark ? Colors.white : Colors.black, isDark),
-              _buildMiniRing(sugarCount / total, "SUGAR",
-                  isDark ? Colors.white : Colors.black, isDark),
+                  AppTheme.cautionColor, isDark),
+              _buildMiniRing(sugarCount / total, "SUGAR", AppTheme.cautionColor,
+                  isDark),
             ],
           ),
         ],
@@ -526,17 +537,14 @@ class _ResultScreenState extends State<ResultScreen> {
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
       decoration: BoxDecoration(
         color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
             color:
                 (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05)),
       ),
       child: Column(
         children: [
-          Icon(icon,
-              size: 20,
-              color: (isDark ? Colors.white : Colors.black)
-                  .withValues(alpha: 0.8)),
+          Icon(icon, size: 20, color: color),
           const SizedBox(height: 8),
           Text(
             value,
@@ -553,8 +561,7 @@ class _ResultScreenState extends State<ResultScreen> {
               fontSize: 10,
               fontWeight: FontWeight.w800,
               letterSpacing: 1,
-              color:
-                  (isDark ? Colors.white : Colors.black).withValues(alpha: 0.5),
+              color: color.withValues(alpha: 0.8),
             ),
           ),
         ],
@@ -660,6 +667,7 @@ class _ResultScreenState extends State<ResultScreen> {
 
   Widget _buildModernIngredientTile(IngredientDetail ing, bool isDark) {
     final color = isDark ? Colors.white : Colors.black;
+    final ratingColor = _getRatingColor(ing.rating);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -704,13 +712,13 @@ class _ResultScreenState extends State<ResultScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: color.withValues(alpha: 0.1),
+                          color: ratingColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           ing.rating.name.toUpperCase(),
                           style: TextStyle(
-                            color: color,
+                            color: ratingColor,
                             fontSize: 8,
                             fontWeight: FontWeight.w900,
                             letterSpacing: 0.5,
@@ -820,15 +828,15 @@ class _ResultScreenState extends State<ResultScreen> {
 
     if (alerts.isEmpty) return const SizedBox.shrink();
 
-    final alertColor = isDark ? Colors.white : Colors.black;
+    final alertColor = AppTheme.avoidColor;
+    final textColor = isDark ? Colors.white : Colors.black;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Icon(LucideIcons.alertTriangle,
-                size: 16, color: alertColor.withValues(alpha: 0.8)),
+            Icon(LucideIcons.alertTriangle, size: 16, color: alertColor),
             const SizedBox(width: 8),
             Text(
               "CRITICAL INGREDIENTS TO WATCH",
@@ -929,14 +937,14 @@ class _ResultScreenState extends State<ResultScreen> {
                                 ? LucideIcons.chevronUp
                                 : LucideIcons.chevronDown,
                             size: 14,
-                            color: alertColor.withValues(alpha: 0.6),
+                            color: textColor.withValues(alpha: 0.6),
                           ),
                           const SizedBox(width: 4),
                           Text(
                             isExpanded ? "Show less" : "Show details",
                             style: AppTheme.caption(isDark).copyWith(
                               fontSize: 10,
-                              color: alertColor.withValues(alpha: 0.8),
+                              color: textColor.withValues(alpha: 0.8),
                               fontWeight: FontWeight.w700,
                             ),
                           ),

@@ -22,9 +22,9 @@ class AppTheme {
   static const Color accentSpark = Color(0xFFBDBDBD); // Silver
 
   // Status Colors
-  static const Color safeColor = Color(0xFF808080); // Gray
-  static const Color cautionColor = Color(0xFF606060); // Darker Gray
-  static const Color avoidColor = Color(0xFF404040); // Darkest Gray
+  static const Color safeColor = Color(0xFF22C55E); // Green
+  static const Color cautionColor = Color(0xFFF59E0B); // Amber
+  static const Color avoidColor = Color(0xFFEF4444); // Red
 
   // Design Tokens
   static const double borderRadiusLarge = 24.0;
