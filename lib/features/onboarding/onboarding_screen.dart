@@ -318,7 +318,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           foregroundColor: isDark ? Colors.black : Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
           ),
         ),
         child: Row(

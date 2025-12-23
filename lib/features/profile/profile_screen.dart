@@ -45,9 +45,11 @@ class ProfileScreen extends ConsumerWidget {
                   isDark,
                   "ACCOUNT",
                   [
-                    _SettingAction(LucideIcons.user, "Personal Details", null),
+                    _SettingAction(LucideIcons.user, "Personal Details", null,
+                        color: const Color(0xFF42A5F5)), // Blue
                     _SettingAction(
-                        LucideIcons.shield, "Security & Privacy", "LOCKED"),
+                        LucideIcons.shield, "Security & Privacy", "LOCKED",
+                        color: const Color(0xFF66BB6A)), // Green
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -55,11 +57,13 @@ class ProfileScreen extends ConsumerWidget {
                   isDark,
                   "PREFERENCES",
                   [
-                    _SettingAction(LucideIcons.bell, "Notifications", "ON"),
+                    _SettingAction(LucideIcons.bell, "Notifications", "ON",
+                        color: const Color(0xFFFFA726)), // Orange
+                    _SettingAction(LucideIcons.globe, "Analysis Language", "EN",
+                        color: const Color(0xFFAB47BC)), // Purple
                     _SettingAction(
-                        LucideIcons.globe, "Analysis Language", "EN"),
-                    _SettingAction(
-                        LucideIcons.cpu, "AI Model Performance", "PRO"),
+                        LucideIcons.cpu, "AI Model Performance", "PRO",
+                        color: const Color(0xFF26A69A)), // Teal
                   ],
                 ),
                 const SizedBox(height: 48),
@@ -198,21 +202,25 @@ class ProfileScreen extends ConsumerWidget {
                 Text("VIVEK",
                     style: AppTheme.h2(isDark).copyWith(fontSize: 22)),
                 Text("PREMIUM ANALYST",
-                    style: AppTheme.caption(isDark)
-                        .copyWith(color: isDark ? Colors.white : Colors.black)),
+                    style: AppTheme.caption(isDark).copyWith(
+                        color: const Color(0xFFFFD700)
+                            .withValues(alpha: 0.8), // Gold
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1)),
                 const SizedBox(height: 8),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: (isDark ? Colors.white : Colors.black)
-                        .withValues(alpha: 0.05),
+                    color: const Color(0xFF42A5F5)
+                        .withValues(alpha: 0.1), // Blue tint
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text("LEVEL 12",
                       style: AppTheme.caption(isDark).copyWith(
                           fontSize: 8,
-                          color: isDark ? Colors.white : Colors.black)),
+                          fontWeight: FontWeight.w900,
+                          color: const Color(0xFF42A5F5))), // Blue
                 ),
               ],
             ),
@@ -257,6 +265,9 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildSettingItem(_SettingAction action, bool isDark) {
+    final iconColor = action.color ??
+        (isDark ? Colors.white : Colors.black).withValues(alpha: 0.7);
+
     return InkWell(
       onTap: () {},
       child: Padding(
@@ -266,14 +277,12 @@ class ProfileScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: (isDark ? Colors.white : Colors.black)
-                    .withValues(alpha: 0.03),
-                borderRadius: BorderRadius.circular(10),
+                color: action.color?.withValues(alpha: 0.1) ??
+                    (isDark ? Colors.white : Colors.black)
+                        .withValues(alpha: 0.03),
+                borderRadius: BorderRadius.circular(16),
               ),
-              child: Icon(action.icon,
-                  size: 20,
-                  color: (isDark ? Colors.white : Colors.black)
-                      .withValues(alpha: 0.7)),
+              child: Icon(action.icon, size: 20, color: iconColor),
             ),
             const SizedBox(width: 16),
             Text(action.label,
@@ -301,5 +310,6 @@ class _SettingAction {
   final IconData icon;
   final String label;
   final String? value;
-  _SettingAction(this.icon, this.label, this.value);
+  final Color? color;
+  _SettingAction(this.icon, this.label, this.value, {this.color});
 }

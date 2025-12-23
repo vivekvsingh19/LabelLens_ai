@@ -112,7 +112,7 @@ class _ResultScreenState extends State<ResultScreen> {
                                 decoration: BoxDecoration(
                                   color: (isDark ? Colors.white : Colors.black)
                                       .withValues(alpha: 0.03),
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
                                       color:
                                           (isDark ? Colors.white : Colors.black)
@@ -362,7 +362,7 @@ class _ResultScreenState extends State<ResultScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: color.withValues(alpha: 0.3),
@@ -446,7 +446,7 @@ class _ResultScreenState extends State<ResultScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
             color:
                 (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05)),
@@ -525,7 +525,7 @@ class _ResultScreenState extends State<ResultScreen> {
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
       decoration: BoxDecoration(
         color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
             color:
                 (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05)),
@@ -752,7 +752,7 @@ class _ResultScreenState extends State<ResultScreen> {
                     decoration: BoxDecoration(
                       color: (isDark ? Colors.white : Colors.black)
                           .withValues(alpha: 0.03),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: (isDark ? Colors.white : Colors.black)
                             .withValues(alpha: 0.05),
@@ -792,7 +792,7 @@ class _ResultScreenState extends State<ResultScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Text(
         function.toUpperCase(),
@@ -858,7 +858,7 @@ class _ResultScreenState extends State<ResultScreen> {
               decoration: BoxDecoration(
                 color: (isDark ? Colors.white : Colors.black)
                     .withValues(alpha: 0.03),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                     color: (isDark ? Colors.white : Colors.black)
                         .withValues(alpha: 0.05)),

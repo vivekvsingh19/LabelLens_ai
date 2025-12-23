@@ -313,7 +313,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.black.withValues(alpha: 0.6),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(color: Colors.white24),
             ),
             child: const Text('IS THE TEXT CLEAR AND READABLE?',
@@ -337,7 +337,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
+                        borderRadius: BorderRadius.circular(16)),
                   ),
                 ),
               ),
@@ -352,7 +352,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
                     foregroundColor: Colors.black,
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
+                        borderRadius: BorderRadius.circular(16)),
                   ),
                 ),
               ),

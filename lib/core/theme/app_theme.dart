@@ -27,9 +27,9 @@ class AppTheme {
   static const Color avoidColor = Color(0xFFEF4444); // Red
 
   // Design Tokens
-  static const double borderRadiusLarge = 24.0;
+  static const double borderRadiusLarge = 16.0;
   static const double borderRadiusMedium = 16.0;
-  static const double borderRadiusSmall = 12.0;
+  static const double borderRadiusSmall = 16.0;
 
   // Shadow Tokens
   static List<BoxShadow> softShadow(bool isDark) => [

@@ -125,13 +125,15 @@ class GeminiService {
        - If an ingredient is banned or restricted in Europe/Japan but allowed locally, mark it as "CAUTION" or "AVOID".
        - Rate its safety ("safe", "caution", "avoid").
        - Provide a brutal, truth-telling ONE-LINE explanation (max 80 characters). If it's carcinogenic, say "Carcinogenic - linked to cancer". If it's an endocrine disruptor, say "Disrupts hormones - long-term reproductive harm". Be direct and mention the specific long-term health impact.
-    5. Calculate a strict Safety Score (0-100). Penalize heavily for harmful additives.
+    5. Calculate a strict Safety Score (0-100). Penalize heavily for harmful additives. Do not penalize for unknown processing factors.
     6. Generate a 2-3 sentence overview. Be direct about long-term health risks.
     7. Identify key highlights (e.g., "Contains Banned Dyes", "High Sugar", "Paraben-Free").
 
     CRITICAL RULES:
     - BE STRICT. Do not sugarcoat. If a product has 1% harmful ingredient, it is NOT safe.
     - Flag "Avoid" ingredients like Parabens, Phthalates, BHA/BHT, High Fructose Corn Syrup, Artificial Dyes, and hidden sugars immediately.
+    - Do NOT penalize for hypothetical or unstated processing methods (e.g., roasting quality, sourcing) unless explicitly stated on the label. Assume standard safe processing unless evidence suggests otherwise.
+    - If all ingredients are safe, the score MUST be 100 and the rating MUST be 'safe'.
     - Be transparent about percentage if inferred context suggests high quantity (e.g. first 3 ingredients).
     - Respond ONLY in valid JSON.
 

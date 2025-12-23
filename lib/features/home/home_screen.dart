@@ -150,19 +150,20 @@ class HomeScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(8),
+        color: isDark ? AppTheme.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: AppTheme.softShadow(isDark),
         border: Border.all(
-          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1),
+          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
         ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
+          const Icon(
             LucideIcons.flame,
             size: 24,
-            color: isDark ? Colors.white : Colors.black,
+            color: Color(0xFFFF7043), // Orange accent
           ),
           const SizedBox(height: 4),
           Text(
@@ -315,7 +316,7 @@ class HomeScreen extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
         ),
@@ -355,7 +356,7 @@ class HomeScreen extends ConsumerWidget {
       height: 220,
       decoration: BoxDecoration(
         color: isDark ? AppTheme.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: AppTheme.premiumShadow(isDark),
         border: Border.all(
             color:
@@ -381,16 +382,39 @@ class HomeScreen extends ConsumerWidget {
   }
 
   Widget _buildQuickActions(bool isDark, List<ProductAnalysis> history) {
-    // Calculate real stats from last 5 products
-    int avoidCount = 0;
-    int cautionCount = 0;
-    int safeCount = 0;
+    int sugarCount = 0;
+    int fatCount = 0;
+    int harmfulCount = 0;
 
-    for (var scan in history.take(5)) {
+    for (var scan in history) {
       for (var ing in scan.ingredients) {
-        if (ing.rating == SafetyBadge.avoid) avoidCount++;
-        if (ing.rating == SafetyBadge.caution) cautionCount++;
-        if (ing.rating == SafetyBadge.safe) safeCount++;
+        final name = ing.name.toLowerCase();
+
+        // Sugar detection
+        if (name.contains('sugar') ||
+            name.contains('syrup') ||
+            name.contains('glucose') ||
+            name.contains('fructose') ||
+            name.contains('sucrose') ||
+            name.contains('sweetener')) {
+          sugarCount++;
+        }
+
+        // Fat detection
+        if (name.contains('fat') ||
+            name.contains('oil') ||
+            name.contains('butter') ||
+            name.contains('cream') ||
+            name.contains('lipid') ||
+            name.contains('shortening')) {
+          fatCount++;
+        }
+
+        // Harmful (Avoid/Caution)
+        if (ing.rating == SafetyBadge.avoid ||
+            ing.rating == SafetyBadge.caution) {
+          harmfulCount++;
+        }
       }
     }
 
@@ -398,27 +422,34 @@ class HomeScreen extends ConsumerWidget {
       children: [
         Expanded(
             child: _buildActionTile(
-                "AVOIDED", avoidCount.toString(), LucideIcons.skull, isDark)),
+                "SUGAR\nDETECTED", "$sugarCount", LucideIcons.cookie, isDark,
+                accentColor: const Color(0xFFFFA726))), // Orange
         const SizedBox(width: 12),
         Expanded(
-            child: _buildActionTile("CAUTIONS", cautionCount.toString(),
-                LucideIcons.alertTriangle, isDark)),
+            child: _buildActionTile("FAT & OILS\nDETECTED", "$fatCount",
+                LucideIcons.droplet, isDark,
+                accentColor: const Color(0xFFFDD835))), // Yellow
         const SizedBox(width: 12),
         Expanded(
-            child: _buildActionTile(
-                "SAFE", safeCount.toString(), LucideIcons.checkCircle, isDark)),
+            child: _buildActionTile("HARMFUL\nINGREDIENTS",
+                harmfulCount.toString(), LucideIcons.alertTriangle, isDark,
+                accentColor: const Color(0xFFEF5350))), // Red
       ],
     );
   }
 
   Widget _buildActionTile(
-      String label, String value, IconData icon, bool isDark) {
+      String label, String value, IconData icon, bool isDark,
+      {Color? accentColor}) {
+    final effectiveColor =
+        accentColor ?? (isDark ? Colors.white : Colors.black);
+
     return Container(
       height: 110,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isDark ? AppTheme.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: AppTheme.softShadow(isDark),
         border: Border.all(
           color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
@@ -428,26 +459,32 @@ class HomeScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(icon,
-              size: 20,
-              color: (isDark ? Colors.white : Colors.black)
-                  .withValues(alpha: 0.7)),
+          Icon(icon, size: 20, color: effectiveColor.withValues(alpha: 0.8)),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(value,
-                  style: AppTheme.h2(isDark).copyWith(
-                      fontSize: 28,
-                      height: 1,
-                      fontWeight: FontWeight.w900,
-                      color: isDark ? Colors.white : Colors.black)),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(value,
+                    maxLines: 1,
+                    style: AppTheme.h2(isDark).copyWith(
+                        fontSize: 28,
+                        height: 1,
+                        fontWeight: FontWeight.w900,
+                        color: effectiveColor)),
+              ),
               const SizedBox(height: 4),
               Text(label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: AppTheme.caption(isDark).copyWith(
-                      fontSize: 8,
-                      letterSpacing: 1,
+                      fontSize: 9,
+                      height: 1.2,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
                       color: (isDark ? Colors.white : Colors.black)
-                          .withValues(alpha: 0.5))),
+                          .withValues(alpha: 0.6))),
             ],
           ),
         ],
@@ -494,6 +531,17 @@ class HomeScreen extends ConsumerWidget {
         final scan = history[index];
         final timeAgo = _getTimeAgo(scan.date);
 
+        // Determine colors based on data
+        final scoreColor = scan.score > 70
+            ? const Color(0xFF66BB6A) // Green
+            : scan.score > 40
+                ? const Color(0xFFFFA726) // Orange
+                : const Color(0xFFEF5350); // Red
+
+        final categoryColor = scan.category.toLowerCase() == 'food'
+            ? const Color(0xFF66BB6A) // Green
+            : const Color(0xFFAB47BC); // Purple
+
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => context.push(
@@ -504,7 +552,7 @@ class HomeScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: isDark ? AppTheme.darkCard : Colors.white,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(16),
               boxShadow: AppTheme.softShadow(isDark),
               border: Border.all(
                   color: (isDark ? Colors.white : Colors.black)
@@ -516,9 +564,8 @@ class HomeScreen extends ConsumerWidget {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: (isDark ? Colors.white : Colors.black)
-                        .withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(14),
+                    color: scoreColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Center(
                     child: Text(
@@ -526,7 +573,7 @@ class HomeScreen extends ConsumerWidget {
                       style: AppTheme.h3(isDark).copyWith(
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : Colors.black),
+                          color: scoreColor),
                     ),
                   ),
                 ),
@@ -547,8 +594,7 @@ class HomeScreen extends ConsumerWidget {
                                 ? LucideIcons.apple
                                 : LucideIcons.sparkles,
                             size: 12,
-                            color: (isDark ? Colors.white : Colors.black)
-                                .withValues(alpha: 0.5),
+                            color: categoryColor,
                           ),
                           const SizedBox(width: 6),
                           Text(
