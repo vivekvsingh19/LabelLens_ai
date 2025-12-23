@@ -177,7 +177,8 @@ class HistoryScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03),
+              color: (isDark ? Colors.white : Colors.black)
+                  .withValues(alpha: 0.03),
               shape: BoxShape.circle,
             ),
             child: Icon(LucideIcons.history,
@@ -202,7 +203,8 @@ class HistoryScreen extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(100)),
             ),
             child: const Text("START SCANNING",
-                style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
+                style:
+                    TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
           ),
         ],
       ),
@@ -245,8 +247,8 @@ class HistoryScreen extends ConsumerWidget {
             isDark),
         _buildStatCard("UNSAFE FOUND", "$unsafeIngredients",
             LucideIcons.shieldAlert, AppTheme.avoidColor, isDark),
-        _buildStatCard("STREAK", "02", LucideIcons.zap, AppTheme.cautionColor,
-            isDark),
+        _buildStatCard(
+            "STREAK", "02", LucideIcons.zap, AppTheme.cautionColor, isDark),
       ],
     );
   }
@@ -351,10 +353,9 @@ class HistoryScreen extends ConsumerWidget {
                                     _getFormattedDate(scan.date),
                                     style: AppTheme.caption(isDark).copyWith(
                                       fontSize: 10,
-                                      color: (isDark
-                                              ? Colors.white
-                                              : Colors.black)
-                                          .withValues(alpha: 0.4),
+                                      color:
+                                          (isDark ? Colors.white : Colors.black)
+                                              .withValues(alpha: 0.4),
                                     ),
                                   ),
                                 ],
@@ -525,19 +526,19 @@ class _HistoryChart extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 12.0),
                     child: Text(
                       "${date.day}/${date.month}",
-                      style: AppTheme.caption(isDark).copyWith(
-                          fontSize: 10, fontWeight: FontWeight.w700),
+                      style: AppTheme.caption(isDark)
+                          .copyWith(fontSize: 10, fontWeight: FontWeight.w700),
                     ),
                   );
                 },
               ),
             ),
-            leftTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false)),
+            leftTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
           borderData: FlBorderData(show: false),
           lineBarsData: [

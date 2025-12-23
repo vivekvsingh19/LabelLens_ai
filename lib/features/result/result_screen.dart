@@ -395,30 +395,18 @@ class _ResultScreenState extends State<ResultScreen> {
     return Row(
       children: [
         Expanded(
-          child: _buildStatCard(
-              safeCount.toString(),
-              "SAFE",
-              AppTheme.safeColor,
-              LucideIcons.checkCircle,
-              isDark),
+          child: _buildStatCard(safeCount.toString(), "SAFE",
+              AppTheme.safeColor, LucideIcons.checkCircle, isDark),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _buildStatCard(
-              cautionCount.toString(),
-              "CAUTION",
-              AppTheme.cautionColor,
-              LucideIcons.alertTriangle,
-              isDark),
+          child: _buildStatCard(cautionCount.toString(), "CAUTION",
+              AppTheme.cautionColor, LucideIcons.alertTriangle, isDark),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _buildStatCard(
-              avoidCount.toString(),
-              "AVOID",
-              AppTheme.avoidColor,
-              LucideIcons.xCircle,
-              isDark),
+          child: _buildStatCard(avoidCount.toString(), "AVOID",
+              AppTheme.avoidColor, LucideIcons.xCircle, isDark),
         ),
       ],
     ).animate().fadeIn(delay: 700.ms).slideY(begin: 0.2, end: 0);
@@ -484,12 +472,12 @@ class _ResultScreenState extends State<ResultScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildMiniRing(harmfulCount / total, "RISK", AppTheme.avoidColor,
-                  isDark),
+              _buildMiniRing(
+                  harmfulCount / total, "RISK", AppTheme.avoidColor, isDark),
               _buildMiniRing(stabilizerCount / total, "PROCESSED",
                   AppTheme.cautionColor, isDark),
-              _buildMiniRing(sugarCount / total, "SUGAR", AppTheme.cautionColor,
-                  isDark),
+              _buildMiniRing(
+                  sugarCount / total, "SUGAR", AppTheme.cautionColor, isDark),
             ],
           ),
         ],
