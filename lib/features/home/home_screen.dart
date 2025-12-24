@@ -4,10 +4,10 @@ import 'package:labelsafe_ai/core/theme/app_theme.dart';
 import 'package:labelsafe_ai/core/models/analysis_result.dart';
 import 'package:labelsafe_ai/core/models/enums.dart';
 import 'package:labelsafe_ai/core/providers/ui_providers.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:labelsafe_ai/core/widgets/section_header.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -161,7 +161,7 @@ class HomeScreen extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(
-            LucideIcons.flame,
+            Icons.local_fire_department,
             size: 24,
             color: Color(0xFFFF7043), // Orange accent
           ),
@@ -422,17 +422,17 @@ class HomeScreen extends ConsumerWidget {
       children: [
         Expanded(
             child: _buildActionTile(
-                "SUGAR\nDETECTED", "$sugarCount", LucideIcons.cookie, isDark,
+                "SUGAR\nDETECTED", "$sugarCount", Icons.cookie, isDark,
                 accentColor: const Color(0xFFFFA726))), // Orange
         const SizedBox(width: 12),
         Expanded(
-            child: _buildActionTile("FAT & OILS\nDETECTED", "$fatCount",
-                LucideIcons.droplet, isDark,
+            child: _buildActionTile(
+                "FAT & OILS\nDETECTED", "$fatCount", Icons.water_drop, isDark,
                 accentColor: const Color(0xFFFDD835))), // Yellow
         const SizedBox(width: 12),
         Expanded(
             child: _buildActionTile("HARMFUL\nINGREDIENTS",
-                harmfulCount.toString(), LucideIcons.alertTriangle, isDark,
+                harmfulCount.toString(), Icons.warning, isDark,
                 accentColor: const Color(0xFFEF5350))), // Red
       ],
     );
@@ -508,7 +508,7 @@ class HomeScreen extends ConsumerWidget {
         child: Center(
           child: Column(
             children: [
-              Icon(LucideIcons.scanLine,
+              Icon(Icons.qr_code_scanner,
                   size: 32,
                   color: (isDark ? Colors.white : Colors.black)
                       .withValues(alpha: 0.2)),
@@ -591,8 +591,8 @@ class HomeScreen extends ConsumerWidget {
                         children: [
                           Icon(
                             scan.category.toLowerCase() == 'food'
-                                ? LucideIcons.apple
-                                : LucideIcons.sparkles,
+                                ? Icons.restaurant
+                                : Icons.auto_awesome,
                             size: 12,
                             color: categoryColor,
                           ),
@@ -617,7 +617,7 @@ class HomeScreen extends ConsumerWidget {
                         color: (isDark ? Colors.white : Colors.black)
                             .withValues(alpha: 0.1)),
                   ),
-                  child: Icon(LucideIcons.arrowRight,
+                  child: Icon(Icons.arrow_forward,
                       size: 16,
                       color: (isDark ? Colors.white : Colors.black)
                           .withValues(alpha: 0.5)),
