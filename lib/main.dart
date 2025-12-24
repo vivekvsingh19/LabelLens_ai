@@ -8,6 +8,7 @@ import 'core/providers/ui_providers.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
+  // ignore: avoid_print
   print("ENV LOADED ROOT: GEMINI_MODEL=${dotenv.env['GEMINI_MODEL']}");
   runApp(const ProviderScope(child: LabelSafeAIApp()));
 }

@@ -22,21 +22,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       title: "Scan Labels",
       description:
           "Decode ingredients and nutritional facts with AI-powered analysis in seconds.",
-      icon: LucideIcons.scanLine,
+      icon: Icons.qr_code_scanner,
       lottiePath: 'assets/animations/scan.json',
     ),
     OnboardingItem(
       title: "Stay Safe",
       description:
           "Identify hidden additives, allergens, and potentially harmful chemicals.",
-      icon: LucideIcons.shieldCheck,
+      icon: Icons.verified_user,
       lottiePath: 'assets/animations/shield.json',
     ),
     OnboardingItem(
       title: "Smart Insights",
       description:
           "Make informed consumption choices with personalized recommendations.",
-      icon: LucideIcons.sparkles,
+      icon: Icons.auto_awesome,
       lottiePath: 'assets/animations/insights.json',
     ),
   ];
@@ -334,7 +334,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
             const SizedBox(width: 8),
             Icon(
-              isLastPage ? LucideIcons.arrowRight : LucideIcons.chevronRight,
+              isLastPage ? Icons.arrow_forward : Icons.chevron_right,
               size: 18,
             ),
           ],
