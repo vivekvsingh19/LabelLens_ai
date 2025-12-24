@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:upgrader/upgrader.dart';
 import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/providers/ui_providers.dart';
@@ -27,6 +28,14 @@ class LabelSafeAIApp extends ConsumerWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
       routerConfig: AppRouter.router,
+      builder: (context, child) {
+        return UpgradeAlert(
+          upgrader: Upgrader(durationUntilAlertAgain: Duration.zero),
+          showIgnore: false,
+          showLater: false,
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
     );
   }
 }
