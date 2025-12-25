@@ -128,6 +128,9 @@ class GeminiService {
     5. Calculate a strict Safety Score (0-100). Penalize heavily for harmful additives. Do not penalize for unknown processing factors.
     6. Generate a 2-3 sentence overview. Be direct about long-term health risks.
     7. Identify key highlights (e.g., "Contains Banned Dyes", "High Sugar", "Paraben-Free").
+    8. Extract or estimate the percentage of Fats and Sugars per 100g/100ml if available on the nutritional label. If not explicitly stated, estimate based on ingredient order (e.g., if sugar is 1st, it's high ~40-50%). Return as a number (0-100).
+    9. Provide a clear recommendation: "Buy", "Avoid", or "Limit". Followed by a very short reason (e.g. "Buy - Clean ingredients", "Avoid - Contains carcinogens").
+    10. Check if the ingredient list appears cut off, incomplete, or if the image only captures part of the label. Set "isIngredientsListComplete" to false if you suspect missing ingredients.
 
     CRITICAL RULES:
     - BE STRICT. Do not sugarcoat. If a product has 1% harmful ingredient, it is NOT safe.
@@ -146,6 +149,10 @@ class GeminiService {
       "overview": "string",
       "score": 85,
       "highlights": ["string"],
+      "fatPercentage": 0.0,
+      "sugarPercentage": 0.0,
+      "recommendation": "string",
+      "isIngredientsListComplete": true,
       "ingredients": [
         {
           "name": "Common Name",
@@ -168,6 +175,10 @@ class GeminiService {
       overview: json['overview'] ?? 'No overview available.',
       score: (json['score'] ?? 0).toDouble(),
       highlights: List<String>.from(json['highlights'] ?? []),
+      fatPercentage: (json['fatPercentage'] ?? 0).toDouble(),
+      sugarPercentage: (json['sugarPercentage'] ?? 0).toDouble(),
+      recommendation: json['recommendation'] ?? 'No recommendation available',
+      isIngredientsListComplete: json['isIngredientsListComplete'] ?? true,
       ingredients: (json['ingredients'] as List? ?? [])
           .map((i) => IngredientDetail(
                 name: i['name'] ?? 'Unknown',

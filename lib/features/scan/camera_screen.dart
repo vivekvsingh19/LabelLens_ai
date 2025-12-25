@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:go_router/go_router.dart';
@@ -24,6 +26,18 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
   File? _imageFile;
   bool _isAnalyzing = false;
   final GeminiService _geminiService = GeminiService();
+
+  // Analysis Loading State
+  Timer? _loadingTimer;
+  int _loadingMessageIndex = 0;
+  final List<String> _loadingMessages = [
+    "Scanning label for ingredients...",
+    "Identifying additives & preservatives...",
+    "Checking against EU & WHO standards...",
+    "Detecting hidden sugars & allergens...",
+    "Calculating safety score...",
+    "Finalizing report...",
+  ];
 
   @override
   void initState() {
@@ -89,7 +103,32 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
   @override
   void dispose() {
     _controller?.dispose();
+    _loadingTimer?.cancel();
     super.dispose();
+  }
+
+  void _startLoadingAnimation() {
+    setState(() {
+      _isAnalyzing = true;
+      _loadingMessageIndex = 0;
+    });
+
+    _loadingTimer?.cancel();
+    _loadingTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
+      if (mounted) {
+        setState(() {
+          _loadingMessageIndex =
+              (_loadingMessageIndex + 1) % _loadingMessages.length;
+        });
+      }
+    });
+  }
+
+  void _stopLoadingAnimation() {
+    _loadingTimer?.cancel();
+    if (mounted) {
+      setState(() => _isAnalyzing = false);
+    }
   }
 
   void _onCapture() async {
@@ -122,13 +161,109 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
     if (_imageFile == null) return;
 
     try {
-      setState(() => _isAnalyzing = true);
+      _startLoadingAnimation();
 
       final analysis = await _geminiService.analyzeProductImage(
           _imageFile!, widget.scanType);
 
       if (mounted) {
         if (analysis != null) {
+          // Check for incomplete ingredients
+          if (!analysis.isIngredientsListComplete) {
+            _stopLoadingAnimation();
+
+            final shouldContinue = await showDialog<bool>(
+              context: context,
+              barrierColor: Colors.black.withValues(alpha: 0.6),
+              builder: (ctx) => Dialog(
+                backgroundColor: Colors.transparent,
+                insetPadding: const EdgeInsets.all(20),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          width: 1,
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color:
+                                  AppTheme.cautionColor.withValues(alpha: 0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(LucideIcons.scanLine,
+                                color: AppTheme.cautionColor, size: 32),
+                          ),
+                          const SizedBox(height: 20),
+                          const Text(
+                            "Incomplete Scan Detected",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            "The AI detected that the ingredient list might be cut off. For accurate results, please scan the full list.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.8),
+                              fontSize: 15,
+                              height: 1.5,
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.black,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
+                              ),
+                              child: const Text("RETAKE SCAN",
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              )
+                  .animate()
+                  .fadeIn()
+                  .scale(duration: 300.ms, curve: Curves.easeOutBack),
+            );
+
+            if (shouldContinue != true) {
+              _onRetake();
+              return;
+            }
+
+            _startLoadingAnimation();
+          }
+
           // Save to local history
           await ref.read(analysisRepositoryProvider).saveAnalysis(analysis);
           // Refresh history provider
@@ -140,7 +275,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
                 extra: analysis);
           }
         } else {
-          setState(() => _isAnalyzing = false);
+          _stopLoadingAnimation();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
                 content: Text(
@@ -150,7 +285,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _isAnalyzing = false);
+        _stopLoadingAnimation();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e')),
         );
@@ -216,30 +351,65 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
 
   Widget _buildAnalyzingUI() {
     return Container(
-      color: Colors.black.withValues(alpha: 0.8),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(LucideIcons.scan, color: Colors.white, size: 80)
-              .animate(onPlay: (c) => c.repeat())
-              .shimmer(duration: 2.seconds)
-              .scale(
-                  begin: const Offset(0.8, 0.8),
-                  end: const Offset(1.1, 1.1),
-                  duration: 1.seconds,
-                  curve: Curves.easeInOut),
-          const SizedBox(height: 32),
-          const Text(
-            'Analyzing Ingredients...',
-            style: TextStyle(
-                color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900),
-          ).animate().fadeIn(),
-          const SizedBox(height: 8),
-          const Text(
-            'Cross-referencing global health standards',
-            style: TextStyle(color: Colors.white60, fontSize: 14),
-          ).animate().fadeIn(delay: 400.ms),
-        ],
+      color: Colors.black.withValues(alpha: 0.85),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Animated Scanner Icon
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppTheme.accentPrimary.withValues(alpha: 0.1),
+                  ),
+                ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
+                    begin: const Offset(1, 1),
+                    end: const Offset(1.5, 1.5),
+                    duration: 1.5.seconds),
+                const Icon(LucideIcons.scanLine,
+                        color: AppTheme.accentPrimary, size: 48)
+                    .animate(onPlay: (c) => c.repeat())
+                    .shimmer(duration: 2.seconds, color: Colors.white),
+              ],
+            ),
+            const SizedBox(height: 40),
+
+            // Dynamic Loading Text
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 500),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                              begin: const Offset(0, 0.5), end: Offset.zero)
+                          .animate(animation),
+                      child: child,
+                    ));
+              },
+              child: Text(
+                _loadingMessages[_loadingMessageIndex],
+                key: ValueKey<int>(_loadingMessageIndex),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5),
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Please wait while AI analyzes the product...',
+              style: TextStyle(color: Colors.white54, fontSize: 13),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -296,8 +466,8 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
                   ),
                 ),
               ),
-            ),
-          ).animate().scale(curve: Curves.easeOutBack),
+            ).animate().scale(curve: Curves.easeOutBack),
+          )
         ],
       ),
     );

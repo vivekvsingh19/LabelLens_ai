@@ -93,10 +93,12 @@ class _ResultScreenState extends State<ResultScreen> {
                         const SizedBox(height: 40),
                         _buildQuickStats(isDark),
                         const SizedBox(height: 32),
+                        _buildCompositionAnalysis(isDark),
+                        const SizedBox(height: 24),
+                        _buildRecommendationCard(isDark),
+                        const SizedBox(height: 24),
                         ...[
                           if (!_showFullReport) ...[
-                            _buildCompositionAnalysis(isDark),
-                            const SizedBox(height: 24),
                             _buildCriticalAlerts(isDark),
                             const SizedBox(height: 24),
                           ],
@@ -142,7 +144,7 @@ class _ResultScreenState extends State<ResultScreen> {
                           else
                             ...[
                               _buildHighlightChips(isDark, ratingColor),
-                              const SizedBox(height: 48),
+                              const SizedBox(height: 32),
                               if (_showFullReport) ...[
                                 SectionHeader(
                                     title: "AI INSIGHTS", isDark: isDark),
@@ -441,6 +443,13 @@ class _ResultScreenState extends State<ResultScreen> {
           n.contains('glucose');
     }).length;
 
+    // Use nutritional percentages if available (non-zero), otherwise fallback to ingredient count for sugar
+    // For fats, we only have nutritional info now.
+    final fatPercent = analysis.fatPercentage / 100.0;
+    final sugarPercent = analysis.sugarPercentage > 0 
+        ? analysis.sugarPercentage / 100.0 
+        : sugarCount / total;
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 24),
       padding: const EdgeInsets.all(20),
@@ -477,7 +486,9 @@ class _ResultScreenState extends State<ResultScreen> {
               _buildMiniRing(stabilizerCount / total, "PROCESSED",
                   AppTheme.cautionColor, isDark),
               _buildMiniRing(
-                  sugarCount / total, "SUGAR", AppTheme.cautionColor, isDark),
+                  sugarPercent, "SUGAR", AppTheme.cautionColor, isDark),
+              _buildMiniRing(
+                  fatPercent, "FATS", AppTheme.cautionColor, isDark),
             ],
           ),
         ],
@@ -606,6 +617,71 @@ class _ResultScreenState extends State<ResultScreen> {
         );
       }).toList(),
     ).animate().fadeIn(delay: 800.ms);
+  }
+
+  Widget _buildRecommendationCard(bool isDark) {
+    final rec = analysis.recommendation;
+    final isBuy = rec.toLowerCase().contains('buy') || rec.toLowerCase().contains('safe');
+    final isAvoid = rec.toLowerCase().contains('avoid') || rec.toLowerCase().contains('don\'t');
+    
+    Color color;
+    IconData icon;
+    String title;
+    
+    if (isBuy) {
+      color = AppTheme.safeColor;
+      icon = LucideIcons.thumbsUp;
+      title = "RECOMMENDED";
+    } else if (isAvoid) {
+      color = AppTheme.avoidColor;
+      icon = LucideIcons.thumbsDown;
+      title = "NOT RECOMMENDED";
+    } else {
+      color = AppTheme.cautionColor;
+      icon = LucideIcons.alertTriangle;
+      title = "CONSUME WITH CAUTION";
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: color, size: 24),
+              const SizedBox(width: 12),
+              Text(
+                title,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            rec,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: isDark ? Colors.white : Colors.black,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 850.ms).slideY(begin: 0.2, end: 0);
   }
 
   Widget _buildSummaryCard(bool isDark, Color ratingColor) {

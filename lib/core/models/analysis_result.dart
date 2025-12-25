@@ -10,6 +10,10 @@ class ProductAnalysis {
   final List<IngredientDetail> ingredients;
   final List<String> highlights;
   final DateTime date;
+  final double fatPercentage;
+  final double sugarPercentage;
+  final String recommendation;
+  final bool isIngredientsListComplete;
 
   ProductAnalysis({
     required this.productName,
@@ -20,6 +24,10 @@ class ProductAnalysis {
     required this.score,
     required this.ingredients,
     required this.highlights,
+    this.fatPercentage = 0.0,
+    this.sugarPercentage = 0.0,
+    this.recommendation = 'No recommendation available',
+    this.isIngredientsListComplete = true,
     DateTime? date,
   }) : date = date ?? DateTime.now();
 
@@ -33,6 +41,10 @@ class ProductAnalysis {
         'highlights': highlights,
         'date': date.toIso8601String(),
         'ingredients': ingredients.map((i) => i.toJson()).toList(),
+        'fatPercentage': fatPercentage,
+        'sugarPercentage': sugarPercentage,
+        'recommendation': recommendation,
+        'isIngredientsListComplete': isIngredientsListComplete,
       };
 
   factory ProductAnalysis.fromJson(Map<String, dynamic> json) =>
@@ -48,6 +60,10 @@ class ProductAnalysis {
         ingredients: (json['ingredients'] as List)
             .map((i) => IngredientDetail.fromJson(i))
             .toList(),
+        fatPercentage: (json['fatPercentage'] ?? 0).toDouble(),
+        sugarPercentage: (json['sugarPercentage'] ?? 0).toDouble(),
+        recommendation: json['recommendation'] ?? 'No recommendation available',
+        isIngredientsListComplete: json['isIngredientsListComplete'] ?? true,
       );
 }
 
