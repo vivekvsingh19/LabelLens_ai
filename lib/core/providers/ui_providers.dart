@@ -21,9 +21,12 @@ final streakProvider = Provider<int>((ref) {
     data: (history) {
       if (history.isEmpty) return 0;
 
-      final uniqueDates = history.map((e) {
-        return DateTime(e.date.year, e.date.month, e.date.day);
-      }).toSet().toList()
+      final uniqueDates = history
+          .map((e) {
+            return DateTime(e.date.year, e.date.month, e.date.day);
+          })
+          .toSet()
+          .toList()
         ..sort((a, b) => b.compareTo(a));
 
       if (uniqueDates.isEmpty) return 0;

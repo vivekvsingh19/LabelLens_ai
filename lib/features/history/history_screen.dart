@@ -249,12 +249,8 @@ class HistoryScreen extends ConsumerWidget {
             isDark),
         _buildStatCard("UNSAFE FOUND", "$unsafeIngredients",
             LucideIcons.shieldAlert, AppTheme.avoidColor, isDark),
-        _buildStatCard(
-            "STREAK",
-            streak.toString().padLeft(2, '0'),
-            LucideIcons.zap,
-            AppTheme.cautionColor,
-            isDark),
+        _buildStatCard("STREAK", streak.toString().padLeft(2, '0'),
+            LucideIcons.zap, AppTheme.cautionColor, isDark),
       ],
     );
   }
