@@ -17,6 +17,7 @@ class HistoryScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final historyAsync = ref.watch(scanHistoryProvider);
+    final streak = ref.watch(streakProvider);
 
     return PopScope(
         canPop: false,
@@ -45,7 +46,7 @@ class HistoryScreen extends ConsumerWidget {
                               : Column(
                                   children: [
                                     const SizedBox(height: 12),
-                                    _buildStatGrid(isDark, history),
+                                    _buildStatGrid(isDark, history, streak),
                                     const SizedBox(height: 24),
                                     if (history.isNotEmpty) ...[
                                       SectionHeader(
@@ -211,7 +212,8 @@ class HistoryScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatGrid(bool isDark, List<ProductAnalysis> history) {
+  Widget _buildStatGrid(
+      bool isDark, List<ProductAnalysis> history, int streak) {
     final scannedCount = history.length;
     final avgScore = history.isEmpty
         ? 0
@@ -248,7 +250,11 @@ class HistoryScreen extends ConsumerWidget {
         _buildStatCard("UNSAFE FOUND", "$unsafeIngredients",
             LucideIcons.shieldAlert, AppTheme.avoidColor, isDark),
         _buildStatCard(
-            "STREAK", "02", LucideIcons.zap, AppTheme.cautionColor, isDark),
+            "STREAK",
+            streak.toString().padLeft(2, '0'),
+            LucideIcons.zap,
+            AppTheme.cautionColor,
+            isDark),
       ],
     );
   }

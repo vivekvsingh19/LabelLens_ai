@@ -446,8 +446,8 @@ class _ResultScreenState extends State<ResultScreen> {
     // Use nutritional percentages if available (non-zero), otherwise fallback to ingredient count for sugar
     // For fats, we only have nutritional info now.
     final fatPercent = analysis.fatPercentage / 100.0;
-    final sugarPercent = analysis.sugarPercentage > 0 
-        ? analysis.sugarPercentage / 100.0 
+    final sugarPercent = analysis.sugarPercentage > 0
+        ? analysis.sugarPercentage / 100.0
         : sugarCount / total;
 
     return Container(
@@ -487,8 +487,7 @@ class _ResultScreenState extends State<ResultScreen> {
                   AppTheme.cautionColor, isDark),
               _buildMiniRing(
                   sugarPercent, "SUGAR", AppTheme.cautionColor, isDark),
-              _buildMiniRing(
-                  fatPercent, "FATS", AppTheme.cautionColor, isDark),
+              _buildMiniRing(fatPercent, "FATS", AppTheme.cautionColor, isDark),
             ],
           ),
         ],
@@ -621,13 +620,15 @@ class _ResultScreenState extends State<ResultScreen> {
 
   Widget _buildRecommendationCard(bool isDark) {
     final rec = analysis.recommendation;
-    final isBuy = rec.toLowerCase().contains('buy') || rec.toLowerCase().contains('safe');
-    final isAvoid = rec.toLowerCase().contains('avoid') || rec.toLowerCase().contains('don\'t');
-    
+    final isBuy =
+        rec.toLowerCase().contains('buy') || rec.toLowerCase().contains('safe');
+    final isAvoid = rec.toLowerCase().contains('avoid') ||
+        rec.toLowerCase().contains('don\'t');
+
     Color color;
     IconData icon;
     String title;
-    
+
     if (isBuy) {
       color = AppTheme.safeColor;
       icon = LucideIcons.thumbsUp;

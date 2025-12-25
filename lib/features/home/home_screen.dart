@@ -16,6 +16,7 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final historyAsync = ref.watch(scanHistoryProvider);
+    final streak = ref.watch(streakProvider);
 
     return Scaffold(
       backgroundColor:
@@ -29,7 +30,7 @@ class HomeScreen extends ConsumerWidget {
               child: CustomScrollView(
                 physics: const BouncingScrollPhysics(),
                 slivers: [
-                  _buildHeader(isDark),
+                  _buildHeader(isDark, streak),
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -108,7 +109,7 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(bool isDark) {
+  Widget _buildHeader(bool isDark, int streak) {
     return SliverPadding(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
       sliver: SliverToBoxAdapter(
@@ -136,17 +137,14 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 16),
-            _buildStreakIndicator(isDark),
+            _buildStreakIndicator(isDark, streak),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStreakIndicator(bool isDark) {
-    // Calculate streak based on scan history
-    final streak = 7;
-
+  Widget _buildStreakIndicator(bool isDark, int streak) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
