@@ -1,4 +1,4 @@
-package com.example.labelsafe_ai
+package com.labelsafe.ai
 
 import io.flutter.embedding.android.FlutterActivity
 

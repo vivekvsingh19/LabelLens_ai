@@ -43,13 +43,13 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
 
     _controller = CameraController(
       backCamera,
-      ResolutionPreset.max, // Ultra-high resolution for better OCR
+      ResolutionPreset.high, // High resolution is sufficient and more stable
       enableAudio: false,
     );
 
     try {
       await _controller!.initialize();
-      // Enable autofocus for scanning
+      // Enable continuous autofocus for scanning
       if (_controller!.value.isInitialized) {
         await _controller!.setFocusMode(FocusMode.auto);
       }
@@ -78,6 +78,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
       Future.delayed(const Duration(seconds: 3), () {
         if (mounted && _controller!.value.isInitialized) {
           _controller!.setFocusMode(FocusMode.auto);
+          _controller!.setFocusPoint(null);
         }
       });
     } catch (e) {
