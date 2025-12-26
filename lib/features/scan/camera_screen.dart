@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:labelsafe_ai/core/theme/app_theme.dart';
 import 'package:labelsafe_ai/core/services/gemini_service.dart';
 import 'package:labelsafe_ai/core/providers/ui_providers.dart';
@@ -26,6 +27,11 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
   File? _imageFile;
   bool _isAnalyzing = false;
   final GeminiService _geminiService = GeminiService();
+  final ImagePicker _imagePicker = ImagePicker();
+
+  // Focus indicator
+  Offset? _focusPoint;
+  bool _showFocusIndicator = false;
 
   // Analysis Loading State
   Timer? _loadingTimer;
@@ -80,23 +86,47 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
         !_controller!.value.isInitialized ||
         _isImageCaptured) return;
 
-    try {
-      // Manual focus on tap
-      await _controller!.setFocusMode(FocusMode.auto);
-      await _controller!.setFocusPoint(Offset(
-        details.localPosition.dx / MediaQuery.of(context).size.width,
-        details.localPosition.dy / MediaQuery.of(context).size.height,
-      ));
+    final screenSize = MediaQuery.of(context).size;
+    final tapPosition = details.localPosition;
+    
+    // Show focus indicator
+    setState(() {
+      _focusPoint = tapPosition;
+      _showFocusIndicator = true;
+    });
 
-      // Re-enable auto focus behavior after 3 seconds
-      Future.delayed(const Duration(seconds: 3), () {
-        if (mounted && _controller!.value.isInitialized) {
-          _controller!.setFocusMode(FocusMode.auto);
+    try {
+      // Set focus point (normalized 0-1)
+      final focusPoint = Offset(
+        tapPosition.dx / screenSize.width,
+        tapPosition.dy / screenSize.height,
+      );
+      
+      await _controller!.setFocusPoint(focusPoint);
+      await _controller!.setFocusMode(FocusMode.auto);
+      
+      // Also set exposure point for better results
+      try {
+        await _controller!.setExposurePoint(focusPoint);
+      } catch (_) {}
+
+      // Hide focus indicator after animation
+      Future.delayed(const Duration(milliseconds: 800), () {
+        if (mounted) {
+          setState(() => _showFocusIndicator = false);
+        }
+      });
+
+      // Reset to continuous focus after 2 seconds
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted && _controller!.value.isInitialized && !_isImageCaptured) {
           _controller!.setFocusPoint(null);
+          _controller!.setFocusMode(FocusMode.auto);
         }
       });
     } catch (e) {
       debugPrint("Focus Error: $e");
+      setState(() => _showFocusIndicator = false);
     }
   }
 
@@ -149,12 +179,46 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
     }
   }
 
-  void _onRetake() {
+  void _onRetake() async {
     setState(() {
       _isImageCaptured = false;
       _imageFile = null;
       _isAnalyzing = false;
     });
+    
+    // Reinitialize camera to fix focus
+    if (_controller != null) {
+      try {
+        await _controller!.dispose();
+        _controller = null;
+        setState(() => _isReady = false);
+        await _initCamera();
+      } catch (e) {
+        debugPrint("Camera reinit error: $e");
+      }
+    }
+  }
+
+  Future<void> _pickImageFromGallery() async {
+    try {
+      final XFile? pickedFile = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
+
+      if (pickedFile != null) {
+        setState(() {
+          _imageFile = File(pickedFile.path);
+          _isImageCaptured = true;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error picking image: $e')),
+        );
+      }
+    }
   }
 
   void _analyzeCapturedImage() async {
@@ -324,12 +388,31 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
               fit: BoxFit.cover,
             ),
           if (!_isImageCaptured) _buildScanningLine(),
+          if (_showFocusIndicator && _focusPoint != null) _buildFocusIndicator(),
           if (_isAnalyzing) _buildAnalyzingUI(),
           _buildBackBtn(),
           if (!_isAnalyzing)
             _isImageCaptured ? _buildSelectionControls() : _buildCaptureBtn(),
         ],
       ),
+    );
+  }
+
+  Widget _buildFocusIndicator() {
+    return Positioned(
+      left: _focusPoint!.dx - 30,
+      top: _focusPoint!.dy - 30,
+      child: Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.white, width: 2),
+          borderRadius: BorderRadius.circular(8),
+        ),
+      )
+          .animate()
+          .scale(begin: const Offset(1.5, 1.5), end: const Offset(1, 1), duration: 200.ms)
+          .fadeOut(delay: 500.ms, duration: 300.ms),
     );
   }
 
@@ -446,28 +529,59 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
               .then()
               .fadeOut(duration: 1.seconds),
           const SizedBox(height: 24),
-          GestureDetector(
-            onTap: _onCapture,
-            child: Container(
-              width: 84,
-              height: 84,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.5), width: 2),
-              ),
-              child: Center(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Upload from Gallery Button
+              GestureDetector(
+                onTap: _pickImageFromGallery,
                 child: Container(
-                  width: 68,
-                  height: 68,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
                     shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.15),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.3),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      LucideIcons.image,
+                      color: Colors.white,
+                      size: 24,
+                    ),
                   ),
                 ),
-              ),
-            ).animate().scale(curve: Curves.easeOutBack),
-          )
+              ).animate().fadeIn(delay: 200.ms).scale(curve: Curves.easeOutBack),
+              const SizedBox(width: 32),
+              // Capture Button
+              GestureDetector(
+                onTap: _onCapture,
+                child: Container(
+                  width: 84,
+                  height: 84,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.5), width: 2),
+                  ),
+                  child: Center(
+                    child: Container(
+                      width: 68,
+                      height: 68,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ),
+              ).animate().scale(curve: Curves.easeOutBack),
+              const SizedBox(width: 88), // Balance the row
+            ],
+          ),
         ],
       ),
     );

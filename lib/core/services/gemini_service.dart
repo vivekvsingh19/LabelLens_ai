@@ -112,58 +112,30 @@ class GeminiService {
 
   String _buildPrompt(String category) {
     return '''
-    Act as an UNCOMPROMISING, STRICT International Food Safety Inspector & Toxicologist.
+Analyze this $category product label image. Extract all ingredients and evaluate safety strictly (EU/WHO standards).
 
-    TASK:
-    1. Perform ultra-precise OCR on the provided image of a $category product label.
-    2. Identify the Brand and Product Name.
-    3. Extract EVERY single ingredient listed on the label. Do not skip any.
-    4. For each ingredient:
-       - Identify its common name and technical/INCI name.
-       - Determine its function using standard categories: "Stabilizer", "Preservative", "Sweetener", "Emulsifier", "Colorant", "Flavor enhancer", "Thickener", "Surfactant", "Antioxidant", or "Nutrient".
-       - Evaluate safety based on the STRICTEST international standards (specifically EU EFSA, WHO, and California Prop 65).
-       - If an ingredient is banned or restricted in Europe/Japan but allowed locally, mark it as "CAUTION" or "AVOID".
-       - Rate its safety ("safe", "caution", "avoid").
-       - Provide a brutal, truth-telling ONE-LINE explanation (max 80 characters). If it's carcinogenic, say "Carcinogenic - linked to cancer". If it's an endocrine disruptor, say "Disrupts hormones - long-term reproductive harm". Be direct and mention the specific long-term health impact.
-    5. Calculate a strict Safety Score (0-100). Penalize heavily for harmful additives. Do not penalize for unknown processing factors.
-    6. Generate a 2-3 sentence overview. Be direct about long-term health risks.
-    7. Identify key highlights (e.g., "Contains Banned Dyes", "High Sugar", "Paraben-Free").
-    8. Extract or estimate the percentage of Fats and Sugars per 100g/100ml if available on the nutritional label. If not explicitly stated, estimate based on ingredient order (e.g., if sugar is 1st, it's high ~40-50%). Return as a number (0-100).
-    9. Provide a clear recommendation: "Buy", "Avoid", or "Limit". Followed by a very short reason (e.g. "Buy - Clean ingredients", "Avoid - Contains carcinogens").
-    10. Check if the ingredient list appears cut off, incomplete, or if the image only captures part of the label. Set "isIngredientsListComplete" to false if you suspect missing ingredients.
+JSON OUTPUT ONLY:
+{
+  "productName": "string",
+  "brand": "string",
+  "rating": "safe"|"caution"|"avoid",
+  "category": "$category",
+  "overview": "2 sentences max",
+  "score": 0-100,
+  "highlights": ["max 4 items"],
+  "fatPercentage": 0-100,
+  "sugarPercentage": 0-100,
+  "recommendation": "Buy/Avoid/Limit - short reason",
+  "isIngredientsListComplete": true/false,
+  "ingredients": [{"name":"string","technicalName":"string","rating":"safe|caution|avoid","explanation":"max 60 chars","function":"string"}]
+}
 
-    CRITICAL RULES:
-    - BE STRICT. Do not sugarcoat. If a product has 1% harmful ingredient, it is NOT safe.
-    - Flag "Avoid" ingredients like Parabens, Phthalates, BHA/BHT, High Fructose Corn Syrup, Artificial Dyes, and hidden sugars immediately.
-    - Do NOT penalize for hypothetical or unstated processing methods (e.g., roasting quality, sourcing) unless explicitly stated on the label. Assume standard safe processing unless evidence suggests otherwise.
-    - If all ingredients are safe, the score MUST be 100 and the rating MUST be 'safe'.
-    - Be transparent about percentage if inferred context suggests high quantity (e.g. first 3 ingredients).
-    - Respond ONLY in valid JSON.
-
-    JSON STRUCTURE:
-    {
-      "productName": "string",
-      "brand": "string",
-      "rating": "safe" | "caution" | "avoid",
-      "category": "string",
-      "overview": "string",
-      "score": 85,
-      "highlights": ["string"],
-      "fatPercentage": 0.0,
-      "sugarPercentage": 0.0,
-      "recommendation": "string",
-      "isIngredientsListComplete": true,
-      "ingredients": [
-        {
-          "name": "Common Name",
-          "technicalName": "Technical/INCI Name",
-          "rating": "safe" | "caution" | "avoid",
-          "explanation": "Strict explanation referencing EU/WHO if applicable",
-          "function": "Ingredient function"
-        }
-      ]
-    }
-    ''';
+RULES:
+- Flag parabens, phthalates, BHA/BHT, artificial dyes, HFCS as avoid
+- Explanation must be direct (e.g. "Carcinogenic" or "Hormone disruptor")
+- If incomplete label visible, set isIngredientsListComplete=false
+- Score 100 only if all ingredients safe
+''';
   }
 
   ProductAnalysis _parseAnalysis(Map<String, dynamic> json) {
