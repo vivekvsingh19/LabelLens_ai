@@ -88,7 +88,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
 
     final screenSize = MediaQuery.of(context).size;
     final tapPosition = details.localPosition;
-    
+
     // Show focus indicator
     setState(() {
       _focusPoint = tapPosition;
@@ -101,10 +101,10 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
         tapPosition.dx / screenSize.width,
         tapPosition.dy / screenSize.height,
       );
-      
+
       await _controller!.setFocusPoint(focusPoint);
       await _controller!.setFocusMode(FocusMode.auto);
-      
+
       // Also set exposure point for better results
       try {
         await _controller!.setExposurePoint(focusPoint);
@@ -185,7 +185,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
       _imageFile = null;
       _isAnalyzing = false;
     });
-    
+
     // Reinitialize camera to fix focus
     if (_controller != null) {
       try {
@@ -388,7 +388,8 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
               fit: BoxFit.cover,
             ),
           if (!_isImageCaptured) _buildScanningLine(),
-          if (_showFocusIndicator && _focusPoint != null) _buildFocusIndicator(),
+          if (_showFocusIndicator && _focusPoint != null)
+            _buildFocusIndicator(),
           if (_isAnalyzing) _buildAnalyzingUI(),
           _buildBackBtn(),
           if (!_isAnalyzing)
@@ -411,7 +412,10 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
         ),
       )
           .animate()
-          .scale(begin: const Offset(1.5, 1.5), end: const Offset(1, 1), duration: 200.ms)
+          .scale(
+              begin: const Offset(1.5, 1.5),
+              end: const Offset(1, 1),
+              duration: 200.ms)
           .fadeOut(delay: 500.ms, duration: 300.ms),
     );
   }
@@ -554,7 +558,10 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
                     ),
                   ),
                 ),
-              ).animate().fadeIn(delay: 200.ms).scale(curve: Curves.easeOutBack),
+              )
+                  .animate()
+                  .fadeIn(delay: 200.ms)
+                  .scale(curve: Curves.easeOutBack),
               const SizedBox(width: 32),
               // Capture Button
               GestureDetector(
