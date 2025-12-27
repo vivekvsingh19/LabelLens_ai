@@ -133,7 +133,7 @@ class ProfileScreen extends ConsumerWidget {
       ThemeMode mode, bool isSelected, bool isDark) {
     return Expanded(
       child: GestureDetector(
-        onTap: () => ref.read(themeModeProvider.notifier).state = mode,
+        onTap: () => ref.read(themeModeProvider.notifier).setTheme(mode),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
