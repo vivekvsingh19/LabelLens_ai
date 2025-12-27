@@ -121,10 +121,10 @@ class HomeScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("HELLO, VIVEK",
+                  Text("LABELSAFE AI",
                       style: AppTheme.caption(isDark).copyWith(
                           fontSize: 12,
-                          letterSpacing: 3,
+                          letterSpacing: 2,
                           fontWeight: FontWeight.w900)),
                   const SizedBox(height: 8),
                   Text("YOUR\nSAFETY INDEX",

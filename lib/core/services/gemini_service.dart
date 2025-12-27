@@ -168,17 +168,12 @@ class GeminiService {
 
   String _buildPrompt(String category) {
     return '''
-Analyze this $category product label. Focus PRIMARILY on INGREDIENTS safety (EU/WHO standards).
+Analyze this $category product label. Focus on INGREDIENTS safety (EU/WHO standards).
 
-SCORING PRIORITY (in order):
-1. INGREDIENTS SAFETY (60% weight) - Harmful additives = major penalty
-2. SUGAR CONTENT (25% weight) - High sugar = major penalty
-3. Fat content & overall (15% weight)
-
-CRITICAL PENALTIES:
-- ANY harmful ingredient (artificial colors, HFCS, BHA/BHT, parabens, MSG, sodium nitrite, artificial sweeteners) = score below 50
-- HIGH SUGAR (>15g/100g or sugar in top 3 ingredients) = score below 60, rating "caution" or "avoid"
-- VERY HIGH SUGAR (>25g/100g or sugar is #1 ingredient) = score below 40, rating "avoid"
+SCORING:
+1. INGREDIENTS SAFETY (60%) - Harmful additives = major penalty
+2. SUGAR CONTENT (25%) - High sugar = penalty
+3. Fat & overall (15%)
 
 JSON OUTPUT ONLY:
 {
@@ -186,25 +181,28 @@ JSON OUTPUT ONLY:
   "brand": "string",
   "rating": "safe"|"caution"|"avoid",
   "category": "$category",
-  "overview": "2 sentences focusing on ingredient/sugar concerns",
+  "overview": "1 sentence, 15 words max",
   "score": 0-100,
-  "highlights": ["max 4 items - prioritize ingredient & sugar warnings"],
+  "highlights": ["3 items max, 4 words each"],
   "fatPercentage": 0-100,
   "sugarPercentage": 0-100,
-  "recommendation": "Buy/Avoid/Limit - reason based on ingredients & sugar",
+  "recommendation": "5 words max",
   "isIngredientsListComplete": true/false,
-  "ingredients": [{"name":"string","technicalName":"string","rating":"safe|caution|avoid","explanation":"max 60 chars","function":"string"}]
+  "ingredients": [{"name":"string","technicalName":"E-number or chemical name","rating":"safe|caution|avoid","explanation":"Why good/bad for health in 8-12 words","function":"Sweetener|Preservative|Color|Emulsifier|etc"}]
 }
 
-STRICT RULES:
-- 1 "avoid" ingredient = max score 50, rating "avoid"
-- 2+ "caution" ingredients = max score 65, rating "caution"
-- Sugar >20g/100g = rating "avoid" (highlight "Very High Sugar")
-- Sugar 10-20g/100g = rating "caution" (highlight "High Sugar")
-- Good nutrition does NOT offset bad ingredients or high sugar
-- Artificial colors (Red 40, Yellow 5/6, Blue 1) = always "avoid"
-- Added sugars (HFCS, dextrose, maltose, sucrose) in top 5 = "caution"
-- Score 100 only if ALL ingredients natural AND sugar <5g/100g
+INGREDIENT EXPLANATION EXAMPLES:
+- "May cause hyperactivity in children, linked to allergies"
+- "Natural thickener, safe for regular consumption"
+- "Excess intake linked to obesity and diabetes"
+- "Artificial preservative, may cause digestive issues"
+- "Natural antioxidant, beneficial for health"
+
+RULES:
+- 1 "avoid" ingredient = max score 50
+- 2+ "caution" = max score 65
+- Sugar >20g/100g = "avoid"
+- Artificial colors = always "avoid"
 ''';
   }
 

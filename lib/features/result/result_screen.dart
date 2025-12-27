@@ -18,7 +18,6 @@ class ResultScreen extends StatefulWidget {
 
 class _ResultScreenState extends State<ResultScreen> {
   bool _showFullReport = false;
-  final Set<int> _expandedAlerts = {};
 
   ProductAnalysis get analysis => widget.analysis;
 
@@ -90,13 +89,13 @@ class _ResultScreenState extends State<ResultScreen> {
                         _buildTopBar(context, isDark),
                         const SizedBox(height: 32),
                         _buildImmersiveHero(isDark, ratingColor),
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 20),
                         _buildQuickStats(isDark),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 20),
                         _buildCompositionAnalysis(isDark),
-                        const SizedBox(height: 24),
-                        _buildRecommendationCard(isDark),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 20),
+                        //_buildRecommendationCard(isDark),
+                        //const SizedBox(height: 24),
                         ...[
                           if (!_showFullReport) ...[
                             _buildCriticalAlerts(isDark),
@@ -173,12 +172,12 @@ class _ResultScreenState extends State<ResultScreen> {
                                   borderRadius: BorderRadius.circular(100)),
                               elevation: 0,
                             ),
-                            child: Row(
+                            child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(LucideIcons.scanLine, size: 18),
-                                const SizedBox(width: 8),
-                                const Text('NEW SCAN',
+                                Icon(LucideIcons.scanLine, size: 18),
+                                SizedBox(width: 8),
+                                Text('NEW SCAN',
                                     style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w900,
@@ -618,72 +617,75 @@ class _ResultScreenState extends State<ResultScreen> {
     ).animate().fadeIn(delay: 800.ms);
   }
 
-  Widget _buildRecommendationCard(bool isDark) {
-    final rec = analysis.recommendation;
-    final isBuy =
-        rec.toLowerCase().contains('buy') || rec.toLowerCase().contains('safe');
-    final isAvoid = rec.toLowerCase().contains('avoid') ||
-        rec.toLowerCase().contains('don\'t');
+  // Widget _buildRecommendationCard(bool isDark) {
+  //   // Use score to determine recommendation status (not text matching)
+  //   final score = analysis.score;
 
-    Color color;
-    IconData icon;
-    String title;
+  //   Color color;
+  //   IconData icon;
+  //   String title;
+  //   String shortRec;
 
-    if (isBuy) {
-      color = AppTheme.safeColor;
-      icon = LucideIcons.thumbsUp;
-      title = "RECOMMENDED";
-    } else if (isAvoid) {
-      color = AppTheme.avoidColor;
-      icon = LucideIcons.thumbsDown;
-      title = "NOT RECOMMENDED";
-    } else {
-      color = AppTheme.cautionColor;
-      icon = LucideIcons.alertTriangle;
-      title = "CONSUME WITH CAUTION";
-    }
+  //   // if (score >= 70) {
+  //   //   color = AppTheme.safeColor;
+  //   //   icon = LucideIcons.thumbsUp;
+  //   //   title = "RECOMMENDED";
+  //   //   shortRec = "Safe to consume.";
+  //   // } else if (score >= 40) {
+  //   //   color = AppTheme.cautionColor;
+  //   //   icon = LucideIcons.alertTriangle;
+  //   //   title = "CONSUME WITH CAUTION";
+  //   //   shortRec = "Limit intake.";
+  //   // } else {
+  //   //   color = AppTheme.avoidColor;
+  //   //   icon = LucideIcons.thumbsDown;
+  //   //   title = "NOT RECOMMENDED";
+  //   //   shortRec = "Avoid this product.";
+  //   // }
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: color, size: 24),
-              const SizedBox(width: 12),
-              Text(
-                title,
-                style: TextStyle(
-                  color: color,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            rec,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: isDark ? Colors.white : Colors.black,
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              height: 1.4,
-            ),
-          ),
-        ],
-      ),
-    ).animate().fadeIn(delay: 850.ms).slideY(begin: 0.2, end: 0);
-  }
+  //   return Container(
+  //     width: double.infinity,
+  //     padding: const EdgeInsets.all(20),
+  //     decoration: BoxDecoration(
+  //       color: color.withValues(alpha: 0.1),
+  //       borderRadius: BorderRadius.circular(16),
+  //       border: Border.all(color: color.withValues(alpha: 0.2)),
+  //     ),
+  //     child: Column(
+  //       children: [
+  //         Row(
+  //           mainAxisAlignment: MainAxisAlignment.center,
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             Icon(icon, color: color, size: 24),
+  //             const SizedBox(width: 10),
+  //             Flexible(
+  //               child: Text(
+  //                 title,
+  //                 style: TextStyle(
+  //                   color: color,
+  //                   fontSize: 14,
+  //                   fontWeight: FontWeight.w900,
+  //                   letterSpacing: 1.0,
+  //                 ),
+  //                 textAlign: TextAlign.center,
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //         const SizedBox(height: 8),
+  //         Text(
+  //           shortRec,
+  //           style: TextStyle(
+  //             color: isDark ? Colors.white70 : Colors.black87,
+  //             fontSize: 13,
+  //             fontWeight: FontWeight.w600,
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   ).animate().fadeIn(delay: 850.ms).slideY(begin: 0.2, end: 0);
+  // }
 
   Widget _buildSummaryCard(bool isDark, Color ratingColor) {
     return Container(
@@ -731,156 +733,75 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
   Widget _buildModernIngredientTile(IngredientDetail ing, bool isDark) {
-    final color = isDark ? Colors.white : Colors.black;
     final ratingColor = _getRatingColor(ing.rating);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? AppTheme.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
-        boxShadow: AppTheme.softShadow(isDark),
-        border: Border.all(
-          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
-          width: 1.5,
+        color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(16),
+        border: Border(
+          left: BorderSide(color: ratingColor, width: 3),
         ),
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
-        child: Stack(
-          children: [
-            // Suble background tint gradient
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      (isDark ? Colors.white : Colors.black)
-                          .withValues(alpha: 0.02),
-                      Colors.transparent,
-                    ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header row: Name + Rating badge
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  ing.name,
+                  style: AppTheme.h3(isDark).copyWith(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: ratingColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          ing.rating.name.toUpperCase(),
-                          style: TextStyle(
-                            color: ratingColor,
-                            fontSize: 8,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              ing.name,
-                              style: AppTheme.h3(isDark).copyWith(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            _buildFunctionalTag(ing.function, isDark),
-                          ],
-                        ),
-                      ),
-                    ],
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: ratingColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  ing.rating.name.toUpperCase(),
+                  style: TextStyle(
+                    color: ratingColor,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w900,
                   ),
-                  const SizedBox(height: 12),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4),
-                    child: Text(
-                      ing.technicalName.toUpperCase(),
-                      style: AppTheme.caption(isDark).copyWith(
-                        color: (isDark ? Colors.white : Colors.black)
-                            .withValues(alpha: 0.3),
-                        fontSize: 9,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: (isDark ? Colors.white : Colors.black)
-                          .withValues(alpha: 0.03),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: (isDark ? Colors.white : Colors.black)
-                            .withValues(alpha: 0.05),
-                      ),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(LucideIcons.info,
-                            size: 14, color: color.withValues(alpha: 0.5)),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            ing.explanation,
-                            style: AppTheme.bodySmall(isDark).copyWith(
-                              color: (isDark ? Colors.white : Colors.black)
-                                  .withValues(alpha: 0.7),
-                              height: 1.5,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          // Function tag
+          Text(
+            ing.function.toUpperCase(),
+            style: AppTheme.caption(isDark).copyWith(
+              fontSize: 10,
+              color:
+                  (isDark ? Colors.white : Colors.black).withValues(alpha: 0.4),
+              letterSpacing: 0.5,
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 10),
+          // Explanation
+          Text(
+            ing.explanation,
+            style: AppTheme.bodySmall(isDark).copyWith(
+              color:
+                  (isDark ? Colors.white : Colors.black).withValues(alpha: 0.7),
+              height: 1.5,
+              fontSize: 13,
+            ),
+          ),
+        ],
       ),
-    ).animate().fadeIn(duration: 500.ms);
-  }
-
-  Widget _buildFunctionalTag(String function, bool isDark) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        function.toUpperCase(),
-        style: AppTheme.caption(isDark).copyWith(
-          fontSize: 8,
-          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.4),
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
+    ).animate().fadeIn(duration: 400.ms);
   }
 
   Widget _buildCriticalAlerts(bool isDark) {
@@ -894,7 +815,6 @@ class _ResultScreenState extends State<ResultScreen> {
     if (alerts.isEmpty) return const SizedBox.shrink();
 
     final alertColor = AppTheme.avoidColor;
-    final textColor = isDark ? Colors.white : Colors.black;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -915,109 +835,70 @@ class _ResultScreenState extends State<ResultScreen> {
         ),
         const SizedBox(height: 12),
         ...alerts.asMap().entries.map((entry) {
-          final index = entry.key;
           final ing = entry.value;
-          final isExpanded = _expandedAlerts.contains(index);
 
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                if (isExpanded) {
-                  _expandedAlerts.remove(index);
-                } else {
-                  _expandedAlerts.add(index);
-                }
-              });
-            },
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: (isDark ? Colors.white : Colors.black)
-                    .withValues(alpha: 0.03),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                    color: (isDark ? Colors.white : Colors.black)
-                        .withValues(alpha: 0.05)),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Icon(LucideIcons.xCircle,
-                          size: 16, color: alertColor.withValues(alpha: 0.7)),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              ing.name,
-                              style: AppTheme.bodySmall(isDark).copyWith(
-                                  fontWeight: FontWeight.w900, fontSize: 15),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              ing.explanation,
-                              style: AppTheme.caption(isDark).copyWith(
-                                fontSize: 12,
-                                letterSpacing: 0,
-                                height: 1.4,
-                                color: (isDark ? Colors.white : Colors.black)
-                                    .withValues(alpha: 0.7),
-                              ),
-                              maxLines: isExpanded ? null : 2,
-                              overflow:
-                                  isExpanded ? null : TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: alertColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          ing.rating.name.toUpperCase(),
-                          style: TextStyle(
-                              color: alertColor,
-                              fontSize: 8,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (ing.explanation.length > 80)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+          return Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: (isDark ? Colors.white : Colors.black)
+                  .withValues(alpha: 0.03),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                  color: (isDark ? Colors.white : Colors.black)
+                      .withValues(alpha: 0.05)),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Icon(LucideIcons.xCircle,
+                        size: 16, color: alertColor.withValues(alpha: 0.7)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            isExpanded
-                                ? LucideIcons.chevronUp
-                                : LucideIcons.chevronDown,
-                            size: 14,
-                            color: textColor.withValues(alpha: 0.6),
-                          ),
-                          const SizedBox(width: 4),
                           Text(
-                            isExpanded ? "Show less" : "Show details",
+                            ing.name,
+                            style: AppTheme.bodySmall(isDark).copyWith(
+                                fontWeight: FontWeight.w900, fontSize: 15),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            ing.explanation,
                             style: AppTheme.caption(isDark).copyWith(
-                              fontSize: 10,
-                              color: textColor.withValues(alpha: 0.8),
-                              fontWeight: FontWeight.w700,
+                              fontSize: 12,
+                              letterSpacing: 0,
+                              height: 1.4,
+                              color: (isDark ? Colors.white : Colors.black)
+                                  .withValues(alpha: 0.7),
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
                     ),
-                ],
-              ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: alertColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        ing.rating.name.toUpperCase(),
+                        style: TextStyle(
+                            color: alertColor,
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           );
         }),
