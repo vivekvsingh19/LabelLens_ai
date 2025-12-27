@@ -62,7 +62,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
 
   Future<void> _initCamera() async {
     if (kIsWeb) return; // Camera not supported on web
-    
+
     final cameras = await availableCameras();
     if (cameras.isEmpty) return;
 
@@ -432,7 +432,9 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
             if (_isAnalyzing) _buildAnalyzingUI(),
             _buildBackBtn(),
             if (!_isAnalyzing)
-              _isImageCaptured ? _buildSelectionControls() : _buildWebCaptureBtn(),
+              _isImageCaptured
+                  ? _buildSelectionControls()
+                  : _buildWebCaptureBtn(),
           ],
         ),
       );
@@ -662,7 +664,10 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
                     ),
                   ),
                 ),
-              ).animate().fadeIn(delay: 200.ms).scale(curve: Curves.easeOutBack),
+              )
+                  .animate()
+                  .fadeIn(delay: 200.ms)
+                  .scale(curve: Curves.easeOutBack),
               const SizedBox(width: 32),
               // Camera Button
               GestureDetector(
