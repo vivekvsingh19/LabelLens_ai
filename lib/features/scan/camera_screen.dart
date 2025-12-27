@@ -191,6 +191,7 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
   }
 
   void _onRetake() async {
+    // Reset state first
     setState(() {
       _isImageCaptured = false;
       _imageFile = null;
@@ -199,15 +200,13 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
       _isAnalyzing = false;
     });
 
-    // Reinitialize camera to fix focus (not on web)
-    if (!kIsWeb && _controller != null) {
+    // Just reset focus without reinitializing camera (avoids flash)
+    if (!kIsWeb && _controller != null && _controller!.value.isInitialized) {
       try {
-        await _controller!.dispose();
-        _controller = null;
-        setState(() => _isReady = false);
-        await _initCamera();
+        await _controller!.setFocusPoint(null);
+        await _controller!.setFocusMode(FocusMode.auto);
       } catch (e) {
-        debugPrint("Camera reinit error: $e");
+        debugPrint("Focus reset error: $e");
       }
     }
   }
