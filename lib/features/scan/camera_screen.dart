@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:go_router/go_router.dart';
@@ -25,6 +27,8 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
   bool _isReady = false;
   bool _isImageCaptured = false;
   File? _imageFile;
+  Uint8List? _webImageBytes; // For web platform
+  XFile? _pickedFile; // Store XFile for web
   bool _isAnalyzing = false;
   final GeminiService _geminiService = GeminiService();
   final ImagePicker _imagePicker = ImagePicker();
@@ -48,10 +52,17 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
   @override
   void initState() {
     super.initState();
-    _initCamera();
+    if (kIsWeb) {
+      // On web, skip camera init - use image picker only
+      setState(() => _isReady = true);
+    } else {
+      _initCamera();
+    }
   }
 
   Future<void> _initCamera() async {
+    if (kIsWeb) return; // Camera not supported on web
+    
     final cameras = await availableCameras();
     if (cameras.isEmpty) return;
 
@@ -183,11 +194,13 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
     setState(() {
       _isImageCaptured = false;
       _imageFile = null;
+      _webImageBytes = null;
+      _pickedFile = null;
       _isAnalyzing = false;
     });
 
-    // Reinitialize camera to fix focus
-    if (_controller != null) {
+    // Reinitialize camera to fix focus (not on web)
+    if (!kIsWeb && _controller != null) {
       try {
         await _controller!.dispose();
         _controller = null;
@@ -207,10 +220,19 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
       );
 
       if (pickedFile != null) {
-        setState(() {
-          _imageFile = File(pickedFile.path);
-          _isImageCaptured = true;
-        });
+        _pickedFile = pickedFile;
+        if (kIsWeb) {
+          final bytes = await pickedFile.readAsBytes();
+          setState(() {
+            _webImageBytes = bytes;
+            _isImageCaptured = true;
+          });
+        } else {
+          setState(() {
+            _imageFile = File(pickedFile.path);
+            _isImageCaptured = true;
+          });
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -221,14 +243,41 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
     }
   }
 
+  Future<void> _captureFromWebCamera() async {
+    try {
+      final XFile? pickedFile = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 85,
+      );
+
+      if (pickedFile != null) {
+        _pickedFile = pickedFile;
+        final bytes = await pickedFile.readAsBytes();
+        setState(() {
+          _webImageBytes = bytes;
+          _isImageCaptured = true;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Camera error: $e')),
+        );
+      }
+    }
+  }
+
   void _analyzeCapturedImage() async {
-    if (_imageFile == null) return;
+    if (_imageFile == null && _pickedFile == null) return;
 
     try {
       _startLoadingAnimation();
 
-      final analysis = await _geminiService.analyzeProductImage(
-          _imageFile!, widget.scanType);
+      final analysis = kIsWeb
+          ? await _geminiService.analyzeProductImageFromBytes(
+              _webImageBytes!, widget.scanType)
+          : await _geminiService.analyzeProductImage(
+              _imageFile!, widget.scanType);
 
       if (mounted) {
         if (analysis != null) {
@@ -359,7 +408,38 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_isReady || _controller == null) {
+    if (!_isReady) {
+      return const Scaffold(
+          backgroundColor: Colors.black,
+          body: Center(child: CircularProgressIndicator(color: Colors.white)));
+    }
+
+    // Web platform UI
+    if (kIsWeb) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (!_isImageCaptured)
+              _buildWebCameraPlaceholder()
+            else if (_webImageBytes != null)
+              Image.memory(
+                _webImageBytes!,
+                fit: BoxFit.cover,
+              ),
+            if (!_isImageCaptured) _buildScanningLine(),
+            if (_isAnalyzing) _buildAnalyzingUI(),
+            _buildBackBtn(),
+            if (!_isAnalyzing)
+              _isImageCaptured ? _buildSelectionControls() : _buildWebCaptureBtn(),
+          ],
+        ),
+      );
+    }
+
+    // Native platform UI
+    if (_controller == null) {
       return const Scaffold(
           backgroundColor: Colors.black,
           body: Center(child: CircularProgressIndicator(color: Colors.white)));
@@ -497,6 +577,125 @@ class _CameraScreenState extends ConsumerState<CameraScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildWebCameraPlaceholder() {
+    return Container(
+      color: Colors.black,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                LucideIcons.camera,
+                color: Colors.white54,
+                size: 64,
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'TAP CAMERA OR GALLERY\nTO SCAN PRODUCT',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white54,
+                fontSize: 14,
+                letterSpacing: 2,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWebCaptureBtn() {
+    return Positioned(
+      bottom: 60,
+      left: 0,
+      right: 0,
+      child: Column(
+        children: [
+          const Text(
+            'SCAN THE LABEL',
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                letterSpacing: 2,
+                fontWeight: FontWeight.w900),
+          )
+              .animate(onPlay: (c) => c.repeat())
+              .fadeIn(duration: 1.seconds)
+              .then()
+              .fadeOut(duration: 1.seconds),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Gallery Button
+              GestureDetector(
+                onTap: _pickImageFromGallery,
+                child: Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: 0.15),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.3),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      LucideIcons.image,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+                ),
+              ).animate().fadeIn(delay: 200.ms).scale(curve: Curves.easeOutBack),
+              const SizedBox(width: 32),
+              // Camera Button
+              GestureDetector(
+                onTap: _captureFromWebCamera,
+                child: Container(
+                  width: 84,
+                  height: 84,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.5), width: 2),
+                  ),
+                  child: Center(
+                    child: Container(
+                      width: 68,
+                      height: 68,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        LucideIcons.camera,
+                        color: Colors.black,
+                        size: 32,
+                      ),
+                    ),
+                  ),
+                ),
+              ).animate().scale(curve: Curves.easeOutBack),
+              const SizedBox(width: 96), // Balance
+            ],
+          ),
+        ],
       ),
     );
   }
