@@ -16,21 +16,22 @@ class AppRouter {
   static final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
   static final router = GoRouter(
-    initialLocation: '/',
+    initialLocation: '/home',
     navigatorKey: _rootNavigatorKey,
     routes: [
       GoRoute(
         path: '/',
         builder: (context, state) => const SplashScreen(),
       ),
-      GoRoute(
-        path: '/onboarding',
-        builder: (context, state) => const OnboardingScreen(),
-      ),
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginScreen(),
-      ),
+      // Hidden for now - keep for future use
+      // GoRoute(
+      //   path: '/onboarding',
+      //   builder: (context, state) => const OnboardingScreen(),
+      // ),
+      // GoRoute(
+      //   path: '/login',
+      //   builder: (context, state) => const LoginScreen(),
+      // ),
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
         builder: (context, state, child) => ScaffoldWithNavbar(child: child),
