@@ -105,7 +105,7 @@
    ```
 
 3. **Configure API Key**
-   
+
    Create a `.env` file in the root directory:
    ```env
    GEMINI_API_KEY=your_gemini_api_key_here
