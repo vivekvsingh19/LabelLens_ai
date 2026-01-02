@@ -28,10 +28,10 @@ class AppRouter {
       //   path: '/onboarding',
       //   builder: (context, state) => const OnboardingScreen(),
       // ),
-      // GoRoute(
-      //   path: '/login',
-      //   builder: (context, state) => const LoginScreen(),
-      // ),
+      GoRoute(
+        path: '/login',
+        builder: (context, state) => const LoginScreen(),
+      ),
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
         builder: (context, state, child) => ScaffoldWithNavbar(child: child),
