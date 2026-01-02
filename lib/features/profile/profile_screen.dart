@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labelsafe_ai/core/theme/app_theme.dart';
 import 'package:labelsafe_ai/core/providers/ui_providers.dart';
+import 'package:labelsafe_ai/core/services/preferences_service.dart';
+import 'package:labelsafe_ai/core/services/supabase_service.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
@@ -67,21 +69,28 @@ class ProfileScreen extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 48),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                        color: AppTheme.avoidColor.withValues(alpha: 0.2)),
-                    borderRadius:
-                        BorderRadius.circular(AppTheme.borderRadiusMedium),
-                  ),
-                  child: Center(
-                    child: Text(
-                      "SIGN OUT",
-                      style: AppTheme.caption(isDark).copyWith(
-                          color: AppTheme.avoidColor,
-                          fontWeight: FontWeight.w900),
+                GestureDetector(
+                  onTap: () async {
+                    await SupabaseService().signOut();
+                    await PreferencesService().setLoggedIn(false);
+                    if (context.mounted) context.go('/login');
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color: AppTheme.avoidColor.withValues(alpha: 0.2)),
+                      borderRadius:
+                          BorderRadius.circular(AppTheme.borderRadiusMedium),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "SIGN OUT",
+                        style: AppTheme.caption(isDark).copyWith(
+                            color: AppTheme.avoidColor,
+                            fontWeight: FontWeight.w900),
+                      ),
                     ),
                   ),
                 ),
