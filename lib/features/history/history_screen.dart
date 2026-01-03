@@ -171,43 +171,48 @@ class HistoryScreen extends ConsumerWidget {
   }
 
   Widget _buildEmptyState(BuildContext context, bool isDark) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: (isDark ? Colors.white : Colors.black)
-                  .withValues(alpha: 0.03),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(LucideIcons.history,
-                size: 48,
+    final screenHeight = MediaQuery.of(context).size.height;
+    return SizedBox(
+      height: screenHeight * 0.6,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
                 color: (isDark ? Colors.white : Colors.black)
-                    .withValues(alpha: 0.2)),
-          ),
-          const SizedBox(height: 24),
-          Text("NO SCANS YET",
-              style: AppTheme.h3(isDark).copyWith(letterSpacing: 1)),
-          const SizedBox(height: 8),
-          Text("Your analyzed products will appear here",
-              style: AppTheme.caption(isDark)),
-          const SizedBox(height: 32),
-          ElevatedButton(
-            onPressed: () => context.go('/home'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isDark ? Colors.white : Colors.black,
-              foregroundColor: isDark ? Colors.black : Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(100)),
+                    .withValues(alpha: 0.03),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(LucideIcons.history,
+                  size: 48,
+                  color: (isDark ? Colors.white : Colors.black)
+                      .withValues(alpha: 0.2)),
             ),
-            child: const Text("START SCANNING",
-                style:
-                    TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
-          ),
-        ],
+            const SizedBox(height: 24),
+            Text("NO SCANS YET",
+                style: AppTheme.h3(isDark).copyWith(letterSpacing: 1)),
+            const SizedBox(height: 8),
+            Text("Your analyzed products will appear here",
+                style: AppTheme.caption(isDark)),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: () => context.go('/home'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isDark ? Colors.white : Colors.black,
+                foregroundColor: isDark ? Colors.black : Colors.white,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(100)),
+              ),
+              child: const Text("START SCANNING",
+                  style:
+                      TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -420,17 +425,6 @@ class HistoryScreen extends ConsumerWidget {
         );
       },
     );
-  }
-
-  IconData _getRatingIcon(SafetyBadge rating) {
-    switch (rating) {
-      case SafetyBadge.safe:
-        return LucideIcons.check;
-      case SafetyBadge.caution:
-        return LucideIcons.alertCircle;
-      case SafetyBadge.avoid:
-        return LucideIcons.x;
-    }
   }
 
   Color _getRatingColor(SafetyBadge rating) {
