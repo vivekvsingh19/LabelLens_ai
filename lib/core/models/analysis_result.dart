@@ -12,6 +12,7 @@ class ProductAnalysis {
   final DateTime date;
   final double fatPercentage;
   final double sugarPercentage;
+  final double sodiumPercentage;
   final String recommendation;
   final bool isIngredientsListComplete;
 
@@ -26,6 +27,7 @@ class ProductAnalysis {
     required this.highlights,
     this.fatPercentage = 0.0,
     this.sugarPercentage = 0.0,
+    this.sodiumPercentage = 0.0,
     this.recommendation = 'No recommendation available',
     this.isIngredientsListComplete = true,
     DateTime? date,
@@ -43,6 +45,7 @@ class ProductAnalysis {
         'ingredients': ingredients.map((i) => i.toJson()).toList(),
         'fatPercentage': fatPercentage,
         'sugarPercentage': sugarPercentage,
+        'sodiumPercentage': sodiumPercentage,
         'recommendation': recommendation,
         'isIngredientsListComplete': isIngredientsListComplete,
       };
@@ -62,6 +65,7 @@ class ProductAnalysis {
             .toList(),
         fatPercentage: (json['fatPercentage'] ?? 0).toDouble(),
         sugarPercentage: (json['sugarPercentage'] ?? 0).toDouble(),
+        sodiumPercentage: (json['sodiumPercentage'] ?? 0).toDouble(),
         recommendation: json['recommendation'] ?? 'No recommendation available',
         isIngredientsListComplete: json['isIngredientsListComplete'] ?? true,
       );

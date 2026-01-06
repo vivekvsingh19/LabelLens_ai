@@ -424,14 +424,6 @@ class _ResultScreenState extends State<ResultScreen> {
             i.rating == SafetyBadge.avoid || i.rating == SafetyBadge.caution)
         .length;
 
-    final stabilizerCount = analysis.ingredients.where((i) {
-      final f = i.function.toLowerCase();
-      return f.contains('stabilizer') ||
-          f.contains('thickener') ||
-          f.contains('emulsifier') ||
-          f.contains('preservative');
-    }).length;
-
     final sugarCount = analysis.ingredients.where((i) {
       final n = i.name.toLowerCase();
       final f = i.function.toLowerCase();
@@ -443,11 +435,12 @@ class _ResultScreenState extends State<ResultScreen> {
     }).length;
 
     // Use nutritional percentages if available (non-zero), otherwise fallback to ingredient count for sugar
-    // For fats, we only have nutritional info now.
+    // For fats and sodium, we only have nutritional info now.
     final fatPercent = analysis.fatPercentage / 100.0;
     final sugarPercent = analysis.sugarPercentage > 0
         ? analysis.sugarPercentage / 100.0
         : sugarCount / total;
+    final sodiumPercent = analysis.sodiumPercentage / 100.0;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 24),
@@ -482,10 +475,10 @@ class _ResultScreenState extends State<ResultScreen> {
             children: [
               _buildMiniRing(
                   harmfulCount / total, "RISK", AppTheme.avoidColor, isDark),
-              _buildMiniRing(stabilizerCount / total, "PROCESSED",
-                  AppTheme.cautionColor, isDark),
               _buildMiniRing(
                   sugarPercent, "SUGAR", AppTheme.cautionColor, isDark),
+              _buildMiniRing(
+                  sodiumPercent, "SODIUM", AppTheme.cautionColor, isDark),
               _buildMiniRing(fatPercent, "FATS", AppTheme.cautionColor, isDark),
             ],
           ),

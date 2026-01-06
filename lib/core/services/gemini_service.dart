@@ -172,8 +172,9 @@ Analyze this $category product label. Focus on INGREDIENTS safety (EU/WHO standa
 
 SCORING:
 1. INGREDIENTS SAFETY (60%) - Harmful additives = major penalty
-2. SUGAR CONTENT (25%) - High sugar = penalty
-3. Fat & overall (15%)
+2. SUGAR CONTENT (20%) - High sugar = penalty
+3. SODIUM CONTENT (10%) - High sodium = penalty
+4. Fat & overall (10%)
 
 JSON OUTPUT ONLY:
 {
@@ -186,6 +187,7 @@ JSON OUTPUT ONLY:
   "highlights": ["3 items max, 4 words each"],
   "fatPercentage": 0-100,
   "sugarPercentage": 0-100,
+  "sodiumPercentage": 0-100,
   "recommendation": "5 words max",
   "isIngredientsListComplete": true/false,
   "ingredients": [{"name":"string","technicalName":"E-number or chemical name","rating":"safe|caution|avoid","explanation":"Why good/bad for health in 8-12 words","function":"Sweetener|Preservative|Color|Emulsifier|etc"}]
@@ -217,6 +219,7 @@ RULES:
       highlights: List<String>.from(json['highlights'] ?? []),
       fatPercentage: (json['fatPercentage'] ?? 0).toDouble(),
       sugarPercentage: (json['sugarPercentage'] ?? 0).toDouble(),
+      sodiumPercentage: (json['sodiumPercentage'] ?? 0).toDouble(),
       recommendation: json['recommendation'] ?? 'No recommendation available',
       isIngredientsListComplete: json['isIngredientsListComplete'] ?? true,
       ingredients: (json['ingredients'] as List? ?? [])
