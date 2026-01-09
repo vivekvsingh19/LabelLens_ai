@@ -28,7 +28,7 @@
 3. Click **+ CREATE CREDENTIALS** → **OAuth client ID**
 4. **Application type**: Web application
 5. **Name**: LabelSafe AI Web Client
-6. **Authorized redirect URIs**: 
+6. **Authorized redirect URIs**:
    ```
    https://qyyxiugkmuxbalwdnrsl.supabase.co/auth/v1/callback
    ```
@@ -42,7 +42,7 @@
 3. **Application type**: Android
 4. **Name**: LabelSafe AI Android (Debug)
 5. **Package name**: `com.labelsafe.ai`
-6. **SHA-1 certificate fingerprint**: 
+6. **SHA-1 certificate fingerprint**:
    ```
    D0:6B:AE:66:A9:9F:99:00:37:8E:46:9C:A6:25:E4:19:3D:A1:FA:9D
    ```

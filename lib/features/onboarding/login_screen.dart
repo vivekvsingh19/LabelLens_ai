@@ -6,8 +6,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:labelsafe_ai/core/services/preferences_service.dart';
 import 'package:labelsafe_ai/core/services/supabase_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -21,18 +19,6 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isSignUp = false;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  late GoogleSignIn _googleSignIn;
-
-  @override
-  void initState() {
-    super.initState();
-    final webClientId = dotenv.env['GOOGLE_WEB_CLIENT_ID'];
-    _googleSignIn = GoogleSignIn(
-      clientId: webClientId,
-      scopes: ['email', 'profile'],
-      serverClientId: webClientId,
-    );
-  }
 
   @override
   void dispose() {
@@ -103,43 +89,32 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Sign out first to ensure clean state
-      await _googleSignIn.signOut();
-      
-      final googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        // User cancelled the sign-in
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Google Sign-In cancelled')),
-          );
-        }
-        setState(() => _isLoading = false);
-        return;
-      }
-
-      final googleAuth = await googleUser.authentication;
-      
-      if (googleAuth.idToken == null) {
-        throw Exception('Failed to get Google ID token. Please check your Google Cloud OAuth configuration.');
-      }
-
-      debugPrint('Google Sign-In successful, authenticating with Supabase...');
-
-      // Sign in with Supabase using Google
-      final response = await Supabase.instance.client.auth.signInWithIdToken(
-        provider: OAuthProvider.google,
-        idToken: googleAuth.idToken!,
-        accessToken: googleAuth.accessToken,
+      // Use Supabase's native OAuth flow for more reliable Google Sign-In
+      final result = await Supabase.instance.client.auth.signInWithOAuth(
+        OAuthProvider.google,
+        redirectTo: 'com.labelsafe.ai://login-callback',
+        authScreenLaunchMode: LaunchMode.externalApplication,
       );
 
-      if (response.session != null && mounted) {
-        debugPrint('Supabase authentication successful');
-        await PreferencesService().setLoggedIn(true);
-        if (mounted) context.go('/home');
-      } else {
-        throw Exception('Failed to create Supabase session');
+      if (!result) {
+        throw Exception('Failed to launch Google Sign-In');
       }
+
+      // Listen for auth state changes
+      final subscription = Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
+        final session = data.session;
+        if (session != null && mounted) {
+          debugPrint('Google Sign-In successful via OAuth');
+          await PreferencesService().setLoggedIn(true);
+          if (mounted) context.go('/home');
+        }
+      });
+
+      // Clean up subscription after a delay
+      Future.delayed(const Duration(seconds: 30), () {
+        subscription.cancel();
+      });
+
     } on AuthException catch (e) {
       debugPrint('AuthException: ${e.message}');
       if (mounted) {
@@ -151,6 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
       }
+      setState(() => _isLoading = false);
     } catch (e) {
       debugPrint('Google Sign-In error: $e');
       if (mounted) {
@@ -162,8 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
       }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+      setState(() => _isLoading = false);
     }
   }
 
