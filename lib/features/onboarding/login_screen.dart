@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:labelsafe_ai/core/services/preferences_service.dart';
 import 'package:labelsafe_ai/core/services/supabase_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -89,56 +90,49 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Use Supabase's native OAuth flow for more reliable Google Sign-In
-      final result = await Supabase.instance.client.auth.signInWithOAuth(
-        OAuthProvider.google,
-        redirectTo: 'com.labelsafe.ai://login-callback',
-        authScreenLaunchMode: LaunchMode.externalApplication,
+      // Web Client ID from Google Cloud Console
+      const webClientId =
+          '530598165160-oml8hc4mj6cdask9esced682h7vq53tj.apps.googleusercontent.com';
+
+      final googleSignIn = GoogleSignIn(
+        serverClientId: webClientId,
       );
 
-      if (!result) {
-        throw Exception('Failed to launch Google Sign-In');
+      final googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        setState(() => _isLoading = false);
+        return;
       }
 
-      // Listen for auth state changes
-      final subscription =
-          Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
-        final session = data.session;
-        if (session != null && mounted) {
-          debugPrint('Google Sign-In successful via OAuth');
-          await PreferencesService().setLoggedIn(true);
-          if (mounted) context.go('/home');
-        }
-      });
+      final googleAuth = await googleUser.authentication;
+      final idToken = googleAuth.idToken;
+      final accessToken = googleAuth.accessToken;
 
-      // Clean up subscription after a delay
-      Future.delayed(const Duration(seconds: 30), () {
-        subscription.cancel();
-      });
-    } on AuthException catch (e) {
-      debugPrint('AuthException: ${e.message}');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Authentication failed: ${e.message}'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-          ),
-        );
+      if (idToken == null) {
+        throw Exception('No ID Token found');
       }
-      setState(() => _isLoading = false);
+
+      final response = await Supabase.instance.client.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
+        accessToken: accessToken,
+      );
+
+      if (response.session != null && mounted) {
+        await PreferencesService().setLoggedIn(true);
+        if (mounted) context.go('/home');
+      }
     } catch (e) {
       debugPrint('Google Sign-In error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-          ),
+              content: Text('Google Sign-In failed: $e'),
+              backgroundColor: Colors.red),
         );
       }
-      setState(() => _isLoading = false);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -281,7 +275,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ).animate().fade(delay: 700.ms).slideY(begin: 0.2, end: 0),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
 
                     // Divider
                     Row(
@@ -296,7 +290,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
-                            'Or continue with',
+                            'or',
                             style: AppTheme.bodySmall(isDark).copyWith(
                               color: isDark
                                   ? Colors.white.withValues(alpha: 0.5)
@@ -314,7 +308,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ).animate().fade(delay: 750.ms),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
 
                     // Google Sign-In Button
                     SizedBox(
@@ -335,14 +329,20 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              LucideIcons.mail,
-                              size: 20,
-                              color: isDark ? Colors.white : Colors.black,
+                            Image.network(
+                              'https://www.google.com/favicon.ico',
+                              width: 20,
+                              height: 20,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Icon(
+                                LucideIcons.chrome,
+                                size: 20,
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
                             ),
                             const SizedBox(width: 12),
                             Text(
-                              'Sign in with Google',
+                              'Continue with Google',
                               style: AppTheme.body(isDark).copyWith(
                                 fontWeight: FontWeight.w600,
                               ),
@@ -371,7 +371,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
-                    ).animate().fade(delay: 800.ms),
+                    ).animate().fade(delay: 850.ms),
 
                     const SizedBox(height: 8),
 

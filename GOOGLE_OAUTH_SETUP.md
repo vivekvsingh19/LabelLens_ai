@@ -28,27 +28,19 @@
 3. Click **+ CREATE CREDENTIALS** → **OAuth client ID**
 4. **Application type**: Web application
 5. **Name**: LabelSafe AI Web Client
-6. **Authorized redirect URIs**:
+6. **Authorized redirect URIs**: 
    ```
    https://qyyxiugkmuxbalwdnrsl.supabase.co/auth/v1/callback
    ```
 7. Click **CREATE**
 8. **IMPORTANT**: Copy the **Client ID** and **Client Secret** - you'll need these in Step 4
 
-### Step 3: Create Android OAuth Client
+### Step 3: Configure Android Deep Link (Already Done ✅)
 
-1. In the same Google Cloud Console → **Credentials** page
-2. Click **+ CREATE CREDENTIALS** → **OAuth client ID**
-3. **Application type**: Android
-4. **Name**: LabelSafe AI Android (Debug)
-5. **Package name**: `com.labelsafe.ai`
-6. **SHA-1 certificate fingerprint**:
-   ```
-   D0:6B:AE:66:A9:9F:99:00:37:8E:46:9C:A6:25:E4:19:3D:A1:FA:9D
-   ```
-7. Click **CREATE**
-
-### Step 4: Configure Google Provider in Supabase
+The Android deep link for OAuth callback has been configured:
+- Scheme: `com.labelsafe.ai`
+- Host: `login-callback`
+- This allows Google to redirect back to your app after authentication### Step 4: Configure Google Provider in Supabase
 
 1. Go to [Supabase Dashboard](https://supabase.com/dashboard)
 2. Select your project
