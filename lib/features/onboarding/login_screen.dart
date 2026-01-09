@@ -101,7 +101,8 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       // Listen for auth state changes
-      final subscription = Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
+      final subscription =
+          Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
         final session = data.session;
         if (session != null && mounted) {
           debugPrint('Google Sign-In successful via OAuth');
@@ -114,7 +115,6 @@ class _LoginScreenState extends State<LoginScreen> {
       Future.delayed(const Duration(seconds: 30), () {
         subscription.cancel();
       });
-
     } on AuthException catch (e) {
       debugPrint('AuthException: ${e.message}');
       if (mounted) {
