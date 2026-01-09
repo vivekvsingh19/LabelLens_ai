@@ -6,6 +6,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:labelsafe_ai/core/services/preferences_service.dart';
 import 'package:labelsafe_ai/core/services/supabase_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,6 +21,25 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isSignUp = false;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  late GoogleSignIn _googleSignIn;
+
+  @override
+  void initState() {
+    super.initState();
+    final webClientId = dotenv.env['GOOGLE_WEB_CLIENT_ID'];
+    _googleSignIn = GoogleSignIn(
+      clientId: webClientId,
+      scopes: ['email', 'profile'],
+      serverClientId: webClientId,
+    );
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   Future<void> _handleAuth() async {
     final email = _emailController.text.trim();
@@ -71,6 +92,74 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() => _isLoading = true);
+
+    try {
+      // Sign out first to ensure clean state
+      await _googleSignIn.signOut();
+      
+      final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        // User cancelled the sign-in
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Google Sign-In cancelled')),
+          );
+        }
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      final googleAuth = await googleUser.authentication;
+      
+      if (googleAuth.idToken == null) {
+        throw Exception('Failed to get Google ID token. Please check your Google Cloud OAuth configuration.');
+      }
+
+      debugPrint('Google Sign-In successful, authenticating with Supabase...');
+
+      // Sign in with Supabase using Google
+      final response = await Supabase.instance.client.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: googleAuth.idToken!,
+        accessToken: googleAuth.accessToken,
+      );
+
+      if (response.session != null && mounted) {
+        debugPrint('Supabase authentication successful');
+        await PreferencesService().setLoggedIn(true);
+        if (mounted) context.go('/home');
+      } else {
+        throw Exception('Failed to create Supabase session');
+      }
+    } on AuthException catch (e) {
+      debugPrint('AuthException: ${e.message}');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Authentication failed: ${e.message}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Google Sign-In error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
         );
       }
     } finally {
@@ -216,6 +305,77 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                       ),
                     ).animate().fade(delay: 700.ms).slideY(begin: 0.2, end: 0),
+
+                    const SizedBox(height: 16),
+
+                    // Divider
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Divider(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.1)
+                                : Colors.black.withValues(alpha: 0.1),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            'Or continue with',
+                            style: AppTheme.bodySmall(isDark).copyWith(
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.5)
+                                  : Colors.black.withValues(alpha: 0.5),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Divider(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.1)
+                                : Colors.black.withValues(alpha: 0.1),
+                          ),
+                        ),
+                      ],
+                    ).animate().fade(delay: 750.ms),
+
+                    const SizedBox(height: 16),
+
+                    // Google Sign-In Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: OutlinedButton(
+                        onPressed: _isLoading ? null : _handleGoogleSignIn,
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.2)
+                                : Colors.black.withValues(alpha: 0.2),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              LucideIcons.mail,
+                              size: 20,
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Sign in with Google',
+                              style: AppTheme.body(isDark).copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ).animate().fade(delay: 800.ms).slideY(begin: 0.2, end: 0),
 
                     const SizedBox(height: 16),
 

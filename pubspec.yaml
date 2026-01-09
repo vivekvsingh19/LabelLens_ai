@@ -30,6 +30,7 @@ dependencies:
   fl_chart: ^1.1.1
   upgrader: ^12.3.0
   supabase_flutter: ^2.12.0
+  google_sign_in: ^6.2.1
 
 dev_dependencies:
   flutter_test:

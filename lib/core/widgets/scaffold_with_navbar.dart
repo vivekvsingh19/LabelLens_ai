@@ -58,12 +58,12 @@ class ScaffoldWithNavbar extends ConsumerWidget {
                       isSelected: location == '/history',
                       onTap: () => context.go('/history'),
                     ),
-                    // _NavButton(
-                    //   icon: LucideIcons.settings,
-                    //   label: 'Settings',
-                    //   isSelected: location == '/profile',
-                    //   onTap: () => context.go('/profile'),
-                    // ),
+                    _NavButton(
+                      icon: LucideIcons.settings,
+                      label: 'Settings',
+                      isSelected: location == '/profile',
+                      onTap: () => context.go('/profile'),
+                    ),
                   ],
                 ),
               ),
