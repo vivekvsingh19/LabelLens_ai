@@ -25,7 +25,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           "Instantly analyze food labels to reveal hidden additives and nutritional secrets.",
       icon: LucideIcons.scanLine,
       lottiePath: 'assets/animations/scan.json',
-      accentColor: const Color(0xFF42A5F5), // Blue
     ),
     OnboardingItem(
       title: "Stay Safe",
@@ -33,7 +32,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           "Detect harmful chemicals and allergens with AI-powered safety ratings.",
       icon: LucideIcons.shieldCheck,
       lottiePath: 'assets/animations/shield.json',
-      accentColor: const Color(0xFF66BB6A), // Green
     ),
     OnboardingItem(
       title: "Eat Smarter",
@@ -41,7 +39,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           "Get personalized recommendations based on your health goals and lifestyle.",
       icon: LucideIcons.sparkles,
       lottiePath: 'assets/animations/insights.json',
-      accentColor: const Color(0xFFFFA726), // Orange
     ),
   ];
 
@@ -110,6 +107,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _buildMinimalBackground(bool isDark, OnboardingItem activeItem) {
+    final accentColor = isDark ? Colors.white : Colors.black;
     return AnimatedContainer(
       duration: 1000.ms,
       decoration: BoxDecoration(
@@ -129,10 +127,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               height: 500,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: activeItem.accentColor.withValues(alpha: 0.08),
+                color: accentColor.withValues(alpha: 0.03),
                 boxShadow: [
                   BoxShadow(
-                    color: activeItem.accentColor.withValues(alpha: 0.05),
+                    color: accentColor.withValues(alpha: 0.02),
                     blurRadius: 150,
                     spreadRadius: 50,
                   ),
@@ -202,6 +200,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget _buildBottomControls(
       BuildContext context, bool isDark, OnboardingItem item) {
     final isLastPage = _currentPage == _items.length - 1;
+    final accentColor = isDark ? Colors.white : Colors.black;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(32, 0, 32, 48),
@@ -273,7 +272,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     width: _currentPage == index ? 24 : 8,
                     decoration: BoxDecoration(
                       color: _currentPage == index
-                          ? item.accentColor
+                          ? accentColor
                           : (isDark ? Colors.white12 : Colors.black12),
                       borderRadius: BorderRadius.circular(4),
                     ),
@@ -290,25 +289,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   width: isLastPage ? 160 : 64,
                   height: 64,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        isLastPage
-                            ? item.accentColor
-                            : (isDark ? Colors.white : Colors.black),
-                        isLastPage
-                            ? item.accentColor.withValues(alpha: 0.8)
-                            : (isDark ? Colors.white : Colors.black),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                    color: accentColor,
                     borderRadius: BorderRadius.circular(32),
                     boxShadow: [
                       BoxShadow(
-                        color: (isLastPage
-                                ? item.accentColor
-                                : (isDark ? Colors.white : Colors.black))
-                            .withValues(alpha: 0.3),
+                        color: accentColor.withValues(alpha: 0.2),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       )
@@ -331,10 +316,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       AnimatedOpacity(
                         duration: 200.ms,
                         opacity: isLastPage ? 1 : 0,
-                        child: const Text(
+                        child: Text(
                           "Get Started",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: isDark ? Colors.black : Colors.white,
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
@@ -354,18 +339,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _buildIconPlaceholder(OnboardingItem item, bool isDark) {
+    final accentColor = isDark ? Colors.white : Colors.black;
     return Container(
       width: 180,
       height: 180,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: item.accentColor.withValues(alpha: 0.1),
+        color: accentColor.withValues(alpha: 0.05),
+        border: Border.all(
+          color: accentColor.withValues(alpha: 0.1),
+          width: 1,
+        ),
       ),
       child: Center(
         child: Icon(
           item.icon,
           size: 64,
-          color: item.accentColor,
+          color: accentColor,
         ),
       ),
     );
@@ -377,13 +367,11 @@ class OnboardingItem {
   final String description;
   final IconData icon;
   final String? lottiePath;
-  final Color accentColor;
 
   OnboardingItem({
     required this.title,
     required this.description,
     required this.icon,
-    required this.accentColor,
     this.lottiePath,
   });
 }
