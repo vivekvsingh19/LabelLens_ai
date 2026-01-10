@@ -28,7 +28,7 @@
 3. Click **+ CREATE CREDENTIALS** → **OAuth client ID**
 4. **Application type**: Web application
 5. **Name**: LabelSafe AI Web Client
-6. **Authorized redirect URIs**: 
+6. **Authorized redirect URIs**:
    ```
    https://qyyxiugkmuxbalwdnrsl.supabase.co/auth/v1/callback
    ```

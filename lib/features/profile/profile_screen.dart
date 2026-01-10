@@ -15,6 +15,7 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final currentTheme = ref.watch(themeModeProvider);
+    final user = SupabaseService().currentUser;
 
     return PopScope(
         canPop: false,
@@ -39,7 +40,7 @@ class ProfileScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
-                _buildUserHero(isDark),
+                _buildUserHero(isDark, user),
                 const SizedBox(height: 32),
                 _buildThemeSelector(context, ref, isDark, currentTheme),
                 const SizedBox(height: 32),
@@ -69,31 +70,7 @@ class ProfileScreen extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 48),
-                GestureDetector(
-                  onTap: () async {
-                    await SupabaseService().signOut();
-                    await PreferencesService().setLoggedIn(false);
-                    if (context.mounted) context.go('/login');
-                  },
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                          color: AppTheme.avoidColor.withValues(alpha: 0.2)),
-                      borderRadius:
-                          BorderRadius.circular(AppTheme.borderRadiusMedium),
-                    ),
-                    child: Center(
-                      child: Text(
-                        "SIGN OUT",
-                        style: AppTheme.caption(isDark).copyWith(
-                            color: AppTheme.avoidColor,
-                            fontWeight: FontWeight.w900),
-                      ),
-                    ),
-                  ),
-                ),
+                _buildLogoutButton(context, isDark),
                 const SizedBox(height: 32),
                 Text(
                   "BUILD 2.4.0 (BETA)",
@@ -105,6 +82,149 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ),
         ));
+  }
+
+  Widget _buildLogoutButton(BuildContext context, bool isDark) {
+    return GestureDetector(
+      onTap: () async {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => Dialog(
+            backgroundColor: isDark ? AppTheme.darkCard : AppTheme.lightCard,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark ? AppTheme.darkCard : AppTheme.lightCard,
+                borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+                boxShadow: AppTheme.premiumShadow(isDark),
+              ),
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "SIGN OUT?",
+                    style: AppTheme.h3(isDark).copyWith(
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    "Are you sure you want to sign out? You'll need to sign in again to access your account.",
+                    style: AppTheme.body(isDark).copyWith(
+                      height: 1.5,
+                      color: isDark
+                          ? AppTheme.darkText.withValues(alpha: 0.7)
+                          : AppTheme.lightText.withValues(alpha: 0.7),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.1)
+                                    : Colors.black.withValues(alpha: 0.1),
+                              ),
+                              borderRadius: BorderRadius.circular(
+                                  AppTheme.borderRadiusMedium),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "CANCEL",
+                                style: AppTheme.caption(isDark).copyWith(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 1.5,
+                                  color: isDark
+                                      ? AppTheme.darkText
+                                      : AppTheme.lightText,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () async {
+                            Navigator.pop(context);
+                            try {
+                              await SupabaseService().signOut();
+                              await PreferencesService().setLoggedIn(false);
+                              if (context.mounted) {
+                                context.go('/login');
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Sign out failed: $e'),
+                                    backgroundColor: AppTheme.avoidColor,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            decoration: BoxDecoration(
+                              color: AppTheme.avoidColor,
+                              borderRadius: BorderRadius.circular(
+                                  AppTheme.borderRadiusMedium),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "SIGN OUT",
+                                style: AppTheme.caption(isDark).copyWith(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 1.5,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        decoration: BoxDecoration(
+          border: Border.all(
+              color: AppTheme.avoidColor.withValues(alpha: 0.2)),
+          borderRadius:
+              BorderRadius.circular(AppTheme.borderRadiusMedium),
+        ),
+        child: Center(
+          child: Text(
+            "SIGN OUT",
+            style: AppTheme.caption(isDark).copyWith(
+                color: AppTheme.avoidColor,
+                fontWeight: FontWeight.w900),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildThemeSelector(
@@ -176,7 +296,14 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildUserHero(bool isDark) {
+  Widget _buildUserHero(bool isDark, dynamic user) {
+    // Extract user info from Supabase user
+    final userName = user?.userMetadata?['full_name'] ?? 
+                     user?.email?.split('@').first.toUpperCase() ?? 
+                     'USER';
+    final userProfilePic = user?.userMetadata?['picture'];
+    final userEmail = user?.email ?? 'No email';
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -191,31 +318,61 @@ class ProfileScreen extends ConsumerWidget {
             height: 80,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: isDark
-                    ? [Colors.white, const Color(0xFFE0E0E0)]
-                    : [Colors.black, const Color(0xFF424242)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              gradient: userProfilePic == null
+                  ? LinearGradient(
+                      colors: isDark
+                          ? [Colors.white, const Color(0xFFE0E0E0)]
+                          : [Colors.black, const Color(0xFF424242)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                  : null,
             ),
-            child: Center(
-                child: Icon(LucideIcons.user,
-                    size: 32, color: isDark ? Colors.black : Colors.white)),
+            child: userProfilePic != null
+                ? ClipOval(
+                    child: Image.network(
+                      userProfilePic,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: isDark
+                                  ? [Colors.white, const Color(0xFFE0E0E0)]
+                                  : [Colors.black, const Color(0xFF424242)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                          ),
+                          child: Center(
+                            child: Icon(LucideIcons.user,
+                                size: 32,
+                                color: isDark ? Colors.black : Colors.white),
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                : Center(
+                    child: Icon(LucideIcons.user,
+                        size: 32, color: isDark ? Colors.black : Colors.white)),
           ),
           const SizedBox(width: 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("VIVEK",
-                    style: AppTheme.h2(isDark).copyWith(fontSize: 22)),
-                Text("PREMIUM ANALYST",
+                Text(userName.toUpperCase(),
+                    style: AppTheme.h2(isDark).copyWith(fontSize: 22),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis),
+                Text(userEmail,
                     style: AppTheme.caption(isDark).copyWith(
-                        color: const Color(0xFFFFD700)
-                            .withValues(alpha: 0.8), // Gold
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1)),
+                        fontSize: 11,
+                        color: isDark ? Colors.white70 : Colors.black54),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis),
                 const SizedBox(height: 8),
                 Container(
                   padding:
@@ -225,7 +382,7 @@ class ProfileScreen extends ConsumerWidget {
                         .withValues(alpha: 0.1), // Blue tint
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: Text("LEVEL 12",
+                  child: Text("LOGGED IN",
                       style: AppTheme.caption(isDark).copyWith(
                           fontSize: 8,
                           fontWeight: FontWeight.w900,

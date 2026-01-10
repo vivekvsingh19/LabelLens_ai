@@ -5,6 +5,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lottie/lottie.dart';
 import 'package:labelsafe_ai/core/services/preferences_service.dart';
+import 'dart:ui'; // For ImageFilter
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -19,25 +20,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<OnboardingItem> _items = [
     OnboardingItem(
-      title: "Scan Labels",
+      title: "Scan & Decode",
       description:
-          "Decode ingredients and nutritional facts with AI-powered analysis in seconds.",
-      icon: Icons.qr_code_scanner,
+          "Instantly analyze food labels. Identify additives, allergens, and nutritional secrets with one scan.",
+      icon: LucideIcons.scanLine,
       lottiePath: 'assets/animations/scan.json',
+      accentColor: const Color(0xFF42A5F5), // Blue
     ),
     OnboardingItem(
       title: "Stay Safe",
       description:
-          "Identify hidden additives, allergens, and potentially harmful chemicals.",
-      icon: Icons.verified_user,
+          "Detect harmful chemicals and hidden dangers. Protect yourself and your family with AI-powered safety ratings.",
+      icon: LucideIcons.shieldCheck,
       lottiePath: 'assets/animations/shield.json',
+      accentColor: const Color(0xFF66BB6A), // Green
     ),
     OnboardingItem(
-      title: "Smart Insights",
+      title: "Health Insights",
       description:
-          "Make informed consumption choices with personalized recommendations.",
-      icon: Icons.auto_awesome,
+          "Get personalized recommendations based on your health goals. Eat smarter, live better.",
+      icon: LucideIcons.sparkles,
       lottiePath: 'assets/animations/insights.json',
+      accentColor: const Color(0xFFFFA726), // Orange
     ),
   ];
 
@@ -51,174 +55,325 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     setState(() => _currentPage = index);
   }
 
+  void _nextPage() {
+    if (_currentPage < _items.length - 1) {
+      _pageController.nextPage(
+        duration: 600.ms,
+        curve: Curves.easeOutQuint,
+      );
+    } else {
+      _completeOnboarding();
+    }
+  }
+
+  Future<void> _completeOnboarding() async {
+    await PreferencesService().setOnboardingComplete();
+    if (mounted) context.go('/login');
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final activeItem = _items[_currentPage];
 
     return Scaffold(
       backgroundColor:
           isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
       body: Stack(
         children: [
-          // Background Gradient Blob
-          Positioned(
-            top: -100,
-            right: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: (isDark ? Colors.white : Colors.black).withOpacity(0.05),
-              ),
-            )
-                .animate(
-                    onPlay: (controller) => controller.repeat(reverse: true))
-                .scale(
-                    begin: const Offset(1, 1),
-                    end: const Offset(1.2, 1.2),
-                    duration: 4.seconds),
-          ),
-          Positioned(
-            bottom: -50,
-            left: -50,
-            child: Container(
-              width: 250,
-              height: 250,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: (isDark ? Colors.white : Colors.black).withOpacity(0.03),
-              ),
-            )
-                .animate(
-                    onPlay: (controller) => controller.repeat(reverse: true))
-                .scale(
-                    begin: const Offset(1, 1),
-                    end: const Offset(1.3, 1.3),
-                    duration: 5.seconds),
-          ),
+          // Dynamic Background
+          _buildBackground(isDark, activeItem),
 
           // Main Content
-          SafeArea(
-            child: Column(
-              children: [
-                _buildHeader(context, isDark),
-                Expanded(
-                  child: PageView.builder(
-                    controller: _pageController,
-                    onPageChanged: _onPageChanged,
-                    itemCount: _items.length,
-                    itemBuilder: (context, index) {
-                      return _buildPage(_items[index], isDark, index);
-                    },
-                  ),
+          Column(
+            children: [
+              _buildHeader(context, isDark),
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: _onPageChanged,
+                  itemCount: _items.length,
+                  itemBuilder: (context, index) {
+                    return _buildPageContent(_items[index], isDark, index);
+                  },
                 ),
-                _buildFooter(context, isDark),
-              ],
-            ),
+              ),
+              _buildBottomControls(context, isDark, activeItem),
+            ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildBackground(bool isDark, OnboardingItem activeItem) {
+    return Stack(
+      children: [
+        // Base color
+        Container(
+          color: isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
+        ),
+        // Animated coloured blob
+        AnimatedPositioned(
+          duration: 1000.ms,
+          curve: Curves.easeInOut,
+          top: -100,
+          right: _currentPage.isEven ? -100 : null,
+          left: _currentPage.isOdd ? -100 : null,
+          child: AnimatedContainer(
+            duration: 1000.ms,
+            width: 400,
+            height: 400,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: activeItem.accentColor.withValues(alpha: 0.15),
+              boxShadow: [
+                BoxShadow(
+                  color: activeItem.accentColor.withValues(alpha: 0.2),
+                  blurRadius: 100,
+                  spreadRadius: 50,
+                ),
+              ],
+            ),
+          )
+              .animate(
+                  onPlay: (controller) => controller.repeat(reverse: true))
+              .scale(
+                  begin: const Offset(1, 1),
+                  end: const Offset(1.1, 1.1),
+                  duration: 4.seconds),
+        ),
+        // Glass overlay for subtle texture
+        BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+          child: Container(color: Colors.transparent),
+        ),
+      ],
     );
   }
 
   Widget _buildHeader(BuildContext context, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Logo
-          Image.asset(
-            isDark ? 'assets/images/dark.png' : 'assets/images/light.png',
-            height: 28,
-            fit: BoxFit.contain,
-          ),
-
-          // Skip button
-          TextButton(
-            onPressed: () => context.go('/home'),
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: Text(
-              "Skip",
-              style: AppTheme.bodySmall(isDark).copyWith(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            // Skip button
+            if (_currentPage < _items.length - 1)
+              TextButton(
+                onPressed: _completeOnboarding,
+                style: TextButton.styleFrom(
+                  foregroundColor:
+                      isDark ? Colors.white70 : Colors.black54,
+                ),
+                child: Text(
+                  "SKIP",
+                  style: AppTheme.caption(isDark).copyWith(fontSize: 12),
+                ),
+              ).animate().fadeIn(),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildPage(OnboardingItem item, bool isDark, int index) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        key: ValueKey(index), // Force animation replay on page change
-        children: [
-          const Spacer(flex: 2),
+  Widget _buildPageContent(OnboardingItem item, bool isDark, int index) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Spacer(),
+        // Lottie / Image Area
+        SizedBox(
+          height: 320,
+          width: 320,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // Glow behind
+              Container(
+                width: 200,
+                height: 200,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: item.accentColor.withValues(alpha: 0.1),
+                  boxShadow: [
+                    BoxShadow(
+                      color: item.accentColor.withValues(alpha: 0.2),
+                      blurRadius: 60,
+                      spreadRadius: 20,
+                    ),
+                  ],
+                ),
+              ),
+              item.lottiePath != null
+                  ? Lottie.asset(
+                      item.lottiePath!,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return _buildIconPlaceholder(item, isDark);
+                      },
+                    )
+                  : _buildIconPlaceholder(item, isDark),
+            ],
+          ),
+        )
+            .animate(target: _currentPage == index ? 1 : 0)
+            .fade(duration: 600.ms)
+            .scale(begin: const Offset(0.8, 0.8), curve: Curves.easeOutBack)
+            .then()
+            .animate(onPlay: (c) => c.repeat(reverse: true))
+            .moveY(begin: 0, end: -10, duration: 2.seconds, curve: Curves.easeInOut), // Float effect
 
-          // Icon / Lottie
-          SizedBox(
-            height: 280,
-            width: 280,
-            child: item.lottiePath != null
-                ? Lottie.asset(
-                    item.lottiePath!,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return _buildIconPlaceholder(item, isDark);
-                    },
-                  )
-                : _buildIconPlaceholder(item, isDark),
-          )
-              .animate()
-              .fade(duration: 600.ms)
-              .scale(delay: 200.ms, begin: const Offset(0.8, 0.8)),
+        const Spacer(flex: 2),
+      ],
+    );
+  }
 
-          const SizedBox(height: 48),
+  Widget _buildBottomControls(
+      BuildContext context, bool isDark, OnboardingItem item) {
+    final isLastPage = _currentPage == _items.length - 1;
 
-          // Title
-          Text(
-            item.title,
-            style: AppTheme.h1(isDark).copyWith(
-              fontSize: 32,
-              letterSpacing: -1.0,
-              height: 1.1,
-            ),
-            textAlign: TextAlign.center,
-          )
-              .animate()
-              .fade(duration: 600.ms, delay: 300.ms)
-              .slideY(begin: 0.2, end: 0),
-
-          const SizedBox(height: 16),
-
-          // Description
-          Text(
-            item.description,
-            style: AppTheme.body(isDark).copyWith(
-              fontSize: 16,
-              height: 1.5,
-              color: isDark
-                  ? Colors.white.withOpacity(0.7)
-                  : Colors.black.withOpacity(0.7),
-            ),
-            textAlign: TextAlign.center,
-          )
-              .animate()
-              .fade(duration: 600.ms, delay: 500.ms)
-              .slideY(begin: 0.2, end: 0),
-
-          const Spacer(flex: 3),
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: isDark ? AppTheme.darkCard : Colors.white,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(32),
+          topRight: Radius.circular(32),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
+          ),
         ],
+      ),
+      padding: const EdgeInsets.fromLTRB(32, 40, 32, 40),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Title
+            AnimatedSwitcher(
+              duration: 400.ms,
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                          begin: const Offset(0, 0.2), end: Offset.zero)
+                      .animate(animation),
+                  child: child,
+                ),
+              ),
+              child: Text(
+                item.title,
+                key: ValueKey('title_${_items.indexOf(item)}'),
+                style: AppTheme.h1(isDark).copyWith(fontSize: 32),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Description
+            AnimatedSwitcher(
+              duration: 400.ms,
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: child,
+              ),
+              child: Text(
+                item.description,
+                key: ValueKey('desc_${_items.indexOf(item)}'),
+                style: AppTheme.body(isDark).copyWith(
+                    color: isDark ? Colors.white70 : Colors.black54),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 48),
+
+            // Indicator & Button Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Indicators
+                Row(
+                  children: List.generate(
+                    _items.length,
+                    (index) => AnimatedContainer(
+                      duration: 300.ms,
+                      margin: const EdgeInsets.only(right: 6),
+                      height: 6,
+                      width: _currentPage == index ? 24 : 6,
+                      decoration: BoxDecoration(
+                        color: _currentPage == index
+                            ? item.accentColor
+                            : (isDark ? Colors.white24 : Colors.black12),
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    ),
+                  ),
+                ),
+
+                // FAB / Button
+                GestureDetector(
+                  onTap: _nextPage,
+                  child: AnimatedContainer(
+                    duration: 300.ms,
+                    height: 64,
+                    width: isLastPage ? 160 : 64,
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white : Colors.black,
+                      borderRadius: BorderRadius.circular(32),
+                      boxShadow: [
+                        BoxShadow(
+                          color: (isDark ? Colors.white : Colors.black)
+                              .withValues(alpha: 0.2),
+                          blurRadius: 16,
+                          offset: const Offset(0, 8),
+                        )
+                      ],
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Arrow Icon
+                        AnimatedOpacity(
+                          duration: 200.ms,
+                          opacity: isLastPage ? 0 : 1,
+                          child: Icon(
+                            LucideIcons.arrowRight,
+                            color: isDark ? Colors.black : Colors.white,
+                          ),
+                        ),
+                        // Get Started Text
+                        AnimatedOpacity(
+                          duration: 200.ms,
+                          opacity: isLastPage ? 1 : 0,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Get Started",
+                                style: TextStyle(
+                                  color: isDark ? Colors.black : Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -229,115 +384,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       height: 200,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.accentPrimary.withOpacity(0.1),
-            AppTheme.accentSecondary.withOpacity(0.05),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: item.accentColor.withValues(alpha: 0.1),
         border: Border.all(
-          color: isDark
-              ? Colors.white.withOpacity(0.1)
-              : Colors.black.withOpacity(0.05),
-          width: 1,
+          color: item.accentColor.withValues(alpha: 0.3),
+          width: 2,
         ),
       ),
       child: Center(
         child: Icon(
           item.icon,
           size: 64,
-          color: isDark ? Colors.white : Colors.black,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFooter(BuildContext context, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        children: [
-          // Progress indicators
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              _items.length,
-              (index) => _buildProgressIndicator(index, isDark),
-            ),
-          ),
-
-          const SizedBox(height: 32),
-
-          // CTA Button
-          _buildCTAButton(context, isDark),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProgressIndicator(int index, bool isDark) {
-    final isActive = _currentPage == index;
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-      width: isActive ? 24 : 6,
-      height: 6,
-      margin: const EdgeInsets.symmetric(horizontal: 3),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(3),
-        color: isActive
-            ? (isDark ? Colors.white : Colors.black)
-            : (isDark ? Colors.white : Colors.black).withOpacity(0.2),
-      ),
-    );
-  }
-
-  Widget _buildCTAButton(BuildContext context, bool isDark) {
-    final isLastPage = _currentPage == _items.length - 1;
-
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: ElevatedButton(
-        onPressed: () async {
-          if (isLastPage) {
-            await PreferencesService().setOnboardingComplete();
-            if (context.mounted) context.go('/login');
-          } else {
-            _pageController.nextPage(
-              duration: const Duration(milliseconds: 400),
-              curve: Curves.easeInOutCubic,
-            );
-          }
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: isDark ? Colors.white : Colors.black,
-          foregroundColor: isDark ? Colors.black : Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              isLastPage ? "Get Started" : "Continue",
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.3,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Icon(
-              isLastPage ? Icons.arrow_forward : Icons.chevron_right,
-              size: 18,
-            ),
-          ],
+          color: item.accentColor,
         ),
       ),
     );
@@ -349,11 +406,13 @@ class OnboardingItem {
   final String description;
   final IconData icon;
   final String? lottiePath;
+  final Color accentColor;
 
   OnboardingItem({
     required this.title,
     required this.description,
     required this.icon,
+    required this.accentColor,
     this.lottiePath,
   });
 }
