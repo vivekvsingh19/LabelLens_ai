@@ -210,17 +210,14 @@ class ProfileScreen extends ConsumerWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
-          border: Border.all(
-              color: AppTheme.avoidColor.withValues(alpha: 0.2)),
-          borderRadius:
-              BorderRadius.circular(AppTheme.borderRadiusMedium),
+          border: Border.all(color: AppTheme.avoidColor.withValues(alpha: 0.2)),
+          borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
         ),
         child: Center(
           child: Text(
             "SIGN OUT",
             style: AppTheme.caption(isDark).copyWith(
-                color: AppTheme.avoidColor,
-                fontWeight: FontWeight.w900),
+                color: AppTheme.avoidColor, fontWeight: FontWeight.w900),
           ),
         ),
       ),
@@ -298,9 +295,9 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildUserHero(bool isDark, dynamic user) {
     // Extract user info from Supabase user
-    final userName = user?.userMetadata?['full_name'] ?? 
-                     user?.email?.split('@').first.toUpperCase() ?? 
-                     'USER';
+    final userName = user?.userMetadata?['full_name'] ??
+        user?.email?.split('@').first.toUpperCase() ??
+        'USER';
     final userProfilePic = user?.userMetadata?['picture'];
     final userEmail = user?.email ?? 'No email';
 

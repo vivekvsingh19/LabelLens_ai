@@ -136,8 +136,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ],
             ),
           )
-              .animate(
-                  onPlay: (controller) => controller.repeat(reverse: true))
+              .animate(onPlay: (controller) => controller.repeat(reverse: true))
               .scale(
                   begin: const Offset(1, 1),
                   end: const Offset(1.1, 1.1),
@@ -164,8 +163,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               TextButton(
                 onPressed: _completeOnboarding,
                 style: TextButton.styleFrom(
-                  foregroundColor:
-                      isDark ? Colors.white70 : Colors.black54,
+                  foregroundColor: isDark ? Colors.white70 : Colors.black54,
                 ),
                 child: Text(
                   "SKIP",
@@ -223,7 +221,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             .scale(begin: const Offset(0.8, 0.8), curve: Curves.easeOutBack)
             .then()
             .animate(onPlay: (c) => c.repeat(reverse: true))
-            .moveY(begin: 0, end: -10, duration: 2.seconds, curve: Curves.easeInOut), // Float effect
+            .moveY(
+                begin: 0,
+                end: -10,
+                duration: 2.seconds,
+                curve: Curves.easeInOut), // Float effect
 
         const Spacer(flex: 2),
       ],
@@ -287,8 +289,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: Text(
                 item.description,
                 key: ValueKey('desc_${_items.indexOf(item)}'),
-                style: AppTheme.body(isDark).copyWith(
-                    color: isDark ? Colors.white70 : Colors.black54),
+                style: AppTheme.body(isDark)
+                    .copyWith(color: isDark ? Colors.white70 : Colors.black54),
                 textAlign: TextAlign.center,
               ),
             ),
