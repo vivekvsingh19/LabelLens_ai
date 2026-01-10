@@ -18,19 +18,29 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   bool _isSignUp = false;
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   Future<void> _handleAuth() async {
+    final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
+
+    if (_isSignUp && name.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your name')),
+      );
+      return;
+    }
 
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -43,8 +53,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       if (_isSignUp) {
-        final response =
-            await SupabaseService().signUp(email: email, password: password);
+        final response = await SupabaseService().signUp(
+          email: email,
+          password: password,
+          data: {'full_name': name},
+        );
         if (response.session != null) {
           if (mounted) {
             await PreferencesService().setLoggedIn(true);
@@ -221,6 +234,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 40),
 
                     // Form
+                    if (_isSignUp) ...[
+                      _buildTextField(
+                        controller: _nameController,
+                        label: 'Full Name',
+                        icon: LucideIcons.user,
+                        isDark: isDark,
+                      ).animate().fade(delay: 450.ms).slideY(begin: 0.2, end: 0),
+                      const SizedBox(height: 16),
+                    ],
+
                     _buildTextField(
                       controller: _emailController,
                       label: 'Email',
