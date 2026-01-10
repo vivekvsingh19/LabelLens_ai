@@ -12,9 +12,9 @@ class CustomSnackBar {
     Duration duration = const Duration(seconds: 3),
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     final config = _getConfig(type, isDark);
-    
+
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -52,9 +52,7 @@ class CustomSnackBar {
             ),
           ],
         ),
-        backgroundColor: isDark 
-            ? const Color(0xFF1E1E1E) 
-            : Colors.white,
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -99,11 +97,11 @@ class CustomSnackBar {
         return _SnackBarConfig(
           icon: LucideIcons.info,
           iconColor: isDark ? Colors.white70 : Colors.black54,
-          iconBgColor: isDark 
-              ? Colors.white.withValues(alpha: 0.1) 
+          iconBgColor: isDark
+              ? Colors.white.withValues(alpha: 0.1)
               : Colors.black.withValues(alpha: 0.08),
-          borderColor: isDark 
-              ? Colors.white.withValues(alpha: 0.1) 
+          borderColor: isDark
+              ? Colors.white.withValues(alpha: 0.1)
               : Colors.black.withValues(alpha: 0.1),
         );
     }
