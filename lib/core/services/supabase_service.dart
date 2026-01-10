@@ -29,6 +29,7 @@ class SupabaseService {
       email: email,
       password: password,
       data: data,
+      emailRedirectTo: 'io.labelsafe.ai://login-callback',
     );
   }
 
