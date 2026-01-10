@@ -22,7 +22,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     OnboardingItem(
       title: "Scan & Decode",
       description:
-          "Instantly analyze food labels. Identify additives, allergens, and nutritional secrets with one scan.",
+          "Instantly analyze food labels to reveal hidden additives and nutritional secrets.",
       icon: LucideIcons.scanLine,
       lottiePath: 'assets/animations/scan.json',
       accentColor: const Color(0xFF42A5F5), // Blue
@@ -30,15 +30,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     OnboardingItem(
       title: "Stay Safe",
       description:
-          "Detect harmful chemicals and hidden dangers. Protect yourself and your family with AI-powered safety ratings.",
+          "Detect harmful chemicals and allergens with AI-powered safety ratings.",
       icon: LucideIcons.shieldCheck,
       lottiePath: 'assets/animations/shield.json',
       accentColor: const Color(0xFF66BB6A), // Green
     ),
     OnboardingItem(
-      title: "Health Insights",
+      title: "Eat Smarter",
       description:
-          "Get personalized recommendations based on your health goals. Eat smarter, live better.",
+          "Get personalized recommendations based on your health goals and lifestyle.",
       icon: LucideIcons.sparkles,
       lottiePath: 'assets/animations/insights.json',
       accentColor: const Color(0xFFFFA726), // Orange
@@ -76,102 +76,97 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final activeItem = _items[_currentPage];
 
+    // Minimal background color transition
     return Scaffold(
       backgroundColor:
           isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
       body: Stack(
         children: [
-          // Dynamic Background
-          _buildBackground(isDark, activeItem),
+          // 1. Subtle Background Elements
+          _buildMinimalBackground(isDark, activeItem),
 
-          // Main Content
-          Column(
-            children: [
-              _buildHeader(context, isDark),
-              Expanded(
-                child: PageView.builder(
-                  controller: _pageController,
-                  onPageChanged: _onPageChanged,
-                  itemCount: _items.length,
-                  itemBuilder: (context, index) {
-                    return _buildPageContent(_items[index], isDark, index);
-                  },
+          // 2. Main content area
+          SafeArea(
+            child: Column(
+              children: [
+                _buildHeader(context, isDark),
+                Expanded(
+                  child: PageView.builder(
+                    controller: _pageController,
+                    onPageChanged: _onPageChanged,
+                    itemCount: _items.length,
+                    itemBuilder: (context, index) {
+                      return _buildPageContent(_items[index], isDark, index);
+                    },
+                  ),
                 ),
-              ),
-              _buildBottomControls(context, isDark, activeItem),
-            ],
+                _buildBottomControls(context, isDark, activeItem),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBackground(bool isDark, OnboardingItem activeItem) {
-    return Stack(
-      children: [
-        // Base color
-        Container(
-          color: isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
-        ),
-        // Animated coloured blob
-        AnimatedPositioned(
-          duration: 1000.ms,
-          curve: Curves.easeInOut,
-          top: -100,
-          right: _currentPage.isEven ? -100 : null,
-          left: _currentPage.isOdd ? -100 : null,
-          child: AnimatedContainer(
+  Widget _buildMinimalBackground(bool isDark, OnboardingItem activeItem) {
+    return AnimatedContainer(
+      duration: 1000.ms,
+      decoration: BoxDecoration(
+        color: isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
+      ),
+      child: Stack(
+        children: [
+          // Very subtle large glow ball
+          AnimatedPositioned(
             duration: 1000.ms,
-            width: 400,
-            height: 400,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: activeItem.accentColor.withValues(alpha: 0.15),
-              boxShadow: [
-                BoxShadow(
-                  color: activeItem.accentColor.withValues(alpha: 0.2),
-                  blurRadius: 100,
-                  spreadRadius: 50,
-                ),
-              ],
+            curve: Curves.easeInOut,
+            top: -150,
+            right: _currentPage.isEven ? -100 : -200,
+            child: AnimatedContainer(
+              duration: 1000.ms,
+              width: 500,
+              height: 500,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: activeItem.accentColor.withValues(alpha: 0.08),
+                boxShadow: [
+                  BoxShadow(
+                    color: activeItem.accentColor.withValues(alpha: 0.05),
+                    blurRadius: 150,
+                    spreadRadius: 50,
+                  ),
+                ],
+              ),
             ),
-          )
-              .animate(onPlay: (controller) => controller.repeat(reverse: true))
-              .scale(
-                  begin: const Offset(1, 1),
-                  end: const Offset(1.1, 1.1),
-                  duration: 4.seconds),
-        ),
-        // Glass overlay for subtle texture
-        BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-          child: Container(color: Colors.transparent),
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildHeader(BuildContext context, bool isDark) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            // Skip button
-            if (_currentPage < _items.length - 1)
-              TextButton(
-                onPressed: _completeOnboarding,
-                style: TextButton.styleFrom(
-                  foregroundColor: isDark ? Colors.white70 : Colors.black54,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          if (_currentPage < _items.length - 1)
+            TextButton(
+              onPressed: _completeOnboarding,
+              style: TextButton.styleFrom(
+                foregroundColor: isDark ? Colors.white54 : Colors.black45,
+                visualDensity: VisualDensity.compact,
+              ),
+              child: Text(
+                "Skip",
+                style: AppTheme.bodySmall(isDark).copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
                 ),
-                child: Text(
-                  "SKIP",
-                  style: AppTheme.caption(isDark).copyWith(fontSize: 12),
-                ),
-              ).animate().fadeIn(),
-          ],
-        ),
+              ),
+            ).animate().fadeIn(),
+        ],
       ),
     );
   }
@@ -181,53 +176,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Spacer(),
-        // Lottie / Image Area
+        // Animation container
         SizedBox(
-          height: 320,
-          width: 320,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              // Glow behind
-              Container(
-                width: 200,
-                height: 200,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: item.accentColor.withValues(alpha: 0.1),
-                  boxShadow: [
-                    BoxShadow(
-                      color: item.accentColor.withValues(alpha: 0.2),
-                      blurRadius: 60,
-                      spreadRadius: 20,
-                    ),
-                  ],
-                ),
-              ),
-              item.lottiePath != null
-                  ? Lottie.asset(
-                      item.lottiePath!,
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) {
-                        return _buildIconPlaceholder(item, isDark);
-                      },
-                    )
-                  : _buildIconPlaceholder(item, isDark),
-            ],
-          ),
+          height: 300,
+          width: 300,
+          child: item.lottiePath != null
+              ? Lottie.asset(
+                  item.lottiePath!,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return _buildIconPlaceholder(item, isDark);
+                  },
+                )
+              : _buildIconPlaceholder(item, isDark),
         )
             .animate(target: _currentPage == index ? 1 : 0)
             .fade(duration: 600.ms)
-            .scale(begin: const Offset(0.8, 0.8), curve: Curves.easeOutBack)
-            .then()
-            .animate(onPlay: (c) => c.repeat(reverse: true))
-            .moveY(
-                begin: 0,
-                end: -10,
-                duration: 2.seconds,
-                curve: Curves.easeInOut), // Float effect
-
-        const Spacer(flex: 2),
+            .scale(begin: const Offset(0.9, 0.9), curve: Curves.easeOutBack),
+        
+        const Spacer(),
       ],
     );
   }
@@ -236,161 +203,156 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       BuildContext context, bool isDark, OnboardingItem item) {
     final isLastPage = _currentPage == _items.length - 1;
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: isDark ? AppTheme.darkCard : Colors.white,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(32),
-          topRight: Radius.circular(32),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 20,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.fromLTRB(32, 40, 32, 40),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Title
-            AnimatedSwitcher(
-              duration: 400.ms,
-              transitionBuilder: (child, animation) => FadeTransition(
-                opacity: animation,
-                child: SlideTransition(
-                  position: Tween<Offset>(
-                          begin: const Offset(0, 0.2), end: Offset.zero)
-                      .animate(animation),
-                  child: child,
-                ),
-              ),
-              child: Text(
-                item.title,
-                key: ValueKey('title_${_items.indexOf(item)}'),
-                style: AppTheme.h1(isDark).copyWith(fontSize: 32),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Description
-            AnimatedSwitcher(
-              duration: 400.ms,
-              transitionBuilder: (child, animation) => FadeTransition(
-                opacity: animation,
-                child: child,
-              ),
-              child: Text(
-                item.description,
-                key: ValueKey('desc_${_items.indexOf(item)}'),
-                style: AppTheme.body(isDark)
-                    .copyWith(color: isDark ? Colors.white70 : Colors.black54),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 48),
-
-            // Indicator & Button Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(32, 0, 32, 48),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Text Content with crossfade
+          SizedBox(
+            height: 120, // Fixed height to prevent layout jumps
+            child: Column(
               children: [
-                // Indicators
-                Row(
-                  children: List.generate(
-                    _items.length,
-                    (index) => AnimatedContainer(
-                      duration: 300.ms,
-                      margin: const EdgeInsets.only(right: 6),
-                      height: 6,
-                      width: _currentPage == index ? 24 : 6,
-                      decoration: BoxDecoration(
-                        color: _currentPage == index
-                            ? item.accentColor
-                            : (isDark ? Colors.white24 : Colors.black12),
-                        borderRadius: BorderRadius.circular(3),
-                      ),
+                AnimatedSwitcher(
+                  duration: 400.ms,
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                              begin: const Offset(0, 0.2), end: Offset.zero)
+                          .animate(animation),
+                      child: child,
                     ),
                   ),
+                  child: Text(
+                    item.title,
+                    key: ValueKey('title_${_items.indexOf(item)}'),
+                    style: AppTheme.h1(isDark).copyWith(
+                      fontSize: 32, 
+                      fontWeight: FontWeight.w800,
+                      height: 1.1,
+                      letterSpacing: -1,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-
-                // FAB / Button
-                GestureDetector(
-                  onTap: _nextPage,
-                  child: AnimatedContainer(
-                    duration: 300.ms,
-                    height: 64,
-                    width: isLastPage ? 160 : 64,
-                    decoration: BoxDecoration(
-                      color: isDark ? Colors.white : Colors.black,
-                      borderRadius: BorderRadius.circular(32),
-                      boxShadow: [
-                        BoxShadow(
-                          color: (isDark ? Colors.white : Colors.black)
-                              .withValues(alpha: 0.2),
-                          blurRadius: 16,
-                          offset: const Offset(0, 8),
-                        )
-                      ],
+                const SizedBox(height: 16),
+                AnimatedSwitcher(
+                  duration: 400.ms,
+                  transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+                  child: Text(
+                    item.description,
+                    key: ValueKey('desc_${_items.indexOf(item)}'),
+                    style: AppTheme.body(isDark).copyWith(
+                      color: isDark ? Colors.white60 : Colors.black54,
+                      height: 1.5,
+                      fontSize: 15,
                     ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Arrow Icon
-                        AnimatedOpacity(
-                          duration: 200.ms,
-                          opacity: isLastPage ? 0 : 1,
-                          child: Icon(
-                            LucideIcons.arrowRight,
-                            color: isDark ? Colors.black : Colors.white,
-                          ),
-                        ),
-                        // Get Started Text
-                        AnimatedOpacity(
-                          duration: 200.ms,
-                          opacity: isLastPage ? 1 : 0,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Get Started",
-                                style: TextStyle(
-                                  color: isDark ? Colors.black : Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+
+          const SizedBox(height: 40),
+
+          // Footer Row: Indicators left, Button right
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Minimal Indicators
+              Row(
+                children: List.generate(
+                  _items.length,
+                  (index) => AnimatedContainer(
+                    duration: 300.ms,
+                    margin: const EdgeInsets.only(right: 8),
+                    height: 8,
+                    width: _currentPage == index ? 24 : 8,
+                    decoration: BoxDecoration(
+                      color: _currentPage == index
+                          ? item.accentColor
+                          : (isDark ? Colors.white12 : Colors.black12),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Action Button
+              GestureDetector(
+                onTap: _nextPage,
+                child: AnimatedContainer(
+                  duration: 300.ms,
+                  // Button grows significantly on last page
+                  width: isLastPage ? 160 : 64, 
+                  height: 64,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        isLastPage ? item.accentColor : (isDark ? Colors.white : Colors.black),
+                        isLastPage ? item.accentColor.withValues(alpha: 0.8) : (isDark ? Colors.white : Colors.black),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(32),
+                    boxShadow: [
+                      BoxShadow(
+                        color: (isLastPage ? item.accentColor : (isDark ? Colors.white : Colors.black))
+                            .withValues(alpha: 0.3),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      )
+                    ],
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Arrow for non-last pages
+                      AnimatedOpacity(
+                        duration: 200.ms,
+                        opacity: isLastPage ? 0 : 1,
+                        child: Icon(
+                          LucideIcons.arrowRight,
+                          color: isDark ? Colors.black : Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                      // "Get Started" for last page
+                      AnimatedOpacity(
+                        duration: 200.ms,
+                        opacity: isLastPage ? 1 : 0,
+                        child: const Text(
+                          "Get Started",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.visible,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildIconPlaceholder(OnboardingItem item, bool isDark) {
     return Container(
-      width: 200,
-      height: 200,
+      width: 180,
+      height: 180,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: item.accentColor.withValues(alpha: 0.1),
-        border: Border.all(
-          color: item.accentColor.withValues(alpha: 0.3),
-          width: 2,
-        ),
       ),
       child: Center(
         child: Icon(
