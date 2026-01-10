@@ -193,7 +193,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             .animate(target: _currentPage == index ? 1 : 0)
             .fade(duration: 600.ms)
             .scale(begin: const Offset(0.9, 0.9), curve: Curves.easeOutBack),
-        
+
         const Spacer(),
       ],
     );
@@ -228,7 +228,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     item.title,
                     key: ValueKey('title_${_items.indexOf(item)}'),
                     style: AppTheme.h1(isDark).copyWith(
-                      fontSize: 32, 
+                      fontSize: 32,
                       fontWeight: FontWeight.w800,
                       height: 1.1,
                       letterSpacing: -1,
@@ -239,7 +239,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 const SizedBox(height: 16),
                 AnimatedSwitcher(
                   duration: 400.ms,
-                  transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+                  transitionBuilder: (child, animation) =>
+                      FadeTransition(opacity: animation, child: child),
                   child: Text(
                     item.description,
                     key: ValueKey('desc_${_items.indexOf(item)}'),
@@ -286,13 +287,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: AnimatedContainer(
                   duration: 300.ms,
                   // Button grows significantly on last page
-                  width: isLastPage ? 160 : 64, 
+                  width: isLastPage ? 160 : 64,
                   height: 64,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        isLastPage ? item.accentColor : (isDark ? Colors.white : Colors.black),
-                        isLastPage ? item.accentColor.withValues(alpha: 0.8) : (isDark ? Colors.white : Colors.black),
+                        isLastPage
+                            ? item.accentColor
+                            : (isDark ? Colors.white : Colors.black),
+                        isLastPage
+                            ? item.accentColor.withValues(alpha: 0.8)
+                            : (isDark ? Colors.white : Colors.black),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -300,7 +305,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     borderRadius: BorderRadius.circular(32),
                     boxShadow: [
                       BoxShadow(
-                        color: (isLastPage ? item.accentColor : (isDark ? Colors.white : Colors.black))
+                        color: (isLastPage
+                                ? item.accentColor
+                                : (isDark ? Colors.white : Colors.black))
                             .withValues(alpha: 0.3),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
