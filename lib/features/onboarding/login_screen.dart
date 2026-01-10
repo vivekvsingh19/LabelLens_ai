@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:labelsafe_ai/core/theme/app_theme.dart';
+import 'package:labelsafe_ai/core/widgets/custom_snackbar.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:labelsafe_ai/core/services/preferences_service.dart';
@@ -36,15 +37,19 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordController.text.trim();
 
     if (_isSignUp && name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your name')),
+      CustomSnackBar.show(
+        context,
+        message: 'Please enter your name',
+        type: SnackBarType.warning,
       );
       return;
     }
 
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter email and password')),
+      CustomSnackBar.show(
+        context,
+        message: 'Please enter email and password',
+        type: SnackBarType.warning,
       );
       return;
     }
@@ -65,10 +70,10 @@ class _LoginScreenState extends State<LoginScreen> {
           }
         } else {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content: Text(
-                      'Account created! Please check your email to confirm if required.')),
+            CustomSnackBar.show(
+              context,
+              message: 'Account created! Please check your email to confirm.',
+              type: SnackBarType.success,
             );
             setState(() {
               _isSignUp = false;
@@ -84,14 +89,18 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } on AuthException catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message), backgroundColor: Colors.red),
+        CustomSnackBar.show(
+          context,
+          message: e.message,
+          type: SnackBarType.error,
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        CustomSnackBar.show(
+          context,
+          message: 'Error: $e',
+          type: SnackBarType.error,
         );
       }
     } finally {
@@ -138,10 +147,10 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       debugPrint('Google Sign-In error: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Google Sign-In failed: $e'),
-              backgroundColor: Colors.red),
+        CustomSnackBar.show(
+          context,
+          message: 'Google Sign-In failed',
+          type: SnackBarType.error,
         );
       }
     } finally {
