@@ -240,7 +240,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         label: 'Full Name',
                         icon: LucideIcons.user,
                         isDark: isDark,
-                      ).animate().fade(delay: 450.ms).slideY(begin: 0.2, end: 0),
+                      )
+                          .animate()
+                          .fade(delay: 450.ms)
+                          .slideY(begin: 0.2, end: 0),
                       const SizedBox(height: 16),
                     ],
 
