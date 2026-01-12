@@ -285,7 +285,7 @@ See `ARCHITECTURE.md` for visual diagrams.
 ### No data showing in Supabase?
 
 **Check:**
-1. Is user logged in? 
+1. Is user logged in?
    ```dart
    print(ref.watch(currentUserProvider));
    ```

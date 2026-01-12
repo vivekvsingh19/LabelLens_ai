@@ -83,8 +83,7 @@ class SupabaseService {
         'created_at': DateTime.now().toIso8601String(),
       };
 
-      final response =
-          await client.from('scan_history').insert(data).select();
+      final response = await client.from('scan_history').insert(data).select();
       return response[0]['id'].toString();
     } catch (e) {
       print('Error saving scan history: $e');

@@ -1,15 +1,15 @@
 // SUPABASE INTEGRATION EXAMPLES FOR HISTORY SCREEN
-// 
+//
 // This file shows how to enhance the history screen to use Supabase data
-// directly. The current implementation uses AnalysisRepository which 
+// directly. The current implementation uses AnalysisRepository which
 // automatically syncs with Supabase.
 
 // === OPTION 1: Keep Current Implementation (Recommended) ===
 // The current setup automatically syncs with Supabase:
-// 
+//
 // In history_screen.dart:
 // final historyAsync = ref.watch(scanHistoryProvider);
-// 
+//
 // This provider uses AnalysisRepository which:
 // - Fetches from Supabase if user is logged in
 // - Falls back to local storage
@@ -29,7 +29,7 @@ Widget build(BuildContext context, WidgetRef ref) {
   final currentUser = ref.watch(currentUserProvider); // NEW
 
   // Use Supabase provider if logged in, otherwise local provider
-  final historyAsync = currentUser != null 
+  final historyAsync = currentUser != null
     ? ref.watch(supabaseScanHistoryProvider) // NEW
     : ref.watch(scanHistoryProvider);        // EXISTING
 
@@ -48,11 +48,11 @@ Future<void> _deleteScan(BuildContext context, WidgetRef ref, String scanId) asy
     if (currentUser != null) {
       await ref.read(deleteScanProvider(scanId).future);
     }
-    
+
     // Also delete from local storage
     final repo = ref.read(analysisRepositoryProvider);
     // You'd need to add a delete method to AnalysisRepository
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Scan deleted')),
     );
@@ -93,10 +93,10 @@ Future<void> _clearAllHistory(BuildContext context, WidgetRef ref) async {
       if (currentUser != null) {
         await ref.read(clearAllScansProvider.future);
       }
-      
+
       final repo = ref.read(analysisRepositoryProvider);
       await repo.clearHistory();
-      
+
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('All history cleared')),
