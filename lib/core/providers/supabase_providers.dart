@@ -10,8 +10,7 @@ final supabaseServiceProvider = Provider<SupabaseService>((ref) {
 });
 
 /// Streams the current authentication state
-final authStateStreamProvider =
-    StreamProvider<AuthState>((ref) {
+final authStateStreamProvider = StreamProvider<AuthState>((ref) {
   final supabase = ref.watch(supabaseServiceProvider);
   return supabase.authStateChanges;
 });
@@ -48,7 +47,8 @@ final supabaseScanHistoryProvider =
 });
 
 /// Deletes a specific scan from Supabase
-final deleteScanProvider = FutureProvider.family<void, String>((ref, scanId) async {
+final deleteScanProvider =
+    FutureProvider.family<void, String>((ref, scanId) async {
   final supabase = ref.watch(supabaseServiceProvider);
   await supabase.deleteScanHistory(scanId: scanId);
   // Invalidate the cache to refresh
@@ -67,8 +67,7 @@ final clearAllScansProvider = FutureProvider<void>((ref) async {
 });
 
 /// Helper function to convert Supabase data to ProductAnalysis
-ProductAnalysis _convertSupabaseToProductAnalysis(
-    Map<String, dynamic> data) {
+ProductAnalysis _convertSupabaseToProductAnalysis(Map<String, dynamic> data) {
   return ProductAnalysis(
     productName: data['product_name'] ?? '',
     brand: data['brand'] ?? '',
