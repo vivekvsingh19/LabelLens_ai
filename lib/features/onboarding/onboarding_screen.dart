@@ -18,19 +18,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final List<OnboardingItem> _items = [
     OnboardingItem(
       title: "Scan Labels",
-      description: "Instantly scan food labels with your camera to get instant safety analysis.",
+      description:
+          "Instantly scan food labels with your camera to get instant safety analysis.",
       icon: LucideIcons.scanLine,
       color: Colors.blue,
     ),
     OnboardingItem(
       title: "Check Safety",
-      description: "Get AI-powered safety ratings and detect harmful chemicals & allergens.",
+      description:
+          "Get AI-powered safety ratings and detect harmful chemicals & allergens.",
       icon: LucideIcons.shieldAlert,
       color: Colors.orange,
     ),
     OnboardingItem(
       title: "Stay Healthy",
-      description: "Get personalized health recommendations and track your eating habits.",
+      description:
+          "Get personalized health recommendations and track your eating habits.",
       icon: LucideIcons.heart,
       color: Colors.red,
     ),
@@ -150,8 +153,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     child: ElevatedButton(
                       onPressed: _nextPage,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            isDark ? Colors.white : Colors.black,
+                        backgroundColor: isDark ? Colors.white : Colors.black,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -161,8 +163,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             ? "Get Started"
                             : "Next",
                         style: TextStyle(
-                          color:
-                              isDark ? Colors.black : Colors.white,
+                          color: isDark ? Colors.black : Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -229,7 +230,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 }
-
 
 class OnboardingItem {
   final String title;
