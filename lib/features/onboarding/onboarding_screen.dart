@@ -279,7 +279,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   item.description,
                   style: AppTheme.body(isDark).copyWith(
                     fontSize: 16,
-                    color: isDark ? Colors.white70 : Colors.black70,
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.7)
+                        : Colors.black.withValues(alpha: 0.7),
                     height: 1.7,
                     fontWeight: FontWeight.w500,
                   ),
