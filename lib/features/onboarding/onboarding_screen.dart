@@ -77,7 +77,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         children: [
           // Animated background gradient
           _buildAnimatedBackground(isDark, activeItem),
-          
+
           SafeArea(
             child: Column(
               children: [
@@ -116,9 +116,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           end: Alignment.bottomRight,
           colors: [
             item.color.withValues(alpha: 0.08),
-            (isDark
-                ? AppTheme.darkBackground
-                : AppTheme.lightBackground),
+            (isDark ? AppTheme.darkBackground : AppTheme.lightBackground),
           ],
         ),
       ),
@@ -174,7 +172,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 style: AppTheme.bodySmall(isDark).copyWith(
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
-                  color: isDark ? Colors.white70 : Colors.black70,
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.7)
+                      : Colors.black.withValues(alpha: 0.7),
                 ),
               ),
             )
@@ -185,8 +185,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  Widget _buildPageContent(
-      OnboardingItem item, bool isDark, int pageIndex) {
+  Widget _buildPageContent(OnboardingItem item, bool isDark, int pageIndex) {
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
       child: SizedBox(
@@ -344,8 +343,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color:
-                          _items[_currentPage].color.withValues(alpha: 0.3),
+                      color: _items[_currentPage].color.withValues(alpha: 0.3),
                       blurRadius: 20,
                       offset: const Offset(0, 8),
                     ),
