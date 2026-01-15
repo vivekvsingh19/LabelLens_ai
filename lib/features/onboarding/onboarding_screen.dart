@@ -348,11 +348,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   width: _currentPage == index ? 32 : 10,
                   height: 10,
                   decoration: BoxDecoration(
-                    color: _currentPage == index
-                        ? _items[index].color
-                        : (isDark
+                    gradient: _currentPage == index
+                        ? LinearGradient(
+                            colors: [
+                              _items[index].color,
+                              _items[index].accentColor,
+                            ],
+                          )
+                        : null,
+                    color: _currentPage != index
+                        ? (isDark
                             ? Colors.white.withValues(alpha: 0.2)
-                            : Colors.black.withValues(alpha: 0.2)),
+                            : Colors.black.withValues(alpha: 0.2))
+                        : null,
                     borderRadius: BorderRadius.circular(5),
                   ),
                 ),
@@ -369,11 +377,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               onTap: _nextPage,
               child: Container(
                 decoration: BoxDecoration(
-                  color: _items[_currentPage].color,
+                  gradient: LinearGradient(
+                    colors: [
+                      _items[_currentPage].color,
+                      _items[_currentPage].accentColor,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: _items[_currentPage].color.withValues(alpha: 0.3),
+                      color: coralAccent.withValues(alpha: 0.4),
                       blurRadius: 20,
                       offset: const Offset(0, 8),
                     ),
