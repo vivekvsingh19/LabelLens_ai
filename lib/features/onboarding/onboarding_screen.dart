@@ -15,6 +15,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
+  // Define palette colors
+  static const Color coralAccent = Color(0xFFCF7556);
+
   final List<OnboardingItem> _items = [
     OnboardingItem(
       title: "Scan Labels",
@@ -22,13 +25,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           "Instantly scan food labels with your camera to get instant safety analysis.",
       icon: LucideIcons.scanLine,
       color: Colors.blue,
+      accentColor: Colors.blue,
     ),
     OnboardingItem(
       title: "Check Safety",
       description:
           "Get AI-powered safety ratings and detect harmful chemicals & allergens.",
       icon: LucideIcons.shieldAlert,
-      color: Colors.orange,
+      color: coralAccent,
+      accentColor: Colors.orange,
     ),
     OnboardingItem(
       title: "Stay Healthy",
@@ -36,6 +41,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           "Get personalized health recommendations and track your eating habits.",
       icon: LucideIcons.heart,
       color: Colors.red,
+      accentColor: coralAccent,
     ),
   ];
 
@@ -383,11 +389,13 @@ class OnboardingItem {
   final String description;
   final IconData icon;
   final Color color;
+  final Color accentColor;
 
   OnboardingItem({
     required this.title,
     required this.description,
     required this.icon,
     required this.color,
+    required this.accentColor,
   });
 }
