@@ -135,52 +135,73 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Logo
+          // Logo with coral accent
           Container(
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: isDark ? Colors.white12 : Colors.black12,
+              gradient: LinearGradient(
+                colors: [
+                  coralAccent.withValues(alpha: 0.2),
+                  coralAccent.withValues(alpha: 0.05),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: coralAccent.withValues(alpha: 0.3),
+                width: 1.5,
+              ),
             ),
             child: Center(
               child: Icon(
                 LucideIcons.shield,
                 size: 24,
-                color: isDark ? Colors.white : Colors.black,
+                color: coralAccent,
               ),
             ),
           ),
 
-          // Progress indicator
+          // Progress indicator with coral accent
           if (_currentPage < _items.length - 1)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: isDark ? Colors.white12 : Colors.black12,
+                color: coralAccent.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: coralAccent.withValues(alpha: 0.4),
+                  width: 1,
+                ),
               ),
               child: Text(
                 "${_currentPage + 1}/${_items.length}",
                 style: AppTheme.bodySmall(isDark).copyWith(
                   fontWeight: FontWeight.w600,
                   fontSize: 12,
+                  color: coralAccent,
                 ),
               ),
             ),
 
-          // Skip button
+          // Skip button with coral
           if (_currentPage < _items.length - 1)
-            TextButton(
-              onPressed: _completeOnboarding,
-              child: Text(
-                "Skip",
-                style: AppTheme.bodySmall(isDark).copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.7)
-                      : Colors.black.withValues(alpha: 0.7),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: _completeOnboarding,
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Text(
+                    "Skip",
+                    style: AppTheme.bodySmall(isDark).copyWith(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: coralAccent,
+                    ),
+                  ),
                 ),
               ),
             )
