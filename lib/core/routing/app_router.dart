@@ -8,6 +8,8 @@ import 'package:labelsafe_ai/features/scan/camera_screen.dart';
 import 'package:labelsafe_ai/features/result/result_screen.dart';
 import 'package:labelsafe_ai/features/history/history_screen.dart';
 import 'package:labelsafe_ai/features/profile/profile_screen.dart';
+import 'package:labelsafe_ai/features/subscription/paywall_screen.dart';
+import 'package:labelsafe_ai/features/subscription/subscription_screen.dart';
 import 'package:labelsafe_ai/core/models/analysis_result.dart';
 import 'package:labelsafe_ai/core/widgets/scaffold_with_navbar.dart';
 
@@ -31,6 +33,29 @@ class AppRouter {
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/paywall',
+        pageBuilder: (context, state) {
+          final source = state.extra as String?;
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: PaywallScreen(source: source),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return SlideTransition(
+                position: animation.drive(
+                    Tween(begin: const Offset(0, 1), end: Offset.zero)
+                        .chain(CurveTween(curve: Curves.easeOutCubic))),
+                child: child,
+              );
+            },
+          );
+        },
+      ),
+      GoRoute(
+        path: '/subscription',
+        builder: (context, state) => const SubscriptionScreen(),
       ),
       ShellRoute(
         navigatorKey: _shellNavigatorKey,

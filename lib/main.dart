@@ -6,6 +6,7 @@ import 'package:upgrader/upgrader.dart';
 import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/providers/ui_providers.dart';
+import 'core/services/revenuecat_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +22,13 @@ void main() async {
     );
   } catch (e) {
     debugPrint('Supabase init failed: $e');
+  }
+
+  // Initialize RevenueCat
+  try {
+    await RevenueCatService().initialize();
+  } catch (e) {
+    debugPrint('RevenueCat init failed: $e');
   }
 
   runApp(const ProviderScope(child: LabelSafeAIApp()));

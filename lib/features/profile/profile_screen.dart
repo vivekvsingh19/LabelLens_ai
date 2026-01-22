@@ -4,6 +4,7 @@ import 'package:labelsafe_ai/core/theme/app_theme.dart';
 import 'package:labelsafe_ai/core/providers/ui_providers.dart';
 import 'package:labelsafe_ai/core/services/preferences_service.dart';
 import 'package:labelsafe_ai/core/services/supabase_service.dart';
+import 'package:labelsafe_ai/core/providers/subscription_providers.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
@@ -40,11 +41,27 @@ class ProfileScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
-                _buildUserHero(isDark, user),
+                _buildUserHero(context, ref, isDark, user),
                 const SizedBox(height: 32),
                 _buildThemeSelector(context, ref, isDark, currentTheme),
                 const SizedBox(height: 32),
                 _buildSettingsGroup(
+                  context,
+                  isDark,
+                  "SUBSCRIPTION",
+                  [
+                    _SettingAction(
+                      LucideIcons.crown,
+                      "Manage Subscription",
+                      null,
+                      color: const Color(0xFFFFD700),
+                      onTap: () => context.push('/subscription'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                _buildSettingsGroup(
+                  context,
                   isDark,
                   "ACCOUNT",
                   [
@@ -57,6 +74,7 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
                 _buildSettingsGroup(
+                  context,
                   isDark,
                   "PREFERENCES",
                   [
@@ -293,13 +311,14 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildUserHero(bool isDark, dynamic user) {
+  Widget _buildUserHero(BuildContext context, WidgetRef ref, bool isDark, dynamic user) {
     // Extract user info from Supabase user
     final userName = user?.userMetadata?['full_name'] ??
         user?.email?.split('@').first.toUpperCase() ??
         'USER';
     final userProfilePic = user?.userMetadata?['picture'];
     final userEmail = user?.email ?? 'No email';
+    final subscriptionStatus = ref.watch(subscriptionStatusProvider);
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -371,19 +390,84 @@ class ProfileScreen extends ConsumerWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
                 const SizedBox(height: 8),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF42A5F5)
-                        .withValues(alpha: 0.1), // Blue tint
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text("LOGGED IN",
-                      style: AppTheme.caption(isDark).copyWith(
-                          fontSize: 8,
-                          fontWeight: FontWeight.w900,
-                          color: const Color(0xFF42A5F5))), // Blue
+                Row(
+                  children: [
+                    Container(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF42A5F5)
+                            .withValues(alpha: 0.1), // Blue tint
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text("LOGGED IN",
+                          style: AppTheme.caption(isDark).copyWith(
+                              fontSize: 8,
+                              fontWeight: FontWeight.w900,
+                              color: const Color(0xFF42A5F5))), // Blue
+                    ),
+                    const SizedBox(width: 8),
+                    subscriptionStatus.when(
+                      data: (status) => GestureDetector(
+                        onTap: () => status.isActive
+                            ? context.push('/subscription')
+                            : context.push('/paywall'),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            gradient: status.isActive
+                                ? const LinearGradient(
+                                    colors: [
+                                      Color(0xFFFFD700),
+                                      Color(0xFFFFA500)
+                                    ],
+                                  )
+                                : null,
+                            color: status.isActive
+                                ? null
+                                : (isDark
+                                    ? Colors.white.withValues(alpha: 0.1)
+                                    : Colors.black.withValues(alpha: 0.05)),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                status.isActive
+                                    ? LucideIcons.crown
+                                    : LucideIcons.sparkles,
+                                size: 10,
+                                color: status.isActive
+                                    ? Colors.white
+                                    : (isDark
+                                        ? AppTheme.darkTextMuted
+                                        : AppTheme.lightTextMuted),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                status.isActive
+                                    ? status.tierName.toUpperCase()
+                                    : "UPGRADE",
+                                style: AppTheme.caption(isDark).copyWith(
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.w900,
+                                  color: status.isActive
+                                      ? Colors.white
+                                      : (isDark
+                                          ? AppTheme.darkTextMuted
+                                          : AppTheme.lightTextMuted),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      loading: () => const SizedBox(),
+                      error: (_, __) => const SizedBox(),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -394,7 +478,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildSettingsGroup(
-      bool isDark, String title, List<_SettingAction> actions) {
+      BuildContext context, bool isDark, String title, List<_SettingAction> actions) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -432,7 +516,7 @@ class ProfileScreen extends ConsumerWidget {
         (isDark ? Colors.white : Colors.black).withValues(alpha: 0.7);
 
     return InkWell(
-      onTap: () {},
+      onTap: action.onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         child: Row(
@@ -474,5 +558,6 @@ class _SettingAction {
   final String label;
   final String? value;
   final Color? color;
-  _SettingAction(this.icon, this.label, this.value, {this.color});
+  final VoidCallback? onTap;
+  _SettingAction(this.icon, this.label, this.value, {this.color, this.onTap});
 }
