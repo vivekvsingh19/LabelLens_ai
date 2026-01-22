@@ -29,7 +29,8 @@ class RevenueCatService {
 
     try {
       // Get API key from environment or use the provided one
-      final apiKey = dotenv.env['REVENUECAT_API_KEY'] ?? 'test_mrkbeeTHSnKjVhwRxKRYweRfTIG';
+      final apiKey = dotenv.env['REVENUECAT_API_KEY'] ??
+          'test_mrkbeeTHSnKjVhwRxKRYweRfTIG';
 
       // Configure based on platform
       late PurchasesConfiguration configuration;
@@ -140,8 +141,8 @@ class RevenueCatService {
       final lifetimePackage = currentOffering.lifetime;
 
       if (yearlyPackage != null) {
-        packages.add(
-            SubscriptionPackage.fromRCPackage(yearlyPackage, isBestValue: true));
+        packages.add(SubscriptionPackage.fromRCPackage(yearlyPackage,
+            isBestValue: true));
       }
 
       if (monthlyPackage != null) {
@@ -154,7 +155,8 @@ class RevenueCatService {
 
       // Also check for custom packages
       for (final package in currentOffering.availablePackages) {
-        final isAlreadyAdded = packages.any((p) => p.identifier == package.identifier);
+        final isAlreadyAdded =
+            packages.any((p) => p.identifier == package.identifier);
         if (!isAlreadyAdded) {
           packages.add(SubscriptionPackage.fromRCPackage(package));
         }
@@ -171,7 +173,8 @@ class RevenueCatService {
   Future<PurchaseResult> purchasePackage(Package package) async {
     try {
       final customerInfo = await Purchases.purchasePackage(package);
-      final hasPremium = customerInfo.entitlements.active.containsKey(entitlementId);
+      final hasPremium =
+          customerInfo.entitlements.active.containsKey(entitlementId);
 
       return PurchaseResult(
         success: hasPremium,
@@ -217,7 +220,8 @@ class RevenueCatService {
   Future<RestoreResult> restorePurchases() async {
     try {
       final customerInfo = await Purchases.restorePurchases();
-      final hasPremium = customerInfo.entitlements.active.containsKey(entitlementId);
+      final hasPremium =
+          customerInfo.entitlements.active.containsKey(entitlementId);
 
       return RestoreResult(
         success: true,
@@ -278,11 +282,11 @@ class RevenueCatService {
   Stream<CustomerInfo> get customerInfoStream {
     // Create a stream controller to handle customer info updates
     final controller = StreamController<CustomerInfo>.broadcast();
-    
+
     Purchases.addCustomerInfoUpdateListener((customerInfo) {
       controller.add(customerInfo);
     });
-    
+
     return controller.stream;
   }
 
@@ -345,7 +349,8 @@ class PurchaseResult {
     this.errorCode,
   });
 
-  bool get wasCancelled => errorCode == PurchasesErrorCode.purchaseCancelledError;
+  bool get wasCancelled =>
+      errorCode == PurchasesErrorCode.purchaseCancelledError;
 }
 
 /// Result of a restore attempt

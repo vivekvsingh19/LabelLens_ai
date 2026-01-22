@@ -101,9 +101,8 @@ class SubscriptionScreen extends ConsumerWidget {
                 end: Alignment.bottomRight,
               )
             : null,
-        color: isActive
-            ? null
-            : (isDark ? AppTheme.darkCard : AppTheme.lightCard),
+        color:
+            isActive ? null : (isDark ? AppTheme.darkCard : AppTheme.lightCard),
         borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
         boxShadow: isActive
             ? [
@@ -181,8 +180,9 @@ class SubscriptionScreen extends ConsumerWidget {
                   Icon(
                     LucideIcons.info,
                     size: 16,
-                    color:
-                        isDark ? AppTheme.darkTextMuted : AppTheme.lightTextMuted,
+                    color: isDark
+                        ? AppTheme.darkTextMuted
+                        : AppTheme.lightTextMuted,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -250,11 +250,15 @@ class SubscriptionScreen extends ConsumerWidget {
             'Auto-renew',
             status.willRenew ? 'Enabled' : 'Disabled',
             LucideIcons.refreshCw,
-            valueColor: status.willRenew ? AppTheme.safeColor : AppTheme.avoidColor,
+            valueColor:
+                status.willRenew ? AppTheme.safeColor : AppTheme.avoidColor,
           ),
         ],
       ),
-    ).animate().fadeIn(duration: 400.ms, delay: 100.ms).slideY(begin: 0.1, end: 0);
+    )
+        .animate()
+        .fadeIn(duration: 400.ms, delay: 100.ms)
+        .slideY(begin: 0.1, end: 0);
   }
 
   Widget _buildDetailRow(
@@ -287,7 +291,8 @@ class SubscriptionScreen extends ConsumerWidget {
             child: Text(
               label,
               style: AppTheme.body(isDark).copyWith(
-                color: isDark ? AppTheme.darkTextMuted : AppTheme.lightTextMuted,
+                color:
+                    isDark ? AppTheme.darkTextMuted : AppTheme.lightTextMuted,
               ),
             ),
           ),
@@ -397,7 +402,10 @@ class SubscriptionScreen extends ConsumerWidget {
               )),
         ],
       ),
-    ).animate().fadeIn(duration: 400.ms, delay: 200.ms).slideY(begin: 0.1, end: 0);
+    )
+        .animate()
+        .fadeIn(duration: 400.ms, delay: 200.ms)
+        .slideY(begin: 0.1, end: 0);
   }
 
   Widget _buildFeatureComparisonRow(
@@ -433,8 +441,7 @@ class SubscriptionScreen extends ConsumerWidget {
                       : (isDark
                           ? AppTheme.darkTextMuted
                           : AppTheme.lightTextMuted),
-                  fontWeight:
-                      feature.freeValue == '✓' ? FontWeight.bold : null,
+                  fontWeight: feature.freeValue == '✓' ? FontWeight.bold : null,
                 ),
               ),
             ),
@@ -582,7 +589,8 @@ class SubscriptionScreen extends ConsumerWidget {
             Text(
               error,
               style: AppTheme.body(isDark).copyWith(
-                color: isDark ? AppTheme.darkTextMuted : AppTheme.lightTextMuted,
+                color:
+                    isDark ? AppTheme.darkTextMuted : AppTheme.lightTextMuted,
               ),
               textAlign: TextAlign.center,
             ),

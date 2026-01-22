@@ -311,7 +311,8 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildUserHero(BuildContext context, WidgetRef ref, bool isDark, dynamic user) {
+  Widget _buildUserHero(
+      BuildContext context, WidgetRef ref, bool isDark, dynamic user) {
     // Extract user info from Supabase user
     final userName = user?.userMetadata?['full_name'] ??
         user?.email?.split('@').first.toUpperCase() ??
@@ -393,8 +394,8 @@ class ProfileScreen extends ConsumerWidget {
                 Row(
                   children: [
                     Container(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: const Color(0xFF42A5F5)
                             .withValues(alpha: 0.1), // Blue tint
@@ -477,8 +478,8 @@ class ProfileScreen extends ConsumerWidget {
     ).animate().fadeIn().slideX(begin: -0.05, end: 0);
   }
 
-  Widget _buildSettingsGroup(
-      BuildContext context, bool isDark, String title, List<_SettingAction> actions) {
+  Widget _buildSettingsGroup(BuildContext context, bool isDark, String title,
+      List<_SettingAction> actions) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

@@ -31,7 +31,8 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     final purchaseState = ref.watch(purchaseStateProvider);
 
     return Scaffold(
-      backgroundColor: isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
+      backgroundColor:
+          isDark ? AppTheme.darkBackground : AppTheme.lightBackground,
       body: SafeArea(
         child: Stack(
           children: [
@@ -252,8 +253,9 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                 Text(
                   feature.description,
                   style: AppTheme.caption(isDark).copyWith(
-                    color:
-                        isDark ? AppTheme.darkTextMuted : AppTheme.lightTextMuted,
+                    color: isDark
+                        ? AppTheme.darkTextMuted
+                        : AppTheme.lightTextMuted,
                   ),
                 ),
               ],
@@ -335,7 +337,8 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                           : Colors.black.withValues(alpha: 0.3),
                   width: 2,
                 ),
-                color: isSelected ? const Color(0xFFFFD700) : Colors.transparent,
+                color:
+                    isSelected ? const Color(0xFFFFD700) : Colors.transparent,
               ),
               child: isSelected
                   ? const Icon(LucideIcons.check, size: 14, color: Colors.white)
@@ -586,7 +589,10 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                     ),
             ),
           ),
-        ).animate().fadeIn(duration: 300.ms).scale(begin: const Offset(0.95, 0.95));
+        )
+            .animate()
+            .fadeIn(duration: 300.ms)
+            .scale(begin: const Offset(0.95, 0.95));
       },
       loading: () => const SizedBox(),
       error: (_, __) => const SizedBox(),

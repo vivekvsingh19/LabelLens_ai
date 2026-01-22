@@ -100,7 +100,8 @@ class PremiumGate extends ConsumerWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(LucideIcons.crown, size: 16, color: Colors.white),
+                    const Icon(LucideIcons.crown,
+                        size: 16, color: Colors.white),
                     const SizedBox(width: 8),
                     Text(
                       'Upgrade',
@@ -281,8 +282,9 @@ class UpgradeBanner extends ConsumerWidget {
                   child: Icon(
                     LucideIcons.x,
                     size: 16,
-                    color:
-                        isDark ? AppTheme.darkTextMuted : AppTheme.lightTextMuted,
+                    color: isDark
+                        ? AppTheme.darkTextMuted
+                        : AppTheme.lightTextMuted,
                   ),
                 ),
               ],

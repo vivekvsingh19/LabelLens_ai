@@ -18,9 +18,8 @@ final customerInfoStreamProvider = StreamProvider<CustomerInfo>((ref) {
 });
 
 /// Provider for current subscription status
-final subscriptionStatusProvider =
-    StateNotifierProvider<SubscriptionStatusNotifier, AsyncValue<SubscriptionStatus>>(
-        (ref) {
+final subscriptionStatusProvider = StateNotifierProvider<
+    SubscriptionStatusNotifier, AsyncValue<SubscriptionStatus>>((ref) {
   return SubscriptionStatusNotifier(ref);
 });
 
@@ -29,8 +28,7 @@ class SubscriptionStatusNotifier
   final Ref _ref;
   StreamSubscription<CustomerInfo>? _subscription;
 
-  SubscriptionStatusNotifier(this._ref)
-      : super(const AsyncValue.loading()) {
+  SubscriptionStatusNotifier(this._ref) : super(const AsyncValue.loading()) {
     _init();
   }
 
@@ -44,7 +42,8 @@ class SubscriptionStatusNotifier
       _subscription = service.customerInfoStream.listen((customerInfo) {
         final entitlement =
             customerInfo.entitlements.active[RevenueCatService.entitlementId];
-        state = AsyncValue.data(SubscriptionStatus.fromEntitlement(entitlement));
+        state =
+            AsyncValue.data(SubscriptionStatus.fromEntitlement(entitlement));
       });
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -178,7 +177,8 @@ class PurchaseStateNotifier extends StateNotifier<PurchaseState> {
 
       if (result.success) {
         state = PurchaseState(
-          status: result.hasPremium ? PurchaseStatus.success : PurchaseStatus.idle,
+          status:
+              result.hasPremium ? PurchaseStatus.success : PurchaseStatus.idle,
           message: result.message,
         );
         // Refresh subscription status
@@ -232,8 +232,7 @@ final revenueCatUserSyncProvider = FutureProvider<void>((ref) async {
 });
 
 /// Provider for checking feature access
-final featureAccessProvider =
-    Provider.family<bool, String>((ref, featureId) {
+final featureAccessProvider = Provider.family<bool, String>((ref, featureId) {
   final statusAsync = ref.watch(subscriptionStatusProvider);
 
   return statusAsync.when(
