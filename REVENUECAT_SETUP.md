@@ -79,14 +79,14 @@ The RevenueCat SDK has been integrated into your Flutter app. Here's what's read
    - Go to [Google Play Console](https://play.google.com/console/)
    - Select your app → **Monetize** → **Products** → **Subscriptions**
    - Click **Create subscription**
-   
+
    **First Subscription - Monthly**:
    - **Product ID**: `labelsafe_monthly`
    - **Name**: `LabelSafe AI Pro - Monthly`
    - **Description**: Unlimited product scans and advanced analysis
    - **Billing period**: Monthly (1 month)
    - **Create**
-   
+
    **Second Subscription - Yearly**:
    - **Product ID**: `labelsafe_yearly`
    - **Name**: `LabelSafe AI Pro - Yearly`
@@ -103,17 +103,17 @@ The RevenueCat SDK has been integrated into your Flutter app. Here's what's read
    - **Create**
 
 3. **Set Prices for Each Product**:
-   
+
    **For `labelsafe_monthly`**:
    - Click on it → **Pricing**
    - Set **Default price**: $2.99
    - Click **India** → Uncheck "Auto-convert prices" → Set ₹79
-   
+
    **For `labelsafe_yearly`**:
    - Click on it → **Pricing**
    - Set **Default price**: $19.99
    - Click **India** → Uncheck "Auto-convert prices" → Set ₹449
-   
+
    **For `labelsafe_lifetime`**:
    - Click on it → **Pricing**
    - Set **Default price**: $39.99
